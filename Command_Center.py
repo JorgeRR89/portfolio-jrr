@@ -317,4 +317,3 @@ for i, (name, desc) in enumerate(industries):
             """,
             unsafe_allow_html=True,
         )
-Add Command Center app
