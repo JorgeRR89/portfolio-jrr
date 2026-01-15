@@ -10,7 +10,7 @@ st.set_page_config(
 )
 
 ASSETS = Path(__file__).parent / "assets"
-VIDEO_PATH = ASSETS / "hero_bg.mp4"   # <-- aquí va tu video final
+VIDEO_PATH = ASSETS / "mundo-red-datos.mp4"   # <-- aquí va tu video final
 BG_IMG_PATH = ASSETS / "nodes_bg.png" # <-- opcional: imagen estática de nodos
 LOGO_PATH = ASSETS / "logo.png"       # <-- opcional: logo mini
 
