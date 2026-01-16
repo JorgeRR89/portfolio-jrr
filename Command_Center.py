@@ -40,23 +40,35 @@ st.markdown(
     """
 <style>
 html, body {height: 100%;}
-/* Quitar chrome y paddings */
+
+/* Quitar chrome */
 header[data-testid="stHeader"] {display:none;}
 footer {visibility:hidden;}
-/*section[data-testid="stSidebar"] {display:none;}*/
+
+/* NO ocultar sidebar */
+/* section[data-testid="stSidebar"] {display:none;} */
+
+/* Quitar paddings default */
 .block-container { padding: 0 !important; max-width: 100% !important; }
 section.main > div { padding: 0 !important; }
 
-/* MUY IMPORTANTE: hacer que el iframe de components.html tenga alto de viewport */
+/* 👉 Dejar espacio real para la flecha/sidebar */
+section.main {
+  padding-left: 64px !important;
+}
+
+/* 👉 Hacer que el iframe respete ese espacio */
 iframe {
-  width: 100% !important;
+  width: calc(100vw - 64px) !important;
   height: 100vh !important;
   border: 0 !important;
+  display: block !important;
 }
 </style>
 """,
     unsafe_allow_html=True,
 )
+
 
 # =========================
 # CSS dentro del iframe
