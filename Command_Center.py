@@ -17,14 +17,12 @@ VIDEO_PATH = ASSETS / "coding1.mp4"
 LOGO_PATH = ASSETS / "logo.png"
 
 
-
-
 def b64_file(path: Path) -> str:
     return base64.b64encode(path.read_bytes()).decode("utf-8")
 
+
 video_b64 = b64_file(VIDEO_PATH) if VIDEO_PATH.exists() else ""
 logo_b64 = b64_file(LOGO_PATH) if LOGO_PATH.exists() else ""
-
 
 # limpia chrome
 st.markdown(
@@ -54,7 +52,6 @@ about_url = "?" + urlencode({"page": "about"})
 projects_url = "?" + urlencode({"page": "projects"})
 contact_url = "?" + urlencode({"page": "contact"})
 
-top_px = 25
 logo_html = f"<img class='nav-logo' src='data:image/png;base64,{logo_b64}'/>" if logo_b64 else ""
 
 app_html = f"""
@@ -63,13 +60,21 @@ app_html = f"""
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap');
+
+  :root {{
+    --code-font: "JetBrains Mono", "Fira Code", "Source Code Pro", monospace;
+  }}
+
   html, body {{
     margin: 0;
     padding: 0;
     height: 100%;
     overflow: hidden;
     background: #000;
+    font-family: var(--code-font);
   }}
 
   /* VIDEO + overlay */
@@ -82,6 +87,7 @@ app_html = f"""
     background: #000;
     z-index: 1;
   }}
+
   video {{
     position: absolute;
     inset: 0;
@@ -89,6 +95,7 @@ app_html = f"""
     height: 100%;
     object-fit: cover;
   }}
+
   .overlay {{
     position: absolute;
     inset: 0;
@@ -98,8 +105,6 @@ app_html = f"""
       rgba(0,0,0,0.70) 55%,
       rgba(0,0,0,0.92) 100%);
   }}
-  
-
 
   /* NAV */
   .nav-wrap {{
@@ -108,26 +113,55 @@ app_html = f"""
     right: 14.5%;
     left: auto;
     transform: translate(-4px, 150px);
-    z-index: 999999;   /* arriba del video */
-    width: 240px;                     /* MISMO ancho que el menú */
+    z-index: 999999;
+    width: 260px;
     display: flex;
     flex-direction: column;
-    align-self: center;               /* ✅ centrado bajo el botón */
-   
+    align-items: center;     /* ✅ centra botón y menú */
   }}
 
   .nav-btn {{
+    width: 260px;            /* ✅ mismo ancho que el menú */
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    height: 46px;
-    padding: 0 14px;
+    justify-content: center;
+    gap: 12px;
+    height: 50px;
+    padding: 0 22px;
     border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.18);
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(14px);
+
+    font-family: var(--code-font);
+    font-weight: 800;
+    font-size: 15px;
+    letter-spacing: 0.4px;
+
+    color: #eaf6ff;
     cursor: pointer;
-    color: #fff;
+
+    background: linear-gradient(
+      180deg,
+      rgba(0,120,255,0.18),
+      rgba(0,0,0,0.85)
+    );
+
+    border: 1px solid rgba(120,190,255,0.65);
+
+    box-shadow:
+      0 0 0 1px rgba(120,190,255,0.4),
+      0 0 14px rgba(0,140,255,0.45),
+      inset 0 0 18px rgba(0,120,255,0.25);
+
+    backdrop-filter: blur(14px);
+    transition: all .25s ease;
+  }}
+
+  .nav-btn:hover {{
+    box-shadow:
+      0 0 0 1px rgba(140,210,255,0.9),
+      0 0 22px rgba(0,160,255,0.75),
+      inset 0 0 22px rgba(0,140,255,0.35);
+
+    transform: translateY(-1px) scale(1.02);
   }}
 
   .nav-logo {{
@@ -137,71 +171,93 @@ app_html = f"""
   }}
 
   .nav-title {{
-    color: #fff;
-    font-weight: 850;
-    letter-spacing: 0.3px;
-    font-size: 15px;
+    font-family: var(--code-font);
+    font-weight: 800;
+    color: #eaf6ff;
   }}
 
   .nav-burger {{
-    color: #fff;
-    font-weight: 950;
-    font-size: 20px;
-    letter-spacing: 2px;
-    padding-left: 2px;
-  }}
-
-  .nav-btn:hover {{
-    border-color: rgba(255,255,255,0.32);
-    background: rgba(0,0,0,0.72);
+    font-family: var(--code-font);
+    font-weight: 900;
+    font-size: 18px;
+    color: #8fd3ff;
+    text-shadow: 0 0 8px rgba(0,160,255,.8);
   }}
 
   .nav-menu {{
     display: none;
-    margin-top: 12px;
-    width: 240px;
+    margin-top: 14px;
+    width: 260px;
     border-radius: 16px;
-    padding: 10px;
-    background: rgba(0,0,0,0.74);
-    border: 1px solid rgba(255,255,255,0.14);
-    backdrop-filter: blur(14px);
-    align-self: center;               /* ✅ centrado bajo el botón */
+    padding: 12px;
+
+    background: linear-gradient(
+      180deg,
+      rgba(8,14,22,0.95),
+      rgba(0,0,0,0.85)
+    );
+
+    border: 1px solid rgba(120,190,255,0.35);
+
+    box-shadow:
+      0 0 24px rgba(0,120,255,0.35),
+      inset 0 0 22px rgba(0,90,180,0.15);
+
+    backdrop-filter: blur(18px);
   }}
 
   .nav-menu.open {{
     display: block;
   }}
-    
+
   .nav-item {{
     display: block;
     width: 100%;
-    padding: 11px 12px;
-    margin: 8px 0;
+    padding: 13px 14px;
+    margin: 10px 0;
     border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.14);
-    background: rgba(255,255,255,0.06);
-    color: #fff;
-    font-weight: 780;
+
+    font-family: var(--code-font);
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.3px;
+    text-align: center;
+
+    color: #e9f4ff;
     text-decoration: none;
-    text-align: center;               /* opcional, más simétrico */
+
+    background: linear-gradient(
+      180deg,
+      rgba(255,255,255,0.06),
+      rgba(255,255,255,0.02)
+    );
+
+    border: 1px solid rgba(255,255,255,0.12);
+    transition: all .2s ease;
   }}
 
   .nav-item:hover {{
-    border-color: rgba(255,255,255,0.30);
-    background: rgba(255,255,255,0.10);
+    background: linear-gradient(
+      180deg,
+      rgba(0,140,255,0.25),
+      rgba(0,60,140,0.18)
+    );
+
+    border-color: rgba(120,200,255,0.75);
+
+    box-shadow:
+      inset 0 0 18px rgba(0,120,255,0.35),
+      0 0 16px rgba(0,140,255,0.55);
+
+    transform: scale(1.03);
   }}
-
-
-  
 </style>
 </head>
-<body>
 
+<body>
   <div class="hero">
     {"<video autoplay muted loop playsinline><source src='data:video/mp4;base64," + video_b64 + "' type='video/mp4'></video>" if video_b64 else ""}
     <div class="overlay"></div>
-  
- 
   </div>
 
   <div class="nav-wrap">
@@ -241,6 +297,6 @@ app_html = f"""
 </html>
 """
 
-# ⚠️ SOLO ESTE components.html debe existir
 components.html(app_html, height=900, scrolling=False)
+
 
