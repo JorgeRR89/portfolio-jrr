@@ -119,7 +119,7 @@ hero_html = f"""
   /* SMALLER CENTER CARD */
   .command-card {{
     position: absolute;
-    top: 50%;
+    top: 54%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: min(820px, 90%);
@@ -131,47 +131,12 @@ hero_html = f"""
   }}
 
   /* TOP BAR */
-  .card-top {{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding-bottom: 10px;
-  }}
-
-  .brand {{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 800;
-    color: var(--text);
-  }}
+  
 
   .brand img {{
     width: 26px;
     height: 26px;
     border-radius: 8px;
-  }}
-
-  .nav {{
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    color: var(--muted);
-    font-weight: 650;
-    font-size: 14px;
-  }}
-
-  .burger {{
-    width: 40px;
-    height: 40px;
-    border-radius: 999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(0,0,0,0.12);
-    color: var(--text);
-    user-select: none;
   }}
 
   /* BODY */
@@ -263,11 +228,6 @@ hero_html = f"""
     <div class="hero-overlay"></div>
 
     <div class="command-card">
-      <div class="card-top">
-        <div class="brand">
-          {("<img src='data:image/png;base64," + logo_b64 + "' />") if logo_b64 else ""}
-          <span>Portfolio JRR</span>
-        </div>
         <div class="nav">
           <span>About</span>
           <span>Projects</span>
@@ -299,6 +259,107 @@ hero_html = f"""
 </body>
 </html>
 """
+# ----------------------------
+# TOP NAV (global, outside the card)
+# ----------------------------
+st.markdown(
+    """
+<style>
+.topnav{
+  position: fixed;
+  top: 14px;
+  left: 24px;
+  right: 24px;
+  z-index: 9999;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 14px;
+  pointer-events: none; /* allow clicks only on buttons */
+}
+.topnav .left, .topnav .right { pointer-events: auto; }
+
+.brand-chip{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 14px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.42);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  backdrop-filter: blur(10px);
+}
+.brand-chip img{
+  width: 22px; height: 22px; border-radius: 7px;
+}
+
+.nav-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.nav-btn button{
+  border-radius: 999px !important;
+  padding: 10px 14px !important;
+  border: 1px solid rgba(255,255,255,0.16) !important;
+  background: rgba(0,0,0,0.42) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  backdrop-filter: blur(10px);
+}
+.nav-btn button:hover{
+  border-color: rgba(255,255,255,0.28) !important;
+}
+</style>
+<div class="topnav">
+  <div class="left">
+    <div class="brand-chip">Portfolio JRR</div>
+  </div>
+  <div class="right"></div>
+</div>
+""",
+    unsafe_allow_html=True,
+)
+
+# --- Real clickable nav buttons ---
+# We render buttons separately so they truly work (switch_page)
+nav_cols = st.columns([0.62, 0.38])
+with nav_cols[1]:
+    b1, b2, b3 = st.columns(3)
+    with b1:
+        if st.button("About", key="nav_about"):
+            st.switch_page("pages/3_About_Me.py")
+    with b2:
+        if st.button("Projects", key="nav_projects"):
+            st.switch_page("pages/4_Projects.py")
+    with b3:
+        if st.button("Contact", key="nav_contact"):
+            st.switch_page("pages/5_Contact.py")
+
+# apply the nav button style wrapper
+st.markdown(
+    """
+<style>
+div[data-testid="column"] .stButton { margin-top: 0px; }
+div[data-testid="column"] .stButton > button {
+  border-radius: 999px !important;
+  padding: 10px 14px !important;
+  border: 1px solid rgba(255,255,255,0.16) !important;
+  background: rgba(0,0,0,0.42) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  backdrop-filter: blur(10px);
+}
+div[data-testid="column"] .stButton > button:hover {
+  border-color: rgba(255,255,255,0.28) !important;
+}
+</style>
+""",
+    unsafe_allow_html=True,
+)
 
 components.html(hero_html, height=820, scrolling=False)
 
