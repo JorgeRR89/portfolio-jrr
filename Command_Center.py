@@ -116,10 +116,12 @@ app_html = f"""
   /* NAV */
   .nav-wrap {{
     position: fixed;
-    top: {top_px}px;
-    left: 22px;
+    top: 50%;
+    right: 14%;
+    left: auto;
+    transform: translateY(110px);
     z-index: 999999;   /* arriba del video */
-    user-select: none;
+   
   }}
 
   .nav-btn {{
