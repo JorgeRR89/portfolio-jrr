@@ -18,11 +18,10 @@ st.set_page_config(
 # Paths
 # ----------------------------
 ASSETS = Path(__file__).parent / "assets"
-VIDEO_FILENAME = "digital-wall.mp4"   # <-- tu video ya subido
+VIDEO_FILENAME = "digital-wall.mp4"  # tu video
 VIDEO_PATH = ASSETS / VIDEO_FILENAME
 
-# (Opcional) Logo mini. Si no existe, no pasa nada.
-LOGO_FILENAME = "logo.png"
+LOGO_FILENAME = "logo.png"  # opcional
 LOGO_PATH = ASSETS / LOGO_FILENAME
 
 # ----------------------------
@@ -35,21 +34,27 @@ video_b64 = b64_file(VIDEO_PATH) if VIDEO_PATH.exists() else ""
 logo_b64 = b64_file(LOGO_PATH) if LOGO_PATH.exists() else ""
 
 # ----------------------------
-# Global CSS (Streamlit chrome cleanup)
+# Global CSS (remove Streamlit chrome + padding)
 # ----------------------------
 st.markdown(
     """
 <style>
 header[data-testid="stHeader"] {display:none;}
 footer {visibility:hidden;}
-.block-container {padding-top: 22px !important;}
+
+/* remove all default padding so it feels like a website */
+.block-container { padding: 0 !important; max-width: 100% !important; }
+section.main > div { padding: 0 !important; }
+
+/* hide the empty space above */
+div[data-testid="stVerticalBlock"] { gap: 0rem; }
 </style>
 """,
     unsafe_allow_html=True,
 )
 
 # ----------------------------
-# HERO (rendered with components.html to avoid HTML escaping issues)
+# HERO (video fullscreen)
 # ----------------------------
 hero_html = f"""
 <!DOCTYPE html>
@@ -78,7 +83,7 @@ hero_html = f"""
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.92; /* nitido */
+    opacity: 0.92;
     filter: none;
   }}
 
@@ -87,9 +92,9 @@ hero_html = f"""
     inset: 0;
     background:
       radial-gradient(ellipse at center,
-        rgba(0,0,0,0.18),
-        rgba(0,0,0,0.78) 55%,
-        rgba(0,0,0,0.94) 100%);
+        rgba(0,0,0,0.10),
+        rgba(0,0,0,0.74) 55%,
+        rgba(0,0,0,0.92) 100%);
   }}
 </style>
 </head>
@@ -101,14 +106,16 @@ hero_html = f"""
 </body>
 </html>
 """
-components.html(hero_html, height=1000, scrolling=False)
-st.markdown("""
-<style>
-/* Remove Streamlit padding so it feels like a real website */
-.block-container { padding: 0 !important; max-width: 100% !important; }
-section.main > div { padding: 0 !important; }
 
-/* Top bar overlay */
+# Use a large height so the iframe covers most screens
+components.html(hero_html, height=1100, scrolling=False)
+
+# ----------------------------
+# TOPBAR (left brand, center CTA, right burger)
+# ----------------------------
+st.markdown(
+    """
+<style>
 .topbar {
   position: fixed;
   top: 18px;
@@ -120,30 +127,33 @@ section.main > div { padding: 0 !important; }
   align-items: center;
   pointer-events: none;
 }
-
 .topbar .left,
 .topbar .center,
 .topbar .right {
   pointer-events: auto;
-  display: flex;
-  align-items: center;
+  display:flex;
+  align-items:center;
 }
-
 .topbar .left { justify-content: flex-start; }
 .topbar .center { justify-content: center; }
 .topbar .right { justify-content: flex-end; }
 
-.brand {
-  color: #fff;
-  font-weight: 850;
-  letter-spacing: 0.2px;
+.brand-chip {
+  display:flex;
+  align-items:center;
+  gap:10px;
   padding: 10px 14px;
   border-radius: 999px;
   background: rgba(0,0,0,0.38);
   border: 1px solid rgba(255,255,255,0.14);
+  color: #fff;
+  font-weight: 850;
+  letter-spacing: 0.2px;
   backdrop-filter: blur(10px);
 }
+.brand-chip img { width: 22px; height: 22px; border-radius: 7px; }
 
+/* Center CTA button */
 .center-cta .stButton > button {
   border-radius: 999px !important;
   padding: 12px 18px !important;
@@ -160,6 +170,7 @@ section.main > div { padding: 0 !important; }
   background: rgba(255,255,255,0.10) !important;
 }
 
+/* Burger button */
 .burger .stButton > button {
   width: 46px !important;
   height: 46px !important;
@@ -174,174 +185,91 @@ section.main > div { padding: 0 !important; }
 .burger .stButton > button:hover {
   border-color: rgba(255,255,255,0.30) !important;
 }
-</style>
-""", unsafe_allow_html=True)
 
-# Topbar layout (real clickable Streamlit widgets)
-left, center, right = st.columns([1, 1, 1])
-
-# We place them inside a fixed-position wrapper using HTML.
-st.markdown('<div class="topbar"><div class="left"><div class="brand">Portfolio JRR</div></div><div class="center"></div><div class="right"></div></div>', unsafe_allow_html=True)
-
-# Now render Streamlit buttons aligned by placing them in columns and styling them
-with center:
-    st.markdown('<div class="center-cta">', unsafe_allow_html=True)
-    if st.button("WELCOME TO MY LAB", key="cta_welcome"):
-        st.switch_page("pages/1_Industries.py")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-with right:
-    st.markdown('<div class="burger">', unsafe_allow_html=True)
-    if st.button("≡", key="burger_menu"):
-        st.session_state["menu_open"] = not st.session_state.get("menu_open", False)
-    st.markdown('</div>', unsafe_allow_html=True)
-if st.session_state.get("menu_open", False):
-    st.markdown("""
-    <style>
-    .menu-panel{
-      position: fixed;
-      top: 76px;
-      right: 22px;
-      z-index: 99999;
-      width: 220px;
-      border-radius: 16px;
-      padding: 10px;
-      background: rgba(0,0,0,0.72);
-      border: 1px solid rgba(255,255,255,0.14);
-      backdrop-filter: blur(12px);
-    }
-    .menu-panel .stButton > button{
-      width: 100%;
-      border-radius: 12px !important;
-      padding: 10px 12px !important;
-      border: 1px solid rgba(255,255,255,0.14) !important;
-      background: rgba(255,255,255,0.06) !important;
-      color: #fff !important;
-      font-weight: 750 !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-    st.markdown('<div class="menu-panel">', unsafe_allow_html=True)
-    if st.button("About", key="menu_about"):
-        st.session_state["menu_open"] = False
-        st.switch_page("pages/3_About_Me.py")
-    if st.button("Projects", key="menu_projects"):
-        st.session_state["menu_open"] = False
-        st.switch_page("pages/4_Projects.py")
-    if st.button("Contact", key="menu_contact"):
-        st.session_state["menu_open"] = False
-        st.switch_page("pages/5_Contact.py")
-    st.markdown('</div>', unsafe_allow_html=True)
-
-# ----------------------------
-# TOP NAV (global, outside the card)
-# ----------------------------
-st.markdown(
-    """
-<style>
-.topnav{
+/* Dropdown menu */
+.menu-panel {
   position: fixed;
-  top: 14px;
-  left: 24px;
-  right: 24px;
-  z-index: 9999;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap: 14px;
-  pointer-events: none; /* allow clicks only on buttons */
-}
-.topnav .left, .topnav .right { pointer-events: auto; }
-
-.brand-chip{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:10px 14px;
-  border-radius: 999px;
-  background: rgba(0,0,0,0.42);
+  top: 76px;
+  right: 22px;
+  z-index: 99999;
+  width: 220px;
+  border-radius: 16px;
+  padding: 10px;
+  background: rgba(0,0,0,0.72);
   border: 1px solid rgba(255,255,255,0.14);
-  color: #fff;
-  font-weight: 800;
-  letter-spacing: 0.2px;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
 }
-.brand-chip img{
-  width: 22px; height: 22px; border-radius: 7px;
-}
-
-.nav-actions{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.nav-btn button{
-  border-radius: 999px !important;
-  padding: 10px 14px !important;
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: rgba(0,0,0,0.42) !important;
+.menu-panel .stButton > button{
+  width: 100%;
+  border-radius: 12px !important;
+  padding: 10px 12px !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  background: rgba(255,255,255,0.06) !important;
   color: #fff !important;
-  font-weight: 700 !important;
-  backdrop-filter: blur(10px);
+  font-weight: 750 !important;
 }
-.nav-btn button:hover{
+.menu-panel .stButton > button:hover{
   border-color: rgba(255,255,255,0.28) !important;
+  background: rgba(255,255,255,0.10) !important;
 }
 </style>
-<div class="topnav">
+""",
+    unsafe_allow_html=True,
+)
+
+# Fixed wrapper (visual)
+brand_img_html = f"<img src='data:image/png;base64,{logo_b64}' />" if logo_b64 else ""
+st.markdown(
+    f"""
+<div class="topbar">
   <div class="left">
-    <div class="brand-chip">Portfolio JRR</div>
+    <div class="brand-chip">{brand_img_html}Portfolio JRR</div>
   </div>
+  <div class="center"></div>
   <div class="right"></div>
 </div>
 """,
     unsafe_allow_html=True,
 )
 
-# --- Real clickable nav buttons ---
-# We render buttons separately so they truly work (switch_page)
-nav_cols = st.columns([0.62, 0.38])
-with nav_cols[1]:
-    b1, b2, b3 = st.columns(3)
-    with b1:
-        if st.button("About", key="nav_about"):
-            st.switch_page("pages/3_About_Me.py")
-    with b2:
-        if st.button("Projects", key="nav_projects"):
-            st.switch_page("pages/4_Projects.py")
-    with b3:
-        if st.button("Contact", key="nav_contact"):
-            st.switch_page("pages/5_Contact.py")
+# Real Streamlit widgets aligned in three columns (clickable)
+left, center, right = st.columns([1, 1, 1])
 
-# apply the nav button style wrapper
-st.markdown(
-    """
-<style>
-div[data-testid="column"] .stButton { margin-top: 0px; }
-div[data-testid="column"] .stButton > button {
-  border-radius: 999px !important;
-  padding: 10px 14px !important;
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: rgba(0,0,0,0.42) !important;
-  color: #fff !important;
-  font-weight: 700 !important;
-  backdrop-filter: blur(10px);
-}
-div[data-testid="column"] .stButton > button:hover {
-  border-color: rgba(255,255,255,0.28) !important;
-}
-</style>
-""",
-    unsafe_allow_html=True,
-)
+with center:
+    st.markdown('<div class="center-cta">', unsafe_allow_html=True)
+    if st.button("WELCOME TO MY LAB", key="cta_welcome"):
+        st.switch_page("pages/1_Industries.py")
+    st.markdown("</div>", unsafe_allow_html=True)
 
-components.html(hero_html, height=820, scrolling=False)
+with right:
+    st.markdown('<div class="burger">', unsafe_allow_html=True)
+    if st.button("≡", key="burger_menu"):
+        st.session_state["menu_open"] = not st.session_state.get("menu_open", False)
+    st.markdown("</div>", unsafe_allow_html=True)
 
+# Dropdown menu
+if st.session_state.get("menu_open", False):
+    st.markdown('<div class="menu-panel">', unsafe_allow_html=True)
+
+    if st.button("About", key="menu_about"):
+        st.session_state["menu_open"] = False
+        st.switch_page("pages/3_About_Me.py")
+
+    if st.button("Projects", key="menu_projects"):
+        st.session_state["menu_open"] = False
+        st.switch_page("pages/4_Projects.py")
+
+    if st.button("Contact", key="menu_contact"):
+        st.session_state["menu_open"] = False
+        st.switch_page("pages/5_Contact.py")
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # ----------------------------
-# Industries preview grid (home)
+# Content below the fold (optional)
 # ----------------------------
+st.markdown("<div style='height: 110vh;'></div>", unsafe_allow_html=True)
+
 st.subheader("Strategic Domains")
 st.caption("Organized like IBM Solutions — projects grouped by industry.")
 
@@ -367,8 +295,8 @@ for i, (name, desc) in enumerate(industries):
               padding:14px 14px 12px 14px;
               background: rgba(255,255,255,0.03);
               min-height: 92px;">
-              <div style="font-weight:760; margin-bottom:6px;">{name}</div>
-              <div style="opacity:0.82; font-size:12.5px; line-height:1.35;">{desc}</div>
+              <div style="font-weight:760; margin-bottom:6px; color:#fff;">{name}</div>
+              <div style="opacity:0.82; font-size:12.5px; line-height:1.35; color:rgba(255,255,255,0.78);">{desc}</div>
             </div>
             """,
             unsafe_allow_html=True,
