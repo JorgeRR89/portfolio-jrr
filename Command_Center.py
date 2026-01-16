@@ -100,7 +100,7 @@ app_html = f"""
   }}
   
 
-}}
+
   /* NAV */
   .nav-wrap {{
     position: fixed;
