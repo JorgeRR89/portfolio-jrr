@@ -73,6 +73,17 @@ div[data-testid="stPopover"] > button{
 
   transform: none !important;   /* clave si había translate */
 }
+div[data-testid="stPopover"] > button svg{
+  display: none !important;
+}
+div[data-testid="stPopover"] > button::after{
+  content: "  ≡";
+  color: #fff;
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing: 2px;
+}
+
 
 /* Hover */
 button[aria-label="Portfolio JRR"]:hover{
