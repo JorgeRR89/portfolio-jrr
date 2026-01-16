@@ -28,71 +28,133 @@ if not video_b64:
     st.error("No encuentro el video. Coloca tu archivo en: assets/data.mp4")
     st.stop()
 
+
 # =========================
-# GLOBAL CSS (streamlit)
+# GLOBAL CSS STREAMLIT
 # =========================
-st.markdown(
-    """
+st.markdown("""
 <style>
-html, body {height: 100%; margin:0;}
+html, body {height:100%; margin:0;}
 header[data-testid="stHeader"] {display:none;}
 footer {visibility:hidden;}
-.block-container { padding: 0 !important; max-width: 100% !important; }
-section.main > div { padding: 0 !important; }
+.block-container { padding:0 !important; max-width:100% !important; }
+section.main > div { padding:0 !important; }
 </style>
-""",
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
+
 
 # =========================
-# LINKS MULTIPAGE
+# HERO + MENU CSS
 # =========================
-about_link = "?page=1_About_Me"
-projects_link = "?page=2_Projects"
-contact_link = "?page=3_Contact"
-
-logo_html = f"<img src='data:image/png;base64,{logo_b64}' alt='logo' />" if logo_b64 else ""
-
-# =========================
-# HERO CSS + HTML
-# =========================
-html = f"""
+css = """
 <style>
-* {{ box-sizing: border-box; }}
-html, body {{ background:#000; overflow:hidden; }}
+* { box-sizing:border-box; }
+html, body { background:#000; overflow:hidden; }
 
 /* HERO */
-.hero {{
+.hero {
   position: relative;
   width: calc(100vw - 64px);
   height: 100vh;
   margin-left: 64px;
   overflow: hidden;
   background: #000;
-}}
-
-/* MENU DETAILS */
-.menu {
-  position: absolute;
-  top: 22px;
-  right: 28px;
-  z-index: 10001;
 }
 
-/* quita el triangulito default del summary */
-.menu summary { list-style: none; }
-.menu summary::-webkit-details-marker { display: none; }
+/* VIDEO */
+.hero video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
 
-/* Burger button */
+/* OVERLAY */
+.overlay-dark {
+  position:absolute;
+  inset:0;
+  background:rgba(0,0,0,0.35);
+  z-index:1;
+  pointer-events:none;
+}
+
+/* TOP BAR */
+.topbar {
+  position:absolute;
+  top:0; left:0; right:0;
+  z-index:5;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:22px 28px;
+  color:#fff;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+}
+
+.brand {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-weight:800;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+
+.brand img {
+  width:36px;
+  height:36px;
+  background:#fff;
+  padding:6px;
+  border-radius:10px;
+}
+
+/* CENTER */
+.center {
+  position:absolute;
+  inset:0;
+  z-index:4;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  color:white;
+}
+
+.center h1 {
+  font-size:clamp(2.4rem,5vw,4.4rem);
+  font-weight:900;
+  margin:0;
+  text-shadow:0 10px 30px rgba(0,0,0,0.6);
+}
+
+/* ACCENTS */
+.accents { position:absolute; inset:0; z-index:3; pointer-events:none; }
+.line { position:absolute; height:3px; background:#ff2a2a; opacity:.9; }
+.l1 { top:92px; right:130px; width:120px; }
+.l2 { top:122px; right:40px; width:240px; }
+.l3 { bottom:70px; left:40px; width:220px; opacity:.55; }
+.l4 { top:30%; left:55%; width:250px; transform:rotate(-55deg); opacity:.5; }
+
+/* MENU */
+.menu {
+  position:absolute;
+  top:22px;
+  right:28px;
+  z-index:10000;
+}
+
+.menu summary { list-style:none; cursor:pointer; }
+.menu summary::-webkit-details-marker { display:none; }
+
 .burger {
-  width: 52px;
-  height: 52px;
-  background: #ff2a2a;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-  border: none;
+  width:52px;
+  height:52px;
+  background:#ff2a2a;
+  display:grid;
+  place-items:center;
+  box-shadow:0 10px 25px rgba(0,0,0,.25);
 }
 
 .burger span {
@@ -103,202 +165,55 @@ html, body {{ background:#000; overflow:hidden; }}
   margin:3px 0;
 }
 
-/* Drawer hidden by default */
+/* DRAWER */
 .drawer {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: min(380px, 90vw);
-  height: 100vh;
-  background: rgba(10,10,12,0.92);
-  backdrop-filter: blur(10px);
-  border-left: 1px solid rgba(255,255,255,0.08);
-  padding: 90px 28px 28px;
-  transform: translateX(110%);
-  transition: transform .28s ease;
-  z-index: 10000;
+  position:fixed;
+  top:0;
+  right:0;
+  width:min(380px,90vw);
+  height:100vh;
+  background:rgba(10,10,12,.92);
+  backdrop-filter:blur(10px);
+  border-left:1px solid rgba(255,255,255,.08);
+  padding:90px 28px 28px;
+  transform:translateX(110%);
+  transition:transform .3s ease;
+  z-index:9999;
 }
 
-/* When details open, show drawer */
-.menu[open] .drawer { transform: translateX(0%); }
+.menu[open] .drawer { transform:translateX(0%); }
 
-/* Links */
 .drawer a {
   display:block;
-  padding:16px 14px;
+  padding:16px;
   margin:10px 0;
-  border:1px solid rgba(255,255,255,0.12);
+  border:1px solid rgba(255,255,255,.12);
   border-radius:14px;
-  color:#fff;
+  color:white;
   text-decoration:none;
   font-weight:800;
   letter-spacing:.5px;
-  transition: background .2s ease, border-color .2s ease, transform .2s ease;
 }
 
 .drawer a:hover {
-  background: rgba(255,42,42,0.18);
-  border-color: rgba(255,42,42,0.7);
-  transform: translateY(-1px);
+  background:rgba(255,42,42,.18);
+  border-color:rgba(255,42,42,.7);
 }
-
-
-/* VIDEO */
-.hero video {{
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: contrast(1.05) saturate(1.05);
-  z-index: 0;
-}}
-
-/* OVERLAY (no bloquear clicks) */
-.overlay-dark {{
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.35);
-  z-index: 1;
-  pointer-events: none;
-}}
-
-/* TOPBAR */
-.topbar {{
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  z-index: 20;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding: 22px 28px;
-  color:#fff;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-}}
-
-.brand {{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  font-weight:800;
-  letter-spacing:1px;
-  text-transform:uppercase;
-}}
-
-.brand img {{
-  width:36px;
-  height:36px;
-  object-fit:contain;
-  background:#fff;
-  padding:6px;
-  border-radius:10px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.25);
-}}
-
-/* CENTER */
-.center {{
-  position:absolute;
-  inset:0;
-  z-index: 10;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  color:#fff;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  pointer-events:none;
-}}
-
-.center h1 {{
-  font-size: clamp(2.4rem, 5vw, 4.4rem);
-  font-weight: 900;
-  margin:0;
-  text-shadow: 0 10px 30px rgba(0,0,0,0.6);
-}}
-
-/* ACCENTS */
-.accents {{ position:absolute; inset:0; z-index: 9; pointer-events:none; }}
-.line {{ position:absolute; height:3px; background:#ff2a2a; opacity:.9; }}
-.l1 {{ top:92px; right:130px; width:120px; }}
-.l2 {{ top:122px; right:40px; width:240px; }}
-.l3 {{ bottom:70px; left:40px; width:220px; opacity:.55; }}
-.l4 {{ top:30%; left:55%; width:250px; transform:rotate(-55deg); opacity:.5; }}
-
-/* BURGER */
-.burger {{
-  width:52px;
-  height:52px;
-  background:#ff2a2a;
-  display:grid;
-  place-items:center;
-  cursor:pointer;
-  box-shadow:0 10px 25px rgba(0,0,0,0.25);
-
-  position: relative;
-  z-index: 10001;  /* arriba de todo */
-  pointer-events: auto;
-}}
-
-.burger span {{
-  display:block;
-  width:22px;
-  height:2px;
-  background:#fff;
-  margin:3px 0;
-  transition: transform .25s ease, opacity .25s ease;
-}}
-
-#menuToggle:checked + .topbar label.burger span:nth-child(1) {{ transform: translateY(5px) rotate(45deg); }}
-#menuToggle:checked + .topbar label.burger span:nth-child(2) {{ opacity: 0; }}
-#menuToggle:checked + .topbar label.burger span:nth-child(3) {{ transform: translateY(-5px) rotate(-45deg); }}
-
-/* DRAWER */
-.drawer {{
-  position:absolute;
-  top:0;
-  right:0;
-  width: min(380px, 90vw);
-  height: 100%;
-  background: rgba(10,10,12,0.92);
-  backdrop-filter: blur(10px);
-  border-left: 1px solid rgba(255,255,255,0.08);
-  padding: 90px 28px 28px;
-  transform: translateX(110%);
-  transition: transform .28s ease;
-
-  z-index: 10000;
-  pointer-events: auto;
-}}
-
-#menuToggle:checked ~ .drawer {{ transform: translateX(0%); }}
-
-.drawer a {{
-  display:block;
-  padding:16px 14px;
-  margin:10px 0;
-  border:1px solid rgba(255,255,255,0.12);
-  border-radius:14px;
-  color:#fff;
-  text-decoration:none;
-  font-weight:800;
-  letter-spacing:.5px;
-  transition: background .2s ease, border-color .2s ease, transform .2s ease;
-}}
-
-.drawer a:hover {{
-  background: rgba(255,42,42,0.18);
-  border-color: rgba(255,42,42,0.7);
-  transform: translateY(-1px);
-}}
-
-@media (max-width:600px) {{
-  .topbar {{ padding:16px 16px; }}
-  .l1, .l2, .l3, .l4 {{ display:none; }}
-}}
 </style>
+"""
+
+
+logo_html = f"<img src='data:image/png;base64,{logo_b64}'>" if logo_b64 else ""
+
+about_link = "/1_About_Me"
+projects_link = "/2_Projects"
+contact_link = "/3_Contact"
+
+
 html = f"""
 {css}
 <div class="hero">
+
   <video autoplay muted loop playsinline>
     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
   </video>
@@ -306,10 +221,9 @@ html = f"""
   <div class="overlay-dark"></div>
 
   <details class="menu">
-    <summary class="burger" aria-label="Open menu">
+    <summary class="burger">
       <span></span><span></span><span></span>
     </summary>
-
     <div class="drawer">
       <a href="{about_link}">About me</a>
       <a href="{projects_link}">Projects</a>
@@ -334,7 +248,8 @@ html = f"""
   <div class="center">
     <h1>Welcome to my lab</h1>
   </div>
+
 </div>
 """
-st.markdown(html, unsafe_allow_html=True)
 
+st.markdown(html, unsafe_allow_html=True)
