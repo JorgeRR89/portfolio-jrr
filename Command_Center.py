@@ -33,30 +33,31 @@ logo_b64 = b64_file(LOGO_PATH) if LOGO_PATH.exists() else ""
 st.markdown(
     """
 <style>
-header[data-testid="stHeader"] {display:none;}
-footer {visibility:hidden;}
-.block-container { padding: 0 !important; max-width: 100% !important; }
-section.main > div { padding: 0 !important; }
-div[data-testid="stVerticalBlock"] { gap: 0rem; }
-</style>
-""",
-    unsafe_allow_html=True,
-)
+/* 1) Rompe el “fixed atrapado” por transforms en la app */
+div[data-testid="stAppViewContainer"],
+div[data-testid="stApp"],
+section.main,
+.block-container {
+  transform: none !important;
+  filter: none !important;
+  perspective: none !important;
+}
 
-# ----------------------------
-# Overlay UI styles
-# ----------------------------
-st.markdown(
-    """
-<style>
-/* ====== Portfolio JRR ≡  (single top button) ====== */
-div[data-testid="stPopover"] > button{
+/* 2) Fija el WRAPPER del popover (esto sí se moverá) */
+div[data-testid="stPopover"]{
   position: fixed !important;
-  top: 50px !important;
+  top: 50px !important;     /* <-- aquí ajustas */
   left: 22px !important;
   right: auto !important;
   bottom: auto !important;
   z-index: 100001 !important;
+}
+
+/* 3) El botón vive dentro del wrapper fijo */
+div[data-testid="stPopover"] > button{
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
 
   height: 46px !important;
   padding: 0 16px !important;
@@ -70,12 +71,14 @@ div[data-testid="stPopover"] > button{
   letter-spacing: 0.3px !important;
   font-size: 15px !important;
   backdrop-filter: blur(14px);
-
-  transform: none !important;   /* clave si había translate */
 }
+
+/* Quita la flechita del popover */
 div[data-testid="stPopover"] > button svg{
   display: none !important;
 }
+
+/* Agrega burger ≡ */
 div[data-testid="stPopover"] > button::after{
   content: "  ≡";
   color: #fff;
@@ -84,9 +87,8 @@ div[data-testid="stPopover"] > button::after{
   letter-spacing: 2px;
 }
 
-
 /* Hover */
-button[aria-label="Portfolio JRR"]:hover{
+div[data-testid="stPopover"] > button:hover{
   border-color: rgba(255,255,255,0.32) !important;
   background: rgba(0,0,0,0.72) !important;
 }
@@ -106,6 +108,7 @@ div[data-testid="stPopoverBody"] .stButton > button:hover{
   border-color: rgba(255,255,255,0.30) !important;
   background: rgba(0,0,0,0.84) !important;
 }
+
 </style>
 
 """,
