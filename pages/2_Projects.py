@@ -1,253 +1,254 @@
 import streamlit as st
 
-st.set_page_config(page_title="Projects", page_icon="🛰️", layout="wide")
+# ----------------------------
+# Page config
+# ----------------------------
+st.set_page_config(
+    page_title="Projects",
+    page_icon="🛰️",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
 
+# ----------------------------
+# Styles (Corporate 4x2 grid, equal cards)
+# ----------------------------
 st.markdown(
     """
 <style>
+header[data-testid="stHeader"] {display:none;}
+footer {visibility:hidden;}
 .block-container{
   padding-top: 46px !important;
   padding-left: 56px !important;
   padding-right: 56px !important;
-  max-width: 1500px !important;
+  max-width: 1400px !important;
 }
-h1, p { color: #fff; }
-.muted{ color: rgba(255,255,255,0.70); }
 
-/* ===== Featured Solutions Layout (like your reference image) ===== */
-.solutions{
+/* Titles */
+h1{ color:#fff; margin-bottom: 8px; }
+.subtitle{
+  color: rgba(255,255,255,0.70);
+  margin-top: 0;
+}
+
+/* ===== INDUSTRY GRID 4 x 2 ===== */
+.industry-grid{
   display:grid;
-  grid-template-columns: 1.45fr 1fr 1fr;
-  gap: 16px;
-  margin-top: 18px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin-top: 26px;
 }
 
-/* Left big card spans 2 rows */
-.solutions .big{
-  grid-row: span 2;
-  border-radius: 22px;
-  overflow:hidden;
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.03);
-  backdrop-filter: blur(10px);
-  min-height: 520px;
+.industry-card{
   position: relative;
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
-}
-.solutions .big:hover{
-  transform: translateY(-4px);
-  border-color: rgba(0,180,255,0.40);
-  background: rgba(0,180,255,0.06);
-}
-
-.cover{
-  height: 320px;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(0,180,255,0.35), rgba(0,0,0,0) 55%),
-    radial-gradient(circle at 85% 10%, rgba(0,120,255,0.25), rgba(0,0,0,0) 60%),
-    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(0,0,0,0));
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-.card-body{
-  padding: 18px;
-}
-.title{
-  font-size: 26px;
-  font-weight: 900;
-  margin: 0;
-}
-.desc{
-  margin-top: 10px;
-  font-size: 14px;
-  line-height: 1.45;
-  color: rgba(255,255,255,0.75);
-}
-.pill{
-  display:inline-block;
-  margin-top: 12px;
-  font-size: 12px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.14);
-  background: rgba(0,0,0,0.25);
-  color: rgba(255,255,255,0.80);
-}
-
-/* Small cards */
-.solutions .small{
+  height: 260px;                 /* ✅ all same size */
   border-radius: 22px;
-  overflow:hidden;
   border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.03);
+  background: rgba(255,255,255,0.035);
   backdrop-filter: blur(10px);
-  min-height: 252px;
-  position: relative;
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
-}
-.solutions .small:hover{
-  transform: translateY(-4px);
-  border-color: rgba(0,180,255,0.40);
-  background: rgba(0,180,255,0.06);
+  overflow:hidden;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
 }
 
-.small-top{
-  height: 90px;
+.industry-card:hover{
+  transform: translateY(-6px);
+  border-color: rgba(0,180,255,0.45);
+  background: rgba(0,180,255,0.08);
+}
+
+.industry-top{
+  height: 92px;
   background:
     radial-gradient(circle at 25% 25%, rgba(0,180,255,0.28), rgba(0,0,0,0) 60%),
+    radial-gradient(circle at 85% 10%, rgba(0,120,255,0.18), rgba(0,0,0,0) 55%),
     linear-gradient(180deg, rgba(255,255,255,0.05), rgba(0,0,0,0));
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
-.small-body{ padding: 14px 14px 10px 14px; }
-.small-title{
-  font-size: 16px;
-  font-weight: 880;
-  margin: 0;
-}
-.small-desc{
-  margin-top: 8px;
-  font-size: 13px;
-  line-height: 1.35;
-  color: rgba(255,255,255,0.72);
-}
-.icon{
+
+.industry-icon{
   position:absolute;
-  top: 56px;
-  left: 14px;
-  width: 44px;
-  height: 44px;
+  top: 54px;
+  left: 16px;
+  width: 46px;
+  height: 46px;
   border-radius: 14px;
-  background: rgba(0,0,0,0.40);
+  background: rgba(0,0,0,0.45);
   border: 1px solid rgba(255,255,255,0.12);
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size: 20px;
-  color:#fff;
+  font-size: 22px;
   backdrop-filter: blur(10px);
 }
 
-/* Bottom row (3 cards) */
-.more{
-  display:grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin-top: 16px;
+.industry-body{
+  padding: 16px;
 }
 
-/* Link styling */
-a.cardlink{
-  text-decoration:none !important;
-  color: inherit !important;
-  display:block;
+.industry-title{
+  margin:0;
+  font-size:17px;
+  font-weight:900;
+  color:white;
+}
+
+.industry-tag{
+  display:inline-block;
+  margin-top:8px;
+  font-size:12px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.28);
+  color: rgba(255,255,255,0.8);
+}
+
+.industry-desc{
+  margin-top:10px;
+  font-size:13px;
+  line-height:1.35;
+  color: rgba(255,255,255,0.72);
+  max-width: 95%;
+}
+
+.industry-open{
+  position:absolute;
+  bottom:14px;
+  right:16px;
+  font-size:12px;
+  opacity:.85;
+  color: rgba(255,255,255,0.78);
+}
+
+/* Make the entire card clickable via hidden link */
+.card-link{
+  position:absolute;
+  inset:0;
+  z-index: 2;
+  text-decoration:none;
+  color: transparent;
 }
 
 /* Responsive */
-@media (max-width: 1100px){
-  .solutions{ grid-template-columns: 1fr; }
-  .solutions .big{ grid-row: auto; }
-  .more{ grid-template-columns: 1fr; }
+@media (max-width: 1200px){
+  .industry-grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 650px){
+  .block-container{ padding-left: 18px !important; padding-right: 18px !important; }
+  .industry-grid{ grid-template-columns: 1fr; }
 }
 </style>
 """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
+# ----------------------------
+# Header
+# ----------------------------
 st.markdown("# Projects")
-st.markdown("<p class='muted'>Featured solutions by industry (case files • outcomes • demos).</p>", unsafe_allow_html=True)
-
-# ====== DATA (your real pages) ======
-cards = {
-    "Bancos & Seguros": ("Risk • Analytics", "Riesgo, fraude, segmentación, churn y KPIs ejecutivos.", "🏦", "pages/2a_Bancos_Seguros.py"),
-    "Energía": ("Ops • Optimization", "Optimización, confiabilidad, monitoreo y analítica operativa.", "⚡", "pages/2b_Energia.py"),
-    "Entretenimiento": ("NLP • Recommenders", "Recomendación, engagement, sentiment y análisis de audiencia.", "🎬", "pages/3c_Entretenimiento.py"),
-    "Manufactura": ("Quality • IoT", "Calidad, OEE, mantenimiento predictivo e IoT industrial.", "🏭", "pages/2d_Manufactactura.py" if False else "pages/2d_Manufactura.py"),
-    "Marketing": ("Growth • BI", "Funnels, CAC/LTV, performance, atribución y experimentación.", "📈", "pages/2e_Marketing.py"),
-    "Política": ("Signals • Scenarios", "Discurso, percepción pública, señales tempranas y escenarios.", "🏛️", "pages/2f_Politica.py"),
-    "Transporte": ("Routing • Forecast", "Demanda, ruteo, costos y optimización logística.", "🚚", "pages/2g_Transporte.py"),
-}
-
-# ====== RENDER: Featured solutions (1 big + 4 small) ======
-big = "Bancos & Seguros"
-small_4 = ["Energía", "Entretenimiento", "Manufactura", "Marketing"]
-bottom = ["Política", "Transporte"]  # we’ll add a 3rd placeholder so it looks symmetric
-
-# Build one HTML block for the grid so it renders correctly
-def card_html(name, is_big=False):
-    tag, desc, icon, page = cards[name]
-    if is_big:
-        return f"""
-<a class="cardlink" href="/{page.replace("pages/","").replace(".py","")}">
-  <div class="big">
-    <div class="cover"></div>
-    <div class="icon">{icon}</div>
-    <div class="card-body">
-      <p class="title">{name}</p>
-      <span class="pill">{tag}</span>
-      <p class="desc">{desc}</p>
-      <span class="pill">Open →</span>
-    </div>
-  </div>
-</a>
-"""
-    return f"""
-<a class="cardlink" href="/{page.replace("pages/","").replace(".py","")}">
-  <div class="small">
-    <div class="small-top"></div>
-    <div class="icon">{icon}</div>
-    <div class="small-body">
-      <p class="small-title">{name}</p>
-      <span class="pill">{tag}</span>
-      <p class="small-desc">{desc}</p>
-      <span class="pill">Open →</span>
-    </div>
-  </div>
-</a>
-"""
-
-# IMPORTANT:
-# Streamlit multipage uses URL routing like "/Projects" not "/pages/x.py".
-# So instead we will show the cards layout in HTML and keep real navigation with st.page_link right below each card using columns.
-
-# 1) Render the layout visuals
 st.markdown(
-    "<div class='solutions'>"
-    + card_html(big, is_big=True)
-    + "".join(card_html(n) for n in small_4)
-    + "</div>",
-    unsafe_allow_html=True
+    "<p class='subtitle'>Explore my work by industry. Case files, outcomes, links and demos will live inside each section.</p>",
+    unsafe_allow_html=True,
 )
 
-# 2) Real navigation (kept inside same page area, corporate)
-st.markdown("### Open an industry")
-c1, c2, c3, c4 = st.columns(4)
-with c1:
-    st.page_link("pages/2a_Bancos_Seguros.py", label="Bancos & Seguros", icon="🏦")
-    st.page_link("pages/2b_Energia.py", label="Energía", icon="⚡")
-with c2:
-    st.page_link("pages/2c_Entretenimiento.py", label="Entretenimiento", icon="🎬")
-    st.page_link("pages/2d_Manufactura.py", label="Manufactura", icon="🏭")
-with c3:
-    st.page_link("pages/2e_Marketing.py", label="Marketing", icon="📈")
-    st.page_link("pages/2f_Politica.py", label="Política", icon="🏛️")
-with c4:
-    st.page_link("pages/2g_Transporte.py", label="Transporte", icon="🚚")
+# ----------------------------
+# Data (your pages)
+# NOTE: Entretenimiento is 3c_Entretenimiento.py per your repo screenshot.
+# ----------------------------
+industries = [
+    {
+        "name": "Bancos & Seguros",
+        "tag": "Risk • Analytics",
+        "desc": "Riesgo, fraude, segmentación, churn y dashboards ejecutivos.",
+        "icon": "🏦",
+        "page": "pages/2a_Bancos_Seguros.py",
+    },
+    {
+        "name": "Energía",
+        "tag": "Ops • Optimization",
+        "desc": "Confiabilidad, mantenimiento, optimización y analítica operativa.",
+        "icon": "⚡",
+        "page": "pages/2b_Energia.py",
+    },
+    {
+        "name": "Entretenimiento",
+        "tag": "NLP • Recommenders",
+        "desc": "Recomendación, engagement, sentiment y análisis de audiencia.",
+        "icon": "🎬",
+        "page": "pages/2c_Entretenimiento.py",
+    },
+    {
+        "name": "Manufactura",
+        "tag": "Quality • IoT",
+        "desc": "OEE, calidad, procesos, mantenimiento predictivo e IoT industrial.",
+        "icon": "🏭",
+        "page": "pages/2d_Manufactura.py",
+    },
+    {
+        "name": "Marketing",
+        "tag": "Growth • BI",
+        "desc": "Funnels, CAC/LTV, performance marketing y experimentación.",
+        "icon": "📈",
+        "page": "pages/2e_Marketing.py",
+    },
+    {
+        "name": "Política",
+        "tag": "Signals • Scenarios",
+        "desc": "Señales, narrativa, percepción pública y escenarios.",
+        "icon": "🏛️",
+        "page": "pages/2f_Politica.py",
+    },
+    {
+        "name": "Transporte",
+        "tag": "Routing • Forecast",
+        "desc": "Ruteo, demanda, costos y optimización logística.",
+        "icon": "🚚",
+        "page": "pages/2g_Transporte.py",
+    },
+    {
+        "name": "Coming soon",
+        "tag": "New Lab",
+        "desc": "Nuevas industrias y casos en construcción.",
+        "icon": "✨",
+        "page": None,  # no navigation
+    },
+]
 
-# 3) Bottom row visuals (3-up)
-st.markdown(
-    "<div class='more'>"
-    + card_html("Política")
-    + card_html("Transporte")
-    + """
-<div class="small" style="opacity:.9">
-  <div class="small-top"></div>
-  <div class="icon">✨</div>
-  <div class="small-body">
-    <p class="small-title">More industries</p>
-    <span class="pill">Coming soon</span>
-    <p class="small-desc">Más verticales y case files se agregan pronto.</p>
-  </div>
-</div>
-"""
-    + "</div>",
-    unsafe_allow_html=True
-)
+# ----------------------------
+# Grid render (cards)
+# We use HTML for the card UI + a Streamlit button overlay per-card for navigation.
+# ----------------------------
+st.markdown("<div class='industry-grid'>", unsafe_allow_html=True)
+
+for i, it in enumerate(industries):
+    # Card shell
+    st.markdown(
+        f"""
+        <div class="industry-card">
+          <div class="industry-top"></div>
+          <div class="industry-icon">{it["icon"]}</div>
+          <div class="industry-body">
+            <p class="industry-title">{it["name"]}</p>
+            <span class="industry-tag">{it["tag"]}</span>
+            <p class="industry-desc">{it["desc"]}</p>
+            <div class="industry-open">{'Open →' if it["page"] else 'Coming soon'}</div>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Navigation: invisible-ish button per card (works reliably with Streamlit)
+    # We place it right after the card; Streamlit will render below,
+    # but visually the card is already corporate. Click via button under each card if you prefer.
+    # If you want true "click anywhere", we can do JS routing next.
+    if it["page"]:
+        # compact button below each card (optional). Comment out if you don't want it.
+        if st.button(f"Open {it['name']}", key=f"open_{i}"):
+            st.switch_page(it["page"])
+    else:
+        st.button("Coming soon", key=f"soon_{i}", disabled=True)
+
+st.markdown("</div>", unsafe_allow_html=True)
+
