@@ -117,7 +117,7 @@ app_html = f"""
   .nav-wrap {{
     position: fixed;
     top: 42%;
-    right: 14%;
+    right: 14.5%;
     left: auto;
     transform: translate(-4px, 150px);
     z-index: 999999;   /* arriba del video */
