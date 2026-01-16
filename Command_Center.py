@@ -49,17 +49,10 @@ div[data-testid="stVerticalBlock"] { gap: 0rem; }
 st.markdown(
     """
 <style>
-/* ====== SINGLE TOP-LEFT BUTTON: "Portfolio JRR ≡" ======
-   Target the popover trigger by aria-label = the popover label.
-   We'll label the popover exactly "Portfolio JRR".
 /* ====== Portfolio JRR ≡  (single top button) ====== */
-
 button[aria-label="Portfolio JRR"]{
   position: fixed !important;
-
-  /* 🔽 AJUSTA ESTE VALOR si lo quieres más arriba o más abajo */
-  top: 86px !important;      
-
+  top: 86px !important;          /* <-- ajusta aquí */
   left: 22px !important;
   z-index: 100001 !important;
 
@@ -78,7 +71,7 @@ button[aria-label="Portfolio JRR"]{
   backdrop-filter: blur(14px);
 }
 
-/* ❌ Oculta flecha nativa del popover */
+/* ❌ Oculta la flecha nativa del popover */
 button[aria-label="Portfolio JRR"] svg{
   display: none !important;
 }
@@ -98,23 +91,7 @@ button[aria-label="Portfolio JRR"]:hover{
   background: rgba(0,0,0,0.72) !important;
 }
 
-
-/* Add ≡ on the right inside the same button */
-button[aria-label="Portfolio JRR"]::after{
-  content: "  ≡";
-  color: #fff;
-  font-size: 18px;
-  font-weight: 950;
-}
-
-/* Optional: logo inside the button (we'll inject via background if you want later) */
-/* Hover */
-button[aria-label="Portfolio JRR"]:hover{
-  border-color: rgba(255,255,255,0.28) !important;
-  background: rgba(0,0,0,0.58) !important;
-}
-
-/* Popover panel buttons (About/Projects/Contact) */
+/* Botones dentro del panel */
 div[data-testid="stPopoverBody"] .stButton > button{
   width: 220px;
   border-radius: 12px !important;
@@ -130,6 +107,7 @@ div[data-testid="stPopoverBody"] .stButton > button:hover{
   background: rgba(0,0,0,0.84) !important;
 }
 </style>
+
 """,
     unsafe_allow_html=True,
 )
