@@ -286,28 +286,11 @@ app_html = f"""
 
 <body>
  <div class="hero">
-  <div class="video-tilt">
-    <video autoplay muted loop playsinline>
-      <source src="data:video/mp4;base64,..." type="video/mp4">
-    </video>
-  </div>
+  <video autoplay muted loop playsinline>
+    <source src="data:video/mp4;base64,..." type="video/mp4">
+  </video>
   <div class="overlay"></div>
 </div>
-.video-tilt {{
-  position: absolute;
-  inset: -10%;
-  transform: rotate(-2deg) scale(1.12);
-  transform-origin: center;
-  z-index: 1;
-}}
-
-.video-tilt video {{
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}}
-
-
 
   <div class="nav-wrap">
     <button class="nav-btn" id="navBtn">
