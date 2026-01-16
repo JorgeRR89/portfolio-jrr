@@ -122,9 +122,9 @@ app_html = f"""
     transform: translate(-4px, 150px);
     z-index: 999999;   /* arriba del video */
     width: 240px;                     /* MISMO ancho que el menú */
-  display: flex;
-  flex-direction: column;
- align-self: center;               /* ✅ centrado bajo el botón */
+    display: flex;
+    flex-direction: column;
+    align-self: center;               /* ✅ centrado bajo el botón */
    
   }}
 
