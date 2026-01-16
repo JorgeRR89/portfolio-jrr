@@ -60,7 +60,69 @@ elif page == "contact":
 # ----------------------------
 # Topbar HTML (Portfolio JRR ≡ + burger dropdown)
 # ----------------------------
-top_px = 30  # <-- AJUSTA AQUÍ: lo baja/sube a la altura del video
+import base64
+from pathlib import Path
+from urllib.parse import urlencode
+
+import streamlit as st
+import streamlit.components.v1 as components
+
+# ----------------------------
+# Page config
+# ----------------------------
+st.set_page_config(
+    page_title="Portfolio JRR",
+    page_icon="🛰️",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
+
+# ----------------------------
+# Paths
+# ----------------------------
+ASSETS = Path(__file__).parent / "assets"
+VIDEO_PATH = ASSETS / "data-world.mp4"
+LOGO_PATH = ASSETS / "logo.png"  # opcional
+
+def b64_file(path: Path) -> str:
+    return base64.b64encode(path.read_bytes()).decode("utf-8")
+
+video_b64 = b64_file(VIDEO_PATH) if VIDEO_PATH.exists() else ""
+logo_b64 = b64_file(LOGO_PATH) if LOGO_PATH.exists() else ""
+
+# ----------------------------
+# Clean Streamlit chrome
+# ----------------------------
+st.markdown(
+    """
+<style>
+header[data-testid="stHeader"] {display:none;}
+footer {visibility:hidden;}
+.block-container { padding: 0 !important; max-width: 100% !important; }
+section.main > div { padding: 0 !important; }
+div[data-testid="stVerticalBlock"] { gap: 0rem; }
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
+# ----------------------------
+# Routing via query params (stable navigation)
+# ----------------------------
+params = st.query_params
+page = params.get("page", "")
+
+if page == "about":
+    st.switch_page("pages/3_About_Me.py")
+elif page == "projects":
+    st.switch_page("pages/4_Projects.py")
+elif page == "contact":
+    st.switch_page("pages/5_Contact.py")
+
+# ----------------------------
+# Topbar HTML (Portfolio JRR ≡ + burger dropdown)
+# ----------------------------
+top_px = 72  # <-- AJUSTA AQUÍ: lo baja/sube a la altura del video
 
 logo_html = f"<img class='nav-logo' src='data:image/png;base64,{logo_b64}'/>" if logo_b64 else ""
 
@@ -91,7 +153,6 @@ nav_html = f"""
     left: 22px;
     z-index: 999999;
     user-select: none;
-    overflow: visible;
   }}
 
   .nav-btn {{
@@ -135,14 +196,13 @@ nav_html = f"""
 
   .nav-menu {{
     display: none;
-    margin-top: 8px;
+    margin-top: 10px;
     width: 240px;
     border-radius: 16px;
     padding: 10px;
     background: rgba(0,0,0,0.74);
     border: 1px solid rgba(255,255,255,0.14);
     backdrop-filter: blur(14px);
-    overflow: visible;
   }}
 
   .nav-menu.open {{
@@ -191,7 +251,7 @@ nav_html = f"""
 </script>
 """
 
-components.html(nav_html, height=100, scrolling=False)
+components.html(nav_html, height=180, scrolling=False)
 
 # ----------------------------
 # Hero video fullscreen
@@ -245,3 +305,4 @@ hero_html = f"""
 </html>
 """
 components.html(hero_html, height=900, scrolling=False)
+
