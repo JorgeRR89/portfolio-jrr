@@ -121,6 +121,10 @@ app_html = f"""
     left: auto;
     transform: translate(-4px, 150px);
     z-index: 999999;   /* arriba del video */
+    width: 240px;                     /* MISMO ancho que el menú */
+  display: flex;
+  flex-direction: column;
+  align-items: center;              /* ✅ centra el botón */
    
   }}
 
@@ -166,13 +170,14 @@ app_html = f"""
 
   .nav-menu {{
     display: none;
-    margin-top: 10px;
+    margin-top: 12px;
     width: 240px;
     border-radius: 16px;
     padding: 10px;
     background: rgba(0,0,0,0.74);
     border: 1px solid rgba(255,255,255,0.14);
     backdrop-filter: blur(14px);
+    align-self: center;               /* ✅ centrado bajo el botón */
   }}
 
   .nav-menu.open {{
@@ -190,6 +195,7 @@ app_html = f"""
     color: #fff;
     font-weight: 780;
     text-decoration: none;
+    text-align: center;               /* opcional, más simétrico */
   }}
 
   .nav-item:hover {{
