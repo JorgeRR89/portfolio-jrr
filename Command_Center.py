@@ -94,20 +94,57 @@ div[data-testid="stPopover"] > button{
   backdrop-filter: blur(12px);
 }
 
-div[data-testid="stPopover"] button{
+/* Trigger del popover (solo el botón que abre el menú) */
+div[data-testid="stPopover"] > button{
   position: fixed !important;
   top: 18px !important;
   right: 22px !important;
   left: auto !important;
   z-index: 100001 !important;
-  font-size: 0 !important;
+
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 16px !important;
+  padding: 0 !important;
+
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  background: rgba(0,0,0,0.50) !important;
+
+  font-size: 0 !important;        /* oculta "MENU" */
+  color: transparent !important;
+  backdrop-filter: blur(12px);
 }
-div[data-testid="stPopover"] button::before{
+
+/* Icono ≡ SOLO en el trigger */
+div[data-testid="stPopover"] > button::before{
   content: "≡";
   color: #fff;
   font-size: 22px;
   font-weight: 950;
 }
+
+/* Hover trigger */
+div[data-testid="stPopover"] > button:hover{
+  border-color: rgba(255,255,255,0.32) !important;
+  background: rgba(0,0,0,0.72) !important;
+}
+
+/* Estilos para los botones dentro del panel del popover (NO fixed) */
+div[data-testid="stPopoverBody"] .stButton > button{
+  width: 220px;
+  border-radius: 12px !important;
+  padding: 11px 12px !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  background: rgba(0,0,0,0.74) !important;
+  color: #fff !important;
+  font-weight: 780 !important;
+  text-align: left !important;
+}
+div[data-testid="stPopoverBody"] .stButton > button:hover{
+  border-color: rgba(255,255,255,0.30) !important;
+  background: rgba(0,0,0,0.84) !important;
+}
+
 
 
 
