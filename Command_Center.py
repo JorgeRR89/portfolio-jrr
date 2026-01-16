@@ -285,10 +285,29 @@ app_html = f"""
 </head>
 
 <body>
-  <div class="hero">
-    {"<video autoplay muted loop playsinline><source src='data:video/mp4;base64," + video_b64 + "' type='video/mp4'></video>" if video_b64 else ""}
-    <div class="overlay"></div>
+ <div class="hero">
+  <div class="video-tilt">
+    <video autoplay muted loop playsinline>
+      <source src="data:video/mp4;base64,..." type="video/mp4">
+    </video>
   </div>
+  <div class="overlay"></div>
+</div>
+.video-tilt {{
+  position: absolute;
+  inset: -10%;
+  transform: rotate(-2deg) scale(1.12);
+  transform-origin: center;
+  z-index: 1;
+}}
+
+.video-tilt video {{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}}
+
+
 
   <div class="nav-wrap">
     <button class="nav-btn" id="navBtn">
