@@ -117,11 +117,37 @@ app_html = f"""
     width: 260px;
     display: flex;
     flex-direction: column;
-    align-items: center;     /* ✅ centra botón y menú */
+    align-items: center;
+  }}
+
+  /* typing title container */
+  .nav-title {{
+    font-family: var(--code-font);
+    font-weight: 800;
+    color: #eaf6ff;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+  }}
+
+  /* cursor blink */
+  .cursor {{
+    display: inline-block;
+    width: 10px;
+    height: 18px;
+    border-radius: 2px;
+    background: rgba(143, 211, 255, 0.95);
+    box-shadow: 0 0 10px rgba(0,160,255,.8);
+    animation: blink 0.95s steps(1) infinite;
+  }}
+
+  @keyframes blink {{
+    50% {{ opacity: 0; }}
   }}
 
   .nav-btn {{
-    width: 260px;            /* ✅ mismo ancho que el menú */
+    width: 260px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -168,12 +194,6 @@ app_html = f"""
     width: 22px;
     height: 22px;
     border-radius: 7px;
-  }}
-
-  .nav-title {{
-    font-family: var(--code-font);
-    font-weight: 800;
-    color: #eaf6ff;
   }}
 
   .nav-burger {{
@@ -263,7 +283,9 @@ app_html = f"""
   <div class="nav-wrap">
     <button class="nav-btn" id="navBtn">
       {logo_html}
-      <span class="nav-title">Portfolio JRR</span>
+      <span class="nav-title">
+        <span id="typedTitle"></span><span class="cursor"></span>
+      </span>
       <span class="nav-burger">≡</span>
     </button>
 
@@ -275,6 +297,7 @@ app_html = f"""
   </div>
 
 <script>
+  // ---- MENU toggle ----
   const btn = document.getElementById("navBtn");
   const menu = document.getElementById("navMenu");
 
@@ -291,6 +314,20 @@ app_html = f"""
   document.addEventListener("keydown", (e) => {{
     if (e.key === "Escape") menu.classList.remove("open");
   }});
+
+  // ---- TYPING effect ----
+  const target = document.getElementById("typedTitle");
+  const text = "Portfolio JRR";
+  let i = 0;
+
+  function type() {{
+    if (i <= text.length) {{
+      target.textContent = text.slice(0, i);
+      i++;
+      setTimeout(type, 65);   // velocidad typing
+    }}
+  }}
+  type();
 </script>
 
 </body>
@@ -298,5 +335,3 @@ app_html = f"""
 """
 
 components.html(app_html, height=900, scrolling=False)
-
-
