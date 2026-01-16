@@ -52,7 +52,7 @@ st.markdown(
 /* ====== Portfolio JRR ≡  (single top button) ====== */
 button[aria-label="Portfolio JRR"]{
   position: fixed !important;
-  top: 70px !important;          /* <-- ajusta aquí */
+  top: 50px !important;          /* <-- ajusta aquí */
   left: 22px !important;
   z-index: 100001 !important;
 
