@@ -102,7 +102,7 @@ app_html = f"""
 /* FOCO IDEA */
 .idea-focus {{
   position: fixed;
-  top: 20%;
+  top: 40%;
   right: 14%;
   transform: translateY(-50%);
   width: 220px;
