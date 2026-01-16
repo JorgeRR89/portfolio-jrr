@@ -50,10 +50,12 @@ st.markdown(
     """
 <style>
 /* ====== Portfolio JRR ≡  (single top button) ====== */
-button[aria-label="Portfolio JRR"]{
+div[data-testid="stPopover"] > button{
   position: fixed !important;
-  top: 50px !important;          /* <-- ajusta aquí */
+  top: 50px !important;
   left: 22px !important;
+  right: auto !important;
+  bottom: auto !important;
   z-index: 100001 !important;
 
   height: 46px !important;
@@ -67,8 +69,9 @@ button[aria-label="Portfolio JRR"]{
   font-weight: 850 !important;
   letter-spacing: 0.3px !important;
   font-size: 15px !important;
-
   backdrop-filter: blur(14px);
+
+  transform: none !important;   /* clave si había translate */
 }
 
 /* Hover */
