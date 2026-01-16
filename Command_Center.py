@@ -15,7 +15,7 @@ st.set_page_config(
 ASSETS = Path(__file__).parent / "assets"
 VIDEO_PATH = ASSETS / "data-flow.mp4"
 LOGO_PATH = ASSETS / "logo.png"
-GIF_PATH = ASSETS / "idea.gif"
+
 
 
 
@@ -24,7 +24,7 @@ def b64_file(path: Path) -> str:
 
 video_b64 = b64_file(VIDEO_PATH) if VIDEO_PATH.exists() else ""
 logo_b64 = b64_file(LOGO_PATH) if LOGO_PATH.exists() else ""
-gif_b64 = b64_file(GIF_PATH) if GIF_PATH.exists() else ""
+
 
 # limpia chrome
 st.markdown(
@@ -99,24 +99,12 @@ app_html = f"""
       rgba(0,0,0,0.92) 100%);
   }}
   
-/* FOCO IDEA */
-.idea-focus {{
-  position: fixed;
-  top: 42%;
-  right: 13%;
-  transform: translateY(-50%);
-  width: 220px;
-  opacity: 0.92;
-  z-index: 8000;
-  pointer-events: none;
 
-  filter: drop-shadow(0 0 25px rgba(0,180,255,0.75))
-          drop-shadow(0 0 60px rgba(0,120,255,0.35));
 }}
   /* NAV */
   .nav-wrap {{
     position: fixed;
-    top: 42%;
+    top: 50%;
     right: 14.5%;
     left: auto;
     transform: translate(-4px, 150px);
