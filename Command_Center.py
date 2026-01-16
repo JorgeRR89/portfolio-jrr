@@ -28,13 +28,12 @@ video_b64 = b64_file(VIDEO_PATH) if VIDEO_PATH.exists() else ""
 logo_b64 = b64_file(LOGO_PATH) if LOGO_PATH.exists() else ""
 
 if not video_b64:
-    st.error("No encuentro el video. Coloca tu archivo en: assets/hero.mp4")
+    st.error("No encuentro el video. Coloca tu archivo en: assets/data.mp4")
     st.stop()
 
 
 # =========================
-# Make Streamlit page truly full-height
-# (evita área blanca fuera del iframe)
+# FULL HEIGHT + ALIGNMENT
 # =========================
 st.markdown(
     """
@@ -45,22 +44,18 @@ html, body {height: 100%;}
 header[data-testid="stHeader"] {display:none;}
 footer {visibility:hidden;}
 
-/* NO ocultar sidebar */
-/* section[data-testid="stSidebar"] {display:none;} */
-
 /* Quitar paddings default */
 .block-container { padding: 0 !important; max-width: 100% !important; }
 section.main > div { padding: 0 !important; }
 
+/* Iframe alineado (como lo dejaste bien) */
 iframe {
-  width: calc(100vw - 64px) !important;  /* un poco más angosto */
+  width: calc(100vw - 64px) !important;
   height: 100vh !important;
   border: 0 !important;
   display: block !important;
-
-  margin-left: 64px !important;          /* 👈 lo mueve a la derecha */
+  margin-left: 64px !important;
 }
-
 </style>
 """,
     unsafe_allow_html=True,
@@ -78,13 +73,12 @@ html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hi
 /* Hero wrapper */
 .hero {
   position: relative;
-  width: calc(100vw - 24px);  /* deja espacio para la flecha */
+  width: calc(100vw - 24px);
   height: 100vh;
-  margin-left: 24px;          /* corre todo un poco a la derecha */
+  margin-left: 24px;
   overflow: hidden;
   background: #000;
 }
-
 
 /* Video background */
 .hero video {
@@ -143,7 +137,7 @@ html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hi
 .center {
   position: absolute;
   inset: 0;
-  z-index: 5; /* arriba del overlay y de los acentos */
+  z-index: 5;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -232,21 +226,23 @@ html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hi
 /* Open drawer when checked */
 #menuToggle:checked ~ .drawer { transform: translateX(0%); }
 
-/* Drawer links */
-.drawer a {
-  display: block;
+/* Drawer buttons */
+.drawer button {
+  width: 100%;
+  text-align: left;
   padding: 16px 14px;
   margin: 10px 0;
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 14px;
-  text-decoration: none;
+  background: transparent;
   color: #fff;
+  cursor: pointer;
   font-weight: 800;
   letter-spacing: .5px;
   transition: background .2s ease, border-color .2s ease, transform .2s ease;
 }
 
-.drawer a:hover {
+.drawer button:hover {
   background: rgba(255,42,42,0.16);
   border-color: rgba(255,42,42,0.65);
   transform: translateY(-1px);
@@ -270,7 +266,64 @@ logo_html = (
     f"<img src='data:image/png;base64,{logo_b64}' alt='logo' />" if logo_b64 else ""
 )
 
+# =========================
+# JS NAVEGACION (click + scroll)
+# =========================
+# IMPORTANTE:
+# Estos links asumen tu estructura multipage:
+# pages/1_About_Me.py, pages/2_Projects.py, pages/3_Contact.py
+# Streamlit normalmente navega con ?page=<page_name_sin_.py>
+js = """
+<script>
+(function () {
+  function closeDrawer(){
+    const t = document.getElementById('menuToggle');
+    if (t) t.checked = false;
+  }
+
+  function goTo(page){
+    // Construye URL para multipage de Streamlit
+    // Ej: ?page=1_About_Me
+    const base = window.parent.location.origin + window.parent.location.pathname;
+    const url = base + "?page=" + encodeURIComponent(page);
+    window.parent.location.href = url;
+  }
+
+  // Exponer funciones para onclick
+  window.__nav = {
+    about:  function(){ closeDrawer(); goTo("1_About_Me"); },
+    projects:function(){ closeDrawer(); goTo("2_Projects"); },
+    contact:function(){ closeDrawer(); goTo("3_Contact"); }
+  };
+
+  // Scroll-to-next: wheel down => About
+  let armed = true;
+  window.addEventListener("wheel", function(e){
+    if (!armed) return;
+    if (e.deltaY > 35) {
+      armed = false;
+      goTo("1_About_Me");
+    }
+  }, { passive: true });
+
+  // Touch (mobile): swipe up => About
+  let y0 = null;
+  window.addEventListener("touchstart", (e)=>{ y0 = e.touches?.[0]?.clientY ?? null; }, {passive:true});
+  window.addEventListener("touchmove", (e)=>{
+    if (!armed || y0 === null) return;
+    const y1 = e.touches?.[0]?.clientY ?? y0;
+    const dy = y0 - y1; // swipe up => positive
+    if (dy > 60) {
+      armed = false;
+      goTo("1_About_Me");
+    }
+  }, {passive:true});
+})();
+</script>
+"""
+
 html = f"""
+{js}
 <div class="hero">
   <video autoplay muted loop playsinline>
     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
@@ -304,13 +357,12 @@ html = f"""
   </div>
 
   <div class="drawer">
-    <a href="#about">About me</a>
-    <a href="#projects">Projects</a>
-    <a href="#contact">Contacto</a>
+    <button onclick="window.__nav.about()">About me</button>
+    <button onclick="window.__nav.projects()">Projects</button>
+    <button onclick="window.__nav.contact()">Contact</button>
     <div class="hint">Tip: presiona el botón para cerrar.</div>
   </div>
 </div>
 """
 
-# Render full screen
 components.html(css + html, height=1100, scrolling=False)
