@@ -60,205 +60,180 @@ hero_html = f"""
 <style>
   :root {{
     --bg: #000000;
-    --card: #ffffff;
-    --text: #0b0f14;
-    --muted: #5b6675;
-    --border: rgba(0,0,0,0.10);
   }}
+  body {{ margin:0; background: transparent; }}
 
-  body {{
-    margin: 0;
-    background: transparent;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-  }}
-
-  /* HERO WRAPPER - FULLSCREEN */
-  .hero-wrap {{
-    position: relative;
+  .hero {{
+    position: fixed;
+    inset: 0;
     width: 100vw;
     height: 100vh;
-    min-height: 100vh;
-    overflow: hidden;
     background: var(--bg);
+    overflow: hidden;
   }}
 
-  /* VIDEO BG */
-  .hero-wrap video {{
+  video {{
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 1;
-    filter: contrast(1.08) saturate(1.1);
+    opacity: 0.92; /* nitido */
+    filter: none;
   }}
 
-  .fallback {{
-    position:absolute;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color: rgba(255,255,255,0.75);
-    font-size: 14px;
-    letter-spacing: 1.2px;
-  }}
-
-  /* CINEMATIC OVERLAY */
-  .hero-overlay {{
+  .overlay {{
     position: absolute;
     inset: 0;
-    background: radial-gradient(
-      ellipse at center,
-      rgba(0,0,0,0.05),
-      rgba(0,0,0,0.75) 45%,
-      rgba(0,0,0,0.95) 100%
-    );
-  }}
-
-  /* SMALLER CENTER CARD */
-  .command-card {{
-    position: absolute;
-    top: 54%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: min(820px, 90%);
-    background: var(--card);
-    border-radius: 22px;
-    box-shadow: 0 25px 90px rgba(0,0,0,0.65);
-    border: 1px solid var(--border);
-    padding: 24px 30px 22px 30px;
-  }}
-
-  /* TOP BAR */
-  
-
-  .brand img {{
-    width: 26px;
-    height: 26px;
-    border-radius: 8px;
-  }}
-
-  /* BODY */
-  .card-body {{
-    padding: 26px 8px 4px 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }}
-
-  .kicker {{
-    letter-spacing: 3.2px;
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 750;
-    text-transform: uppercase;
-  }}
-
-  .h1 {{
-    margin-top: 8px;
-    font-size: 46px;
-    line-height: 1.03;
-    font-weight: 900;
-    color: var(--text);
-  }}
-
-  .sub {{
-    margin-top: 10px;
-    max-width: 620px;
-    font-size: 16px;
-    line-height: 1.5;
-    color: rgba(11,15,20,0.80);
-  }}
-
-  .cta {{
-    margin-top: 18px;
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }}
-
-  .pill {{
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 11px 16px;
-    border-radius: 999px;
-    border: 1px solid rgba(0,0,0,0.14);
-    font-weight: 750;
-    color: var(--text);
-    background: rgba(0,0,0,0.02);
-    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
-  }}
-
-  .pill.primary {{
-    background: #0b0f14;
-    color: #ffffff;
-    border-color: #0b0f14;
-    box-shadow: 0 10px 28px rgba(11,15,20,0.25);
-  }}
-
-  .pill:hover {{
-    transform: translateY(-1px);
-  }}
-
-  .card-foot {{
-    margin-top: 18px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(0,0,0,0.08);
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    color: rgba(11,15,20,0.55);
-    font-size: 12px;
-    font-weight: 650;
-  }}
-
-  @media (max-width: 780px) {{
-    .nav span {{ display: none; }}
-    .h1 {{ font-size: 38px; }}
+    background:
+      radial-gradient(ellipse at center,
+        rgba(0,0,0,0.18),
+        rgba(0,0,0,0.78) 55%,
+        rgba(0,0,0,0.94) 100%);
   }}
 </style>
 </head>
 <body>
-  <div class="hero-wrap">
-    {"<video autoplay muted loop playsinline><source src='data:video/mp4;base64," + video_b64 + "' type='video/mp4'></video>" if video_b64 else "<div class='fallback'>Add assets/" + VIDEO_FILENAME + " to enable video background</div>"}
-    <div class="hero-overlay"></div>
-
-    <div class="command-card">
-        <div class="nav">
-          <span>About</span>
-          <span>Projects</span>
-          <span>Contact</span>
-          <div class="burger">☰</div>
-        </div>
-      </div>
-
-      <div class="card-body">
-        <div class="kicker">COMMAND CENTER</div>
-        <div class="h1">WELCOME TO MY LAB</div>
-        <div class="sub">
-          Engineering futuristic intelligence systems — predictive models, simulation engines,
-          and decision frameworks across critical industries.
-        </div>
-
-        <div class="cta">
-          <span class="pill primary">Enter the Lab</span>
-          <span class="pill">Open Simulation Lab</span>
-        </div>
-
-        <div class="card-foot">
-          <span>Intelligence • Engineering • Systems</span>
-          <span>Scroll ↓</span>
-        </div>
-      </div>
-    </div>
+  <div class="hero">
+    {"<video autoplay muted loop playsinline><source src='data:video/mp4;base64," + video_b64 + "' type='video/mp4'></video>" if video_b64 else ""}
+    <div class="overlay"></div>
   </div>
 </body>
 </html>
 """
+components.html(hero_html, height=1000, scrolling=False)
+st.markdown("""
+<style>
+/* Remove Streamlit padding so it feels like a real website */
+.block-container { padding: 0 !important; max-width: 100% !important; }
+section.main > div { padding: 0 !important; }
+
+/* Top bar overlay */
+.topbar {
+  position: fixed;
+  top: 18px;
+  left: 22px;
+  right: 22px;
+  z-index: 99999;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  pointer-events: none;
+}
+
+.topbar .left,
+.topbar .center,
+.topbar .right {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+}
+
+.topbar .left { justify-content: flex-start; }
+.topbar .center { justify-content: center; }
+.topbar .right { justify-content: flex-end; }
+
+.brand {
+  color: #fff;
+  font-weight: 850;
+  letter-spacing: 0.2px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.38);
+  border: 1px solid rgba(255,255,255,0.14);
+  backdrop-filter: blur(10px);
+}
+
+.center-cta .stButton > button {
+  border-radius: 999px !important;
+  padding: 12px 18px !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  background: rgba(255,255,255,0.06) !important;
+  color: #fff !important;
+  font-weight: 850 !important;
+  letter-spacing: 2.6px !important;
+  text-transform: uppercase !important;
+  backdrop-filter: blur(10px);
+}
+.center-cta .stButton > button:hover {
+  border-color: rgba(255,255,255,0.30) !important;
+  background: rgba(255,255,255,0.10) !important;
+}
+
+.burger .stButton > button {
+  width: 46px !important;
+  height: 46px !important;
+  border-radius: 14px !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  background: rgba(0,0,0,0.38) !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  backdrop-filter: blur(10px);
+}
+.burger .stButton > button:hover {
+  border-color: rgba(255,255,255,0.30) !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Topbar layout (real clickable Streamlit widgets)
+left, center, right = st.columns([1, 1, 1])
+
+# We place them inside a fixed-position wrapper using HTML.
+st.markdown('<div class="topbar"><div class="left"><div class="brand">Portfolio JRR</div></div><div class="center"></div><div class="right"></div></div>', unsafe_allow_html=True)
+
+# Now render Streamlit buttons aligned by placing them in columns and styling them
+with center:
+    st.markdown('<div class="center-cta">', unsafe_allow_html=True)
+    if st.button("WELCOME TO MY LAB", key="cta_welcome"):
+        st.switch_page("pages/1_Industries.py")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+with right:
+    st.markdown('<div class="burger">', unsafe_allow_html=True)
+    if st.button("≡", key="burger_menu"):
+        st.session_state["menu_open"] = not st.session_state.get("menu_open", False)
+    st.markdown('</div>', unsafe_allow_html=True)
+if st.session_state.get("menu_open", False):
+    st.markdown("""
+    <style>
+    .menu-panel{
+      position: fixed;
+      top: 76px;
+      right: 22px;
+      z-index: 99999;
+      width: 220px;
+      border-radius: 16px;
+      padding: 10px;
+      background: rgba(0,0,0,0.72);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(12px);
+    }
+    .menu-panel .stButton > button{
+      width: 100%;
+      border-radius: 12px !important;
+      padding: 10px 12px !important;
+      border: 1px solid rgba(255,255,255,0.14) !important;
+      background: rgba(255,255,255,0.06) !important;
+      color: #fff !important;
+      font-weight: 750 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="menu-panel">', unsafe_allow_html=True)
+    if st.button("About", key="menu_about"):
+        st.session_state["menu_open"] = False
+        st.switch_page("pages/3_About_Me.py")
+    if st.button("Projects", key="menu_projects"):
+        st.session_state["menu_open"] = False
+        st.switch_page("pages/4_Projects.py")
+    if st.button("Contact", key="menu_contact"):
+        st.session_state["menu_open"] = False
+        st.switch_page("pages/5_Contact.py")
+    st.markdown('</div>', unsafe_allow_html=True)
+
 # ----------------------------
 # TOP NAV (global, outside the card)
 # ----------------------------
@@ -363,24 +338,6 @@ div[data-testid="column"] .stButton > button:hover {
 
 components.html(hero_html, height=820, scrolling=False)
 
-# ----------------------------
-# Real Streamlit navigation buttons (functional)
-# ----------------------------
-c1, c2, c3 = st.columns([0.22, 0.22, 0.56])
-with c1:
-    if st.button("Enter the Lab", use_container_width=True):
-        try:
-            st.switch_page("pages/1_Industries.py")
-        except Exception:
-            st.warning("Industries page not created yet.")
-with c2:
-    if st.button("Open Simulation Lab", use_container_width=True):
-        try:
-            st.switch_page("pages/2_Simulation_Lab.py")
-        except Exception:
-            st.warning("Simulation Lab page not created yet.")
-
-st.write("")
 
 # ----------------------------
 # Industries preview grid (home)
