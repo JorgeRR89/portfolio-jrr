@@ -104,10 +104,16 @@ section.main > div { padding: 0 !important; }
 }
 
 .brand img {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  object-fit: cover;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+
+  background: white;          /* fondo blanco */
+  padding: 6px;               /* espacio alrededor del logo */
+  border-radius: 10px;        /* bordes suaves */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25); /* ligero realce */
+}
+
 }
 
 /* Center headline */
