@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 ASSETS = Path(__file__).parent / "assets"
-VIDEO_PATH = ASSETS / "coding.mp4"
+VIDEO_PATH = ASSETS / "coding1.mp4"
 LOGO_PATH = ASSETS / "logo.png"
 
 
