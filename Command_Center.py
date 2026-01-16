@@ -16,8 +16,8 @@ st.set_page_config(
 )
 
 ASSETS = Path(__file__).parent / "assets"
-VIDEO_PATH = ASSETS / "hero.mp4"
-LOGO_PATH = ASSETS / "logo.png"
+VIDEO_PATH = ASSETS / "data.mp4"
+LOGO_PATH = ASSETS / "DS.png"
 
 
 def b64_file(path: Path) -> str:
