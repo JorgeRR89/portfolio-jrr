@@ -89,8 +89,8 @@ hero_html = f"""
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.90;
-    filter: contrast(1.1) saturate(1,05);
+    opacity: 0.60;
+    filter: grayscale(0.15) contrast(1.15);
   }}
 
   .fallback {{
