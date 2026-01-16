@@ -200,7 +200,7 @@ app_html = f"""
   <div class="hero">
     {"<video autoplay muted loop playsinline><source src='data:video/mp4;base64," + video_b64 + "' type='video/mp4'></video>" if video_b64 else ""}
     <div class="overlay"></div>
-   {"<img class='idea-focus' src='data:image/gif;base64," + gif_b64 + "'/>" if gif_b64 else ""}
+  
  
   </div>
 
