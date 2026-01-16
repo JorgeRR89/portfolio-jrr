@@ -1,10 +1,13 @@
 import base64
 from pathlib import Path
-import streamlit as st
 
-# -------------------
-# Config
-# -------------------
+import streamlit as st
+import streamlit.components.v1 as components
+
+
+# =========================
+# CONFIG
+# =========================
 st.set_page_config(
     page_title="Portfolio JRR",
     page_icon="🛰️",
@@ -13,20 +16,26 @@ st.set_page_config(
 )
 
 ASSETS = Path(__file__).parent / "assets"
-VIDEO_PATH = ASSETS / "data.mp4"
+VIDEO_PATH = ASSETS / "hero.mp4"
 LOGO_PATH = ASSETS / "logo.png"
+
 
 def b64_file(path: Path) -> str:
     return base64.b64encode(path.read_bytes()).decode("utf-8")
 
+
+# Cargar assets (si no existen, se muestran mensajes claros)
 video_b64 = b64_file(VIDEO_PATH) if VIDEO_PATH.exists() else ""
 logo_b64 = b64_file(LOGO_PATH) if LOGO_PATH.exists() else ""
 
-# -------------------
-# Global CSS
-# -------------------
-st.markdown(
-    """
+if not video_b64:
+    st.error("No encuentro el video. Coloca tu archivo en: assets/hero.mp4")
+    st.stop()
+
+# =========================
+# CSS + HTML (UNA SOLA PIEZA)
+# =========================
+css = """
 <style>
 /* Hide streamlit chrome */
 header[data-testid="stHeader"] {display:none;}
@@ -75,7 +84,7 @@ section.main > div { padding: 0 !important; }
   top: 0;
   left: 0;
   right: 0;
-  z-index: 3;
+  z-index: 6;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -88,15 +97,16 @@ section.main > div { padding: 0 !important; }
   display: flex;
   align-items: center;
   gap: 12px;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 1px;
   text-transform: uppercase;
+  user-select: none;
 }
 
 .brand img {
   width: 34px;
   height: 34px;
-  border-radius: 8px;
+  border-radius: 10px;
   object-fit: cover;
 }
 
@@ -104,7 +114,7 @@ section.main > div { padding: 0 !important; }
 .center {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -119,14 +129,14 @@ section.main > div { padding: 0 !important; }
   line-height: 1.05;
   letter-spacing: 0.5px;
   margin: 0;
-  font-weight: 800;
+  font-weight: 900;
 }
 
-/* Red tech accents (optional) */
+/* Red tech accents */
 .accents {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 4;
   pointer-events: none;
 }
 
@@ -137,10 +147,10 @@ section.main > div { padding: 0 !important; }
   opacity: 0.9;
 }
 
-.l1 { top: 90px; right: 120px; width: 120px; }
-.l2 { top: 120px; right: 40px; width: 220px; }
-.l3 { bottom: 70px; left: 40px; width: 200px; opacity: 0.6; }
-.l4 { top: 30%; left: 55%; width: 240px; transform: rotate(-55deg); opacity: 0.55; }
+.l1 { top: 92px; right: 130px; width: 120px; }
+.l2 { top: 122px; right: 40px; width: 240px; }
+.l3 { bottom: 70px; left: 40px; width: 220px; opacity: 0.55; }
+.l4 { top: 30%; left: 55%; width: 250px; transform: rotate(-55deg); opacity: 0.50; }
 
 /* ===== Burger + Drawer (checkbox hack) ===== */
 #menuToggle {
@@ -152,11 +162,11 @@ section.main > div { padding: 0 !important; }
   width: 52px;
   height: 52px;
   background: #ff2a2a;
-  border-radius: 0px;
   display: grid;
   place-items: center;
   cursor: pointer;
   box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  user-select: none;
 }
 
 .burger span {
@@ -186,15 +196,15 @@ section.main > div { padding: 0 !important; }
   right: 0;
   width: min(380px, 90vw);
   height: 100%;
-  z-index: 4;
+  z-index: 7;
   transform: translateX(110%);
   transition: transform .28s ease;
   background: rgba(10,10,12,0.92);
   backdrop-filter: blur(10px);
   border-left: 1px solid rgba(255,255,255,0.08);
   padding: 90px 28px 28px;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color: #fff;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
 /* Open drawer when checked */
@@ -211,7 +221,7 @@ section.main > div { padding: 0 !important; }
   border-radius: 14px;
   text-decoration: none;
   color: #fff;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: .5px;
   transition: background .2s ease, border-color .2s ease, transform .2s ease;
 }
@@ -222,28 +232,27 @@ section.main > div { padding: 0 !important; }
   transform: translateY(-1px);
 }
 
-/* small helper line */
 .drawer .hint {
   opacity: 0.65;
   margin-top: 18px;
   font-size: 0.95rem;
 }
+
+/* Small: tighten spacing */
+@media (max-width: 600px) {
+  .topbar { padding: 16px 16px; }
+  .brand { gap: 10px; }
+  .center h1 { font-size: 2.1rem; }
+  .l1, .l2, .l3, .l4 { display: none; }
+}
 </style>
-""",
-    unsafe_allow_html=True,
+"""
+
+logo_html = (
+    f"<img src='data:image/png;base64,{logo_b64}' alt='logo' />" if logo_b64 else ""
 )
 
-# -------------------
-# HTML Layout
-# -------------------
-brand_logo_html = (
-    f'<img src="data:image/png;base64,{logo_b64}" alt="logo"/>'
-    if logo_b64
-    else ""
-)
-
-st.markdown(
-    f"""
+html = f"""
 <div class="hero">
   <video autoplay muted loop playsinline>
     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
@@ -251,12 +260,12 @@ st.markdown(
 
   <div class="topbar">
     <div class="brand">
-      {brand_logo_html}
+      {logo_html}
       <div>Portfolio JRR</div>
     </div>
 
-    <!-- checkbox + burger label -->
-    <div style="display:flex;align-items:center;gap:14px;">
+    <!-- checkbox + burger -->
+    <div>
       <input id="menuToggle" type="checkbox" />
       <label for="menuToggle" class="burger" aria-label="Open menu">
         <span></span><span></span><span></span>
@@ -268,7 +277,6 @@ st.markdown(
     <h1>Welcome to my lab</h1>
   </div>
 
-  <!-- Red accents -->
   <div class="accents">
     <div class="line l1"></div>
     <div class="line l2"></div>
@@ -276,14 +284,16 @@ st.markdown(
     <div class="line l4"></div>
   </div>
 
-  <!-- Drawer -->
   <div class="drawer">
     <a href="#about">About me</a>
     <a href="#projects">Projects</a>
     <a href="#contact">Contacto</a>
-    <div class="hint">Tip: vuelve a presionar el botón para cerrar.</div>
+    <div class="hint">Tip: presiona el botón para cerrar.</div>
   </div>
 </div>
-""",
-    unsafe_allow_html=True,
-)
+"""
+
+# =========================
+# RENDER (IMPORTANT)
+# =========================
+components.html(css + html, height=980, scrolling=False)
