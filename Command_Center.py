@@ -18,7 +18,7 @@ st.set_page_config(
 # Paths
 # ----------------------------
 ASSETS = Path(__file__).parent / "assets"
-VIDEO_FILENAME = "data-flow.mp4"  # tu video
+VIDEO_FILENAME = "data-world.mp4"  # tu video
 VIDEO_PATH = ASSETS / VIDEO_FILENAME
 
 LOGO_FILENAME = "logo.png"  # opcional
