@@ -81,6 +81,7 @@ html, body { background: #000; overflow: hidden; }
   inset: 0;
   background: rgba(0,0,0,0.35);
   z-index: 1;
+  pointer-events: none; 
 }
 
 /* TOP BAR */
@@ -180,7 +181,7 @@ html, body { background: #000; overflow: hidden; }
   padding:90px 28px;
   transform:translateX(110%);
   transition:.3s ease;
-  z-index:7;
+  z-index:9999;
 }
 
 #menuToggle:checked ~ .drawer { transform:translateX(0%); }
