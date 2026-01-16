@@ -94,12 +94,21 @@ div[data-testid="stPopover"] > button{
   backdrop-filter: blur(12px);
 }
 
-div[data-testid="stPopover"] > button::before{
+div[data-testid="stPopover"] button{
+  position: fixed !important;
+  top: 18px !important;
+  right: 22px !important;
+  left: auto !important;
+  z-index: 100001 !important;
+  font-size: 0 !important;
+}
+div[data-testid="stPopover"] button::before{
   content: "≡";
   color: #fff;
   font-size: 22px;
   font-weight: 950;
 }
+
 
 
 /* icono ≡ via pseudo-element */
