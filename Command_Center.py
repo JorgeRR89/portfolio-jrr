@@ -109,36 +109,20 @@ hero_html = f"""
 
 # Use a large height so the iframe covers most screens
 components.html(hero_html, height=1100, scrolling=False)
-
-# ----------------------------
-# TOPBAR (left brand, center CTA, right burger)
-# ----------------------------
 st.markdown(
     """
 <style>
-.topbar {
+/* HARD reset spacing so nothing pushes content */
+.block-container { padding: 0 !important; margin: 0 !important; }
+section.main > div { padding: 0 !important; margin: 0 !important; }
+div[data-testid="stVerticalBlock"] { gap: 0rem; padding: 0 !important; margin: 0 !important; }
+
+/* --- FIXED BRAND (top-left) --- */
+.overlay-brand {
   position: fixed;
   top: 18px;
   left: 22px;
-  right: 22px;
-  z-index: 99999;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  pointer-events: none;
-}
-.topbar .left,
-.topbar .center,
-.topbar .right {
-  pointer-events: auto;
-  display:flex;
-  align-items:center;
-}
-.topbar .left { justify-content: flex-start; }
-.topbar .center { justify-content: center; }
-.topbar .right { justify-content: flex-end; }
-
-.brand-chip {
+  z-index: 100000;
   display:flex;
   align-items:center;
   gap:10px;
@@ -151,71 +135,128 @@ st.markdown(
   letter-spacing: 0.2px;
   backdrop-filter: blur(10px);
 }
-.brand-chip img { width: 22px; height: 22px; border-radius: 7px; }
+.overlay-brand img { width: 22px; height: 22px; border-radius: 7px; }
 
-/* Center CTA button */
-.center-cta .stButton > button {
+/* --- BIG CENTER CTA (true center) --- */
+.overlay-cta {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100000;
+}
+
+/* make the Streamlit button huge and premium */
+.overlay-cta div.stButton > button {
   border-radius: 999px !important;
-  padding: 12px 18px !important;
-  border: 1px solid rgba(255,255,255,0.18) !important;
-  background: rgba(255,255,255,0.06) !important;
+  padding: 22px 36px !important;
+  border: 1px solid rgba(255,255,255,0.24) !important;
+  background: rgba(0,0,0,0.62) !important;
   color: #fff !important;
-  font-weight: 850 !important;
-  letter-spacing: 2.6px !important;
+  font-weight: 950 !important;
+  font-size: 18px !important;
+  letter-spacing: 4.2px !important;
   text-transform: uppercase !important;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 24px 90px rgba(0,0,0,0.65);
 }
-.center-cta .stButton > button:hover {
-  border-color: rgba(255,255,255,0.30) !important;
-  background: rgba(255,255,255,0.10) !important;
+.overlay-cta div.stButton > button:hover {
+  border-color: rgba(255,255,255,0.36) !important;
+  background: rgba(0,0,0,0.76) !important;
+  transform: translateY(-1px);
 }
 
-/* Burger button */
-.burger .stButton > button {
-  width: 46px !important;
-  height: 46px !important;
-  border-radius: 14px !important;
+/* --- BURGER TOP-RIGHT --- */
+.overlay-burger {
+  position: fixed;
+  top: 18px;
+  right: 22px;
+  z-index: 100000;
+}
+.overlay-burger div.stButton > button {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 16px !important;
   padding: 0 !important;
   border: 1px solid rgba(255,255,255,0.18) !important;
-  background: rgba(0,0,0,0.38) !important;
+  background: rgba(0,0,0,0.52) !important;
   color: #fff !important;
-  font-weight: 900 !important;
-  backdrop-filter: blur(10px);
+  font-weight: 950 !important;
+  font-size: 22px !important;
+  backdrop-filter: blur(14px);
 }
-.burger .stButton > button:hover {
+.overlay-burger div.stButton > button:hover {
   border-color: rgba(255,255,255,0.30) !important;
+  background: rgba(0,0,0,0.70) !important;
 }
 
-/* Dropdown menu */
+/* --- MENU PANEL (under burger) --- */
 .menu-panel {
   position: fixed;
-  top: 78px;
+  top: 84px;
   right: 22px;
-  z-index: 99999;
+  z-index: 100000;
   width: 220px;
   border-radius: 16px;
   padding: 10px;
-  background: rgba(0,0,0,0.72);
+  background: rgba(0,0,0,0.74);
   border: 1px solid rgba(255,255,255,0.14);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
 }
-.menu-panel .stButton > button{
+.menu-panel div.stButton > button{
   width: 100%;
   border-radius: 12px !important;
-  padding: 10px 12px !important;
+  padding: 11px 12px !important;
   border: 1px solid rgba(255,255,255,0.14) !important;
   background: rgba(255,255,255,0.06) !important;
   color: #fff !important;
-  font-weight: 750 !important;
+  font-weight: 780 !important;
 }
-.menu-panel .stButton > button:hover{
+.menu-panel div.stButton > button:hover{
   border-color: rgba(255,255,255,0.28) !important;
   background: rgba(255,255,255,0.10) !important;
 }
+
+/* --- hide Streamlit's bottom “ghost space” from columns/buttons --- */
+div[data-testid="stAppViewContainer"] { background: transparent !important; }
 </style>
 """,
     unsafe_allow_html=True,
 )
+
+# Brand (top-left)
+brand_img_html = f"<img src='data:image/png;base64,{logo_b64}' />" if logo_b64 else ""
+st.markdown(f'<div class="overlay-brand">{brand_img_html}Portfolio JRR</div>', unsafe_allow_html=True)
+
+# Center CTA (true center)
+st.markdown('<div class="overlay-cta">', unsafe_allow_html=True)
+if st.button("WELCOME TO MY LAB", key="cta_welcome"):
+    st.switch_page("pages/1_Industries.py")
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Burger (top-right)
+st.markdown('<div class="overlay-burger">', unsafe_allow_html=True)
+if st.button("≡", key="burger_menu"):
+    st.session_state["menu_open"] = not st.session_state.get("menu_open", False)
+st.markdown('</div>', unsafe_allow_html=True)
+
+# Burger menu items
+if st.session_state.get("menu_open", False):
+    st.markdown('<div class="menu-panel">', unsafe_allow_html=True)
+
+    if st.button("About", key="menu_about"):
+        st.session_state["menu_open"] = False
+        st.switch_page("pages/3_About_Me.py")
+
+    if st.button("Projects", key="menu_projects"):
+        st.session_state["menu_open"] = False
+        st.switch_page("pages/4_Projects.py")
+
+    if st.button("Contact", key="menu_contact"):
+        st.session_state["menu_open"] = False
+        st.switch_page("pages/5_Contact.py")
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
 # Fixed wrapper (visual)
 brand_img_html = f"<img src='data:image/png;base64,{logo_b64}' />" if logo_b64 else ""
@@ -320,7 +361,7 @@ st.markdown(
 
 # (Optional) left brand chip (keep it if you want)
 brand_img_html = f"<img src='data:image/png;base64,{logo_b64}' />" if logo_b64 else ""
-st.markdown(f'<div class="overlay-brand">{brand_img_html}Portfolio JRR</div>', unsafe_allow_html=True)
+
 
 # Center big CTA (covers watermark area)
 st.markdown('<div class="overlay-cta">', unsafe_allow_html=True)
@@ -334,11 +375,6 @@ if st.button("≡", key="burger_menu"):
     st.session_state["menu_open"] = not st.session_state.get("menu_open", False)
 st.markdown("</div>", unsafe_allow_html=True)
 
-
-# ----------------------------
-# Content below the fold (optional)
-# ----------------------------
-st.markdown("<div style='height: 110vh;'></div>", unsafe_allow_html=True)
 
 st.subheader("Strategic Domains")
 st.caption("Organized like IBM Solutions — projects grouped by industry.")
