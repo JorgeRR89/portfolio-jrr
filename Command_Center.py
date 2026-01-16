@@ -118,7 +118,7 @@ app_html = f"""
   /* NAV */
   .nav-wrap {{
     position: fixed;
-    top: 20%;
+    top: 10%;
     right: 14.5%;
     left: auto;
     transform: translate(-4px, 150px);
