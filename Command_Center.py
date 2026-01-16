@@ -18,7 +18,7 @@ st.set_page_config(
 # Paths
 # ----------------------------
 ASSETS = Path(__file__).parent / "assets"
-VIDEO_FILENAME = "digital-wall.mp4"   # <-- tu video ya subido
+VIDEO_FILENAME = "IA-bold.mp4"   # <-- tu video ya subido
 VIDEO_PATH = ASSETS / VIDEO_FILENAME
 
 # (Opcional) Logo mini. Si no existe, no pasa nada.
