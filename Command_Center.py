@@ -52,25 +52,52 @@ st.markdown(
 /* ====== SINGLE TOP-LEFT BUTTON: "Portfolio JRR ≡" ======
    Target the popover trigger by aria-label = the popover label.
    We'll label the popover exactly "Portfolio JRR".
-*/
+/* ====== Portfolio JRR ≡  (single top button) ====== */
+
 button[aria-label="Portfolio JRR"]{
   position: fixed !important;
-  top: 18px !important;
+
+  /* 🔽 AJUSTA ESTE VALOR si lo quieres más arriba o más abajo */
+  top: 86px !important;      
+
   left: 22px !important;
   z-index: 100001 !important;
 
-  height: 44px !important;
-  padding: 0 14px !important;
+  height: 46px !important;
+  padding: 0 16px !important;
   border-radius: 999px !important;
 
-  border: 1px solid rgba(255,255,255,0.14) !important;
-  background: rgba(0,0,0,0.40) !important;
+  border: 1px solid rgba(255,255,255,0.16) !important;
+  background: rgba(0,0,0,0.55) !important;
 
   color: #fff !important;
   font-weight: 850 !important;
-  letter-spacing: 0.2px !important;
-  backdrop-filter: blur(12px);
+  letter-spacing: 0.3px !important;
+  font-size: 15px !important;
+
+  backdrop-filter: blur(14px);
 }
+
+/* ❌ Oculta flecha nativa del popover */
+button[aria-label="Portfolio JRR"] svg{
+  display: none !important;
+}
+
+/* 🍔 Burger icon */
+button[aria-label="Portfolio JRR"]::after{
+  content: "  ≡";
+  color: #fff;
+  font-size: 20px;
+  font-weight: 950;
+  letter-spacing: 2px;
+}
+
+/* Hover */
+button[aria-label="Portfolio JRR"]:hover{
+  border-color: rgba(255,255,255,0.32) !important;
+  background: rgba(0,0,0,0.72) !important;
+}
+
 
 /* Add ≡ on the right inside the same button */
 button[aria-label="Portfolio JRR"]::after{
