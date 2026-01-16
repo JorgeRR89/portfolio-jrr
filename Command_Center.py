@@ -73,12 +73,13 @@ st.markdown(
   border-radius: 7px;
 }
 
-/* --- FIX: pin the burger/popover trigger top-right --- */
-button[aria-label="MENU"]{
+/* --- FIX REAL: pin the popover trigger (burger) top-right --- */
+div[data-testid="stPopover"] > button{
   position: fixed !important;
   top: 18px !important;
   right: 22px !important;
-  z-index: 100000 !important;
+  left: auto !important;          /* clave: anula cualquier left */
+  z-index: 100001 !important;     /* arriba del brand */
 
   width: 56px !important;
   height: 56px !important;
@@ -87,9 +88,19 @@ button[aria-label="MENU"]{
 
   border: 1px solid rgba(255,255,255,0.18) !important;
   background: rgba(0,0,0,0.50) !important;
-  color: transparent !important;         /* oculta texto "MENU" */
+
+  font-size: 0 !important;        /* oculta el texto del botón */
+  color: transparent !important;
   backdrop-filter: blur(12px);
 }
+
+div[data-testid="stPopover"] > button::before{
+  content: "≡";
+  color: #fff;
+  font-size: 22px;
+  font-weight: 950;
+}
+
 
 /* icono ≡ via pseudo-element */
 button[aria-label="MENU"]::before{
