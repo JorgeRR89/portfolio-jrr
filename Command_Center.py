@@ -362,20 +362,6 @@ st.markdown(
 # (Optional) left brand chip (keep it if you want)
 brand_img_html = f"<img src='data:image/png;base64,{logo_b64}' />" if logo_b64 else ""
 
-
-# Center big CTA (covers watermark area)
-st.markdown('<div class="overlay-cta">', unsafe_allow_html=True)
-if st.button("WELCOME TO MY LAB", key="cta_welcome"):
-    st.switch_page("pages/1_Industries.py")
-st.markdown("</div>", unsafe_allow_html=True)
-
-# Top-right burger
-st.markdown('<div class="overlay-burger">', unsafe_allow_html=True)
-if st.button("≡", key="burger_menu"):
-    st.session_state["menu_open"] = not st.session_state.get("menu_open", False)
-st.markdown("</div>", unsafe_allow_html=True)
-
-
 st.subheader("Strategic Domains")
 st.caption("Organized like IBM Solutions — projects grouped by industry.")
 
