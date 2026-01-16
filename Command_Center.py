@@ -92,8 +92,8 @@ hero_html = f"""
     inset: 0;
     background:
       radial-gradient(ellipse at center,
-        rgba(0,0,0,0.10),
-        rgba(0,0,0,0.74) 55%,
+        rgba(0,0,0,0.35),
+        rgba(0,0,0,0.78) 55%,
         rgba(0,0,0,0.92) 100%);
   }}
 </style>
@@ -189,7 +189,7 @@ st.markdown(
 /* Dropdown menu */
 .menu-panel {
   position: fixed;
-  top: 76px;
+  top: 78px;
   right: 22px;
   z-index: 99999;
   width: 220px;
@@ -232,38 +232,108 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Real Streamlit widgets aligned in three columns (clickable)
-left, center, right = st.columns([1, 1, 1])
+# ----------------------------
+# FIXED OVERLAY CONTROLS (center CTA + top-right burger)
+# ----------------------------
+st.markdown(
+    """
+<style>
+/* Big center CTA wrapper */
+.overlay-cta {
+  position: fixed;
+  top: 44%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-with center:
-    st.markdown('<div class="center-cta">', unsafe_allow_html=True)
-    if st.button("WELCOME TO MY LAB", key="cta_welcome"):
-        st.switch_page("pages/1_Industries.py")
-    st.markdown("</div>", unsafe_allow_html=True)
+/* Make Streamlit button look like a big hero CTA */
+.overlay-cta .stButton > button {
+  border-radius: 999px !important;
+  padding: 18px 28px !important;
+  border: 1px solid rgba(255,255,255,0.22) !important;
+  background: rgba(0,0,0,0.55) !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  font-size: 16px !important;
+  letter-spacing: 3.4px !important;
+  text-transform: uppercase !important;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.55);
+}
+.overlay-cta .stButton > button:hover {
+  border-color: rgba(255,255,255,0.34) !important;
+  background: rgba(0,0,0,0.68) !important;
+  transform: translateY(-1px);
+}
 
-with right:
-    st.markdown('<div class="burger">', unsafe_allow_html=True)
-    if st.button("≡", key="burger_menu"):
-        st.session_state["menu_open"] = not st.session_state.get("menu_open", False)
-    st.markdown("</div>", unsafe_allow_html=True)
+/* Top-right burger wrapper */
+.overlay-burger {
+  position: fixed;
+  top: 18px;
+  right: 22px;
+  z-index: 100000;
+}
+.overlay-burger .stButton > button {
+  width: 54px !important;
+  height: 54px !important;
+  border-radius: 16px !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  background: rgba(0,0,0,0.45) !important;
+  color: #fff !important;
+  font-weight: 950 !important;
+  font-size: 20px !important;
+  backdrop-filter: blur(12px);
+}
+.overlay-burger .stButton > button:hover {
+  border-color: rgba(255,255,255,0.30) !important;
+  background: rgba(0,0,0,0.62) !important;
+}
 
-# Dropdown menu
-if st.session_state.get("menu_open", False):
-    st.markdown('<div class="menu-panel">', unsafe_allow_html=True)
+/* Optional: small left brand (if you want it) */
+.overlay-brand {
+  position: fixed;
+  top: 18px;
+  left: 22px;
+  z-index: 100000;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.38);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: #fff;
+  font-weight: 850;
+  letter-spacing: 0.2px;
+  backdrop-filter: blur(10px);
+}
+.overlay-brand img { width: 22px; height: 22px; border-radius: 7px; }
+</style>
+""",
+    unsafe_allow_html=True,
+)
 
-    if st.button("About", key="menu_about"):
-        st.session_state["menu_open"] = False
-        st.switch_page("pages/3_About_Me.py")
+# (Optional) left brand chip (keep it if you want)
+brand_img_html = f"<img src='data:image/png;base64,{logo_b64}' />" if logo_b64 else ""
+st.markdown(f'<div class="overlay-brand">{brand_img_html}Portfolio JRR</div>', unsafe_allow_html=True)
 
-    if st.button("Projects", key="menu_projects"):
-        st.session_state["menu_open"] = False
-        st.switch_page("pages/4_Projects.py")
+# Center big CTA (covers watermark area)
+st.markdown('<div class="overlay-cta">', unsafe_allow_html=True)
+if st.button("WELCOME TO MY LAB", key="cta_welcome"):
+    st.switch_page("pages/1_Industries.py")
+st.markdown("</div>", unsafe_allow_html=True)
 
-    if st.button("Contact", key="menu_contact"):
-        st.session_state["menu_open"] = False
-        st.switch_page("pages/5_Contact.py")
+# Top-right burger
+st.markdown('<div class="overlay-burger">', unsafe_allow_html=True)
+if st.button("≡", key="burger_menu"):
+    st.session_state["menu_open"] = not st.session_state.get("menu_open", False)
+st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown("</div>", unsafe_allow_html=True)
 
 # ----------------------------
 # Content below the fold (optional)
