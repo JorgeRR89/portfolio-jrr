@@ -1,5 +1,6 @@
 import base64
 from pathlib import Path
+from urllib.parse import urlencode
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -33,100 +34,162 @@ logo_b64 = b64_file(LOGO_PATH) if LOGO_PATH.exists() else ""
 st.markdown(
     """
 <style>
-/* 1) Rompe el “fixed atrapado” por transforms en la app */
-div[data-testid="stAppViewContainer"],
-div[data-testid="stApp"],
-section.main,
-.block-container {
-  transform: none !important;
-  filter: none !important;
-  perspective: none !important;
-}
-
-/* 2) Fija el WRAPPER del popover (esto sí se moverá) */
-div[data-testid="stPopover"]{
-  position: fixed !important;
-  top: 50px !important;     /* <-- aquí ajustas */
-  left: 22px !important;
-  right: auto !important;
-  bottom: auto !important;
-  z-index: 100001 !important;
-}
-
-/* 3) El botón vive dentro del wrapper fijo */
-div[data-testid="stPopover"] > button{
-  position: relative !important;
-  top: 0 !important;
-  left: 0 !important;
-
-  height: 46px !important;
-  padding: 0 16px !important;
-  border-radius: 999px !important;
-
-  border: 1px solid rgba(255,255,255,0.16) !important;
-  background: rgba(0,0,0,0.55) !important;
-
-  color: #fff !important;
-  font-weight: 850 !important;
-  letter-spacing: 0.3px !important;
-  font-size: 15px !important;
-  backdrop-filter: blur(14px);
-}
-
-/* Quita la flechita del popover */
-div[data-testid="stPopover"] > button svg{
-  display: none !important;
-}
-
-/* Agrega burger ≡ */
-div[data-testid="stPopover"] > button::after{
-  content: "  ≡";
-  color: #fff;
-  font-size: 20px;
-  font-weight: 950;
-  letter-spacing: 2px;
-}
-
-/* Hover */
-div[data-testid="stPopover"] > button:hover{
-  border-color: rgba(255,255,255,0.32) !important;
-  background: rgba(0,0,0,0.72) !important;
-}
-
-/* Botones dentro del panel */
-div[data-testid="stPopoverBody"] .stButton > button{
-  width: 220px;
-  border-radius: 12px !important;
-  padding: 11px 12px !important;
-  border: 1px solid rgba(255,255,255,0.14) !important;
-  background: rgba(0,0,0,0.74) !important;
-  color: #fff !important;
-  font-weight: 780 !important;
-  text-align: left !important;
-}
-div[data-testid="stPopoverBody"] .stButton > button:hover{
-  border-color: rgba(255,255,255,0.30) !important;
-  background: rgba(0,0,0,0.84) !important;
-}
-
+header[data-testid="stHeader"] {display:none;}
+footer {visibility:hidden;}
+.block-container { padding: 0 !important; max-width: 100% !important; }
+section.main > div { padding: 0 !important; }
+div[data-testid="stVerticalBlock"] { gap: 0rem; }
 </style>
-
 """,
     unsafe_allow_html=True,
 )
 
 # ----------------------------
-# SINGLE MENU: the brand itself is the menu trigger
+# Routing via query params (stable navigation)
 # ----------------------------
-with st.popover("Portfolio JRR"):
-    if st.button("About me", key="cc_about"):
-        st.switch_page("pages/3_About_Me.py")
+params = st.query_params
+page = params.get("page", "")
 
-    if st.button("Projects", key="cc_projects"):
-        st.switch_page("pages/4_Projects.py")
+if page == "about":
+    st.switch_page("pages/3_About_Me.py")
+elif page == "projects":
+    st.switch_page("pages/4_Projects.py")
+elif page == "contact":
+    st.switch_page("pages/5_Contact.py")
 
-    if st.button("Contact", key="cc_contact"):
-        st.switch_page("pages/5_Contact.py")
+# ----------------------------
+# Topbar HTML (Portfolio JRR ≡ + burger dropdown)
+# ----------------------------
+top_px = 72  # <-- AJUSTA AQUÍ: lo baja/sube a la altura del video
+
+logo_html = f"<img class='nav-logo' src='data:image/png;base64,{logo_b64}'/>" if logo_b64 else ""
+
+# Links (query params)
+about_url = "?" + urlencode({"page": "about"})
+projects_url = "?" + urlencode({"page": "projects"})
+contact_url = "?" + urlencode({"page": "contact"})
+
+nav_html = f"""
+<div class="nav-wrap">
+  <button class="nav-btn" id="navBtn" aria-label="Portfolio JRR">
+    {logo_html}
+    <span class="nav-title">Portfolio JRR</span>
+    <span class="nav-burger">≡</span>
+  </button>
+
+  <div class="nav-menu" id="navMenu" role="menu">
+    <a class="nav-item" href="{about_url}">About me</a>
+    <a class="nav-item" href="{projects_url}">Projects</a>
+    <a class="nav-item" href="{contact_url}">Contact</a>
+  </div>
+</div>
+
+<style>
+  .nav-wrap {{
+    position: fixed;
+    top: {top_px}px;
+    left: 22px;
+    z-index: 999999;
+    user-select: none;
+  }}
+
+  .nav-btn {{
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: 46px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.16);
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(14px);
+    cursor: pointer;
+  }}
+
+  .nav-logo {{
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+  }}
+
+  .nav-title {{
+    color: #fff;
+    font-weight: 850;
+    letter-spacing: 0.3px;
+    font-size: 15px;
+  }}
+
+  .nav-burger {{
+    color: #fff;
+    font-weight: 950;
+    font-size: 20px;
+    letter-spacing: 2px;
+    padding-left: 2px;
+  }}
+
+  .nav-btn:hover {{
+    border-color: rgba(255,255,255,0.32);
+    background: rgba(0,0,0,0.72);
+  }}
+
+  .nav-menu {{
+    display: none;
+    margin-top: 10px;
+    width: 240px;
+    border-radius: 16px;
+    padding: 10px;
+    background: rgba(0,0,0,0.74);
+    border: 1px solid rgba(255,255,255,0.14);
+    backdrop-filter: blur(14px);
+  }}
+
+  .nav-menu.open {{
+    display: block;
+  }}
+
+  .nav-item {{
+    display: block;
+    width: 100%;
+    padding: 11px 12px;
+    margin: 8px 0;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+    font-weight: 780;
+    text-decoration: none;
+    text-align: left;
+  }}
+
+  .nav-item:hover {{
+    border-color: rgba(255,255,255,0.30);
+    background: rgba(255,255,255,0.10);
+  }}
+</style>
+
+<script>
+  const btn = document.getElementById("navBtn");
+  const menu = document.getElementById("navMenu");
+
+  function toggleMenu(e) {{
+    e.preventDefault();
+    e.stopPropagation();
+    menu.classList.toggle("open");
+  }}
+
+  function closeMenu() {{
+    menu.classList.remove("open");
+  }}
+
+  btn.addEventListener("click", toggleMenu);
+  document.addEventListener("click", closeMenu);
+  document.addEventListener("keydown", (e) => {{
+    if (e.key === "Escape") closeMenu();
+  }});
+</script>
+"""
+
+components.html(nav_html, height=180, scrolling=False)
 
 # ----------------------------
 # Hero video fullscreen
@@ -180,4 +243,3 @@ hero_html = f"""
 </html>
 """
 components.html(hero_html, height=900, scrolling=False)
-
