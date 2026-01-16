@@ -49,120 +49,45 @@ div[data-testid="stVerticalBlock"] { gap: 0rem; }
 st.markdown(
     """
 <style>
-/* Brand top-left */
-.ui-brand{
-  position: fixed;
-  top: 18px;
-  left: 22px;
-  z-index: 99999;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: rgba(0,0,0,0.40);
-  border: 1px solid rgba(255,255,255,0.14);
-  color: #fff;
-  font-weight: 850;
-  letter-spacing: 0.2px;
-  backdrop-filter: blur(12px);
-}
-.ui-brand img{
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
-}
-
-/* --- FIX REAL: pin the popover trigger (burger) top-right --- */
-div[data-testid="stPopover"] > button{
+/* ====== SINGLE TOP-LEFT BUTTON: "Portfolio JRR ≡" ======
+   Target the popover trigger by aria-label = the popover label.
+   We'll label the popover exactly "Portfolio JRR".
+*/
+button[aria-label="Portfolio JRR"]{
   position: fixed !important;
   top: 18px !important;
-  right: 22px !important;
-  left: auto !important;          /* clave: anula cualquier left */
-  z-index: 100001 !important;     /* arriba del brand */
-
-  width: 56px !important;
-  height: 56px !important;
-  border-radius: 16px !important;
-  padding: 0 !important;
-
-  border: 1px solid rgba(255,255,255,0.18) !important;
-  background: rgba(0,0,0,0.50) !important;
-
-  font-size: 0 !important;        /* oculta el texto del botón */
-  color: transparent !important;
-  backdrop-filter: blur(12px);
-}
-
-/* Trigger del popover (solo el botón que abre el menú) */
-div[data-testid="stPopover"] > button{
-  position: fixed !important;
-  top: 18px !important;
-  right: 22px !important;
-  left: auto !important;
+  left: 22px !important;
   z-index: 100001 !important;
 
-  width: 56px !important;
-  height: 56px !important;
-  border-radius: 16px !important;
-  padding: 0 !important;
+  height: 44px !important;
+  padding: 0 14px !important;
+  border-radius: 999px !important;
 
-  border: 1px solid rgba(255,255,255,0.18) !important;
-  background: rgba(0,0,0,0.50) !important;
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  background: rgba(0,0,0,0.40) !important;
 
-  font-size: 0 !important;        /* oculta "MENU" */
-  color: transparent !important;
+  color: #fff !important;
+  font-weight: 850 !important;
+  letter-spacing: 0.2px !important;
   backdrop-filter: blur(12px);
 }
 
-/* Icono ≡ SOLO en el trigger */
-div[data-testid="stPopover"] > button::before{
-  content: "≡";
+/* Add ≡ on the right inside the same button */
+button[aria-label="Portfolio JRR"]::after{
+  content: "  ≡";
   color: #fff;
-  font-size: 22px;
+  font-size: 18px;
   font-weight: 950;
 }
 
-/* Hover trigger */
-div[data-testid="stPopover"] > button:hover{
-  border-color: rgba(255,255,255,0.32) !important;
-  background: rgba(0,0,0,0.72) !important;
-}
-
-/* Estilos para los botones dentro del panel del popover (NO fixed) */
-div[data-testid="stPopoverBody"] .stButton > button{
-  width: 220px;
-  border-radius: 12px !important;
-  padding: 11px 12px !important;
-  border: 1px solid rgba(255,255,255,0.14) !important;
-  background: rgba(0,0,0,0.74) !important;
-  color: #fff !important;
-  font-weight: 780 !important;
-  text-align: left !important;
-}
-div[data-testid="stPopoverBody"] .stButton > button:hover{
-  border-color: rgba(255,255,255,0.30) !important;
-  background: rgba(0,0,0,0.84) !important;
-}
-
-
-
-
-/* icono ≡ via pseudo-element */
-button[aria-label="MENU"]::before{
-  content: "≡";
-  color: #fff;
-  font-size: 22px;
-  font-weight: 950;
-}
-
+/* Optional: logo inside the button (we'll inject via background if you want later) */
 /* Hover */
-button[aria-label="MENU"]:hover{
-  border-color: rgba(255,255,255,0.32) !important;
-  background: rgba(0,0,0,0.72) !important;
+button[aria-label="Portfolio JRR"]:hover{
+  border-color: rgba(255,255,255,0.28) !important;
+  background: rgba(0,0,0,0.58) !important;
 }
 
-/* Estilo de botones dentro del popover */
+/* Popover panel buttons (About/Projects/Contact) */
 div[data-testid="stPopoverBody"] .stButton > button{
   width: 220px;
   border-radius: 12px !important;
@@ -183,15 +108,9 @@ div[data-testid="stPopoverBody"] .stButton > button:hover{
 )
 
 # ----------------------------
-# Brand (top-left)
+# SINGLE MENU: the brand itself is the menu trigger
 # ----------------------------
-brand_img = f"<img src='data:image/png;base64,{logo_b64}' />" if logo_b64 else ""
-st.markdown(f"<div class='ui-brand'>{brand_img}Portfolio JRR</div>", unsafe_allow_html=True)
-
-# ----------------------------
-# Burger menu (top-right) using popover
-# ----------------------------
-with st.popover("MENU"):  # el texto se oculta por CSS y se muestra ≡
+with st.popover("Portfolio JRR"):
     if st.button("About me", key="cc_about"):
         st.switch_page("pages/3_About_Me.py")
 
@@ -202,7 +121,7 @@ with st.popover("MENU"):  # el texto se oculta por CSS y se muestra ≡
         st.switch_page("pages/5_Contact.py")
 
 # ----------------------------
-# Hero video fullscreen (va al final; overlay sigue encima)
+# Hero video fullscreen
 # ----------------------------
 hero_html = f"""
 <!DOCTYPE html>
@@ -253,3 +172,4 @@ hero_html = f"""
 </html>
 """
 components.html(hero_html, height=900, scrolling=False)
+
