@@ -52,7 +52,7 @@ st.markdown(
 /* ====== Portfolio JRR ≡  (single top button) ====== */
 button[aria-label="Portfolio JRR"]{
   position: fixed !important;
-  top: 86px !important;          /* <-- ajusta aquí */
+  top: 70px !important;          /* <-- ajusta aquí */
   left: 22px !important;
   z-index: 100001 !important;
 
@@ -69,20 +69,6 @@ button[aria-label="Portfolio JRR"]{
   font-size: 15px !important;
 
   backdrop-filter: blur(14px);
-}
-
-/* ❌ Oculta la flecha nativa del popover */
-button[aria-label="Portfolio JRR"] svg{
-  display: none !important;
-}
-
-/* 🍔 Burger icon */
-button[aria-label="Portfolio JRR"]::after{
-  content: "  ≡";
-  color: #fff;
-  font-size: 20px;
-  font-weight: 950;
-  letter-spacing: 2px;
 }
 
 /* Hover */
