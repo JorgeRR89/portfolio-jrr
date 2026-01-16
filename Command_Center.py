@@ -64,26 +64,22 @@ hero_html = f"""
     --text: #0b0f14;
     --muted: #5b6675;
     --border: rgba(0,0,0,0.10);
-    --shadow: 0 18px 70px rgba(0,0,0,0.55);
   }}
 
   body {{
     margin: 0;
     background: transparent;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   }}
 
-  /* HERO WRAPPER */
+  /* HERO WRAPPER - FULLSCREEN */
   .hero-wrap {{
-    .hero-wrap {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  min-height: 100vh;
-  overflow: hidden;
-  background: var(--bg);
-}
-
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    min-height: 100vh;
+    overflow: hidden;
+    background: var(--bg);
   }}
 
   /* VIDEO BG */
@@ -93,11 +89,10 @@ hero_html = f"""
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.78;
+    opacity: 0.70;
     filter: contrast(1.05) saturate(0.95);
   }}
 
-  /* Fallback if no video */
   .fallback {{
     position:absolute;
     inset:0;
@@ -109,32 +104,31 @@ hero_html = f"""
     letter-spacing: 1.2px;
   }}
 
-  /* OVERLAY */
-  .hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(0,0,0,0.05),
-    rgba(0,0,0,0.75) 45%,
-    rgba(0,0,0,0.95) 100%
-  );
-}
+  /* CINEMATIC OVERLAY */
+  .hero-overlay {{
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(0,0,0,0.05),
+      rgba(0,0,0,0.75) 45%,
+      rgba(0,0,0,0.95) 100%
+    );
+  }}
 
-
-  /* CENTER CARD */
-  .command-card {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(820px, 90%);
-  background: var(--card);
-  border-radius: 22px;
-  box-shadow: 0 25px 90px rgba(0,0,0,0.65);
-  border: 1px solid var(--border);
-  padding: 24px 30px 22px 30px;
-}
+  /* SMALLER CENTER CARD */
+  .command-card {{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(820px, 90%);
+    background: var(--card);
+    border-radius: 22px;
+    box-shadow: 0 25px 90px rgba(0,0,0,0.65);
+    border: 1px solid var(--border);
+    padding: 24px 30px 22px 30px;
+  }}
 
   /* TOP BAR */
   .card-top {{
@@ -142,7 +136,7 @@ hero_html = f"""
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding-bottom: 12px;
+    padding-bottom: 10px;
   }}
 
   .brand {{
@@ -182,7 +176,7 @@ hero_html = f"""
 
   /* BODY */
   .card-body {{
-    padding: 34px 10px 6px 10px;
+    padding: 26px 8px 4px 8px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -190,16 +184,17 @@ hero_html = f"""
   }}
 
   .kicker {{
-    letter-spacing: 2.6px;
-    font-size: 12px;
+    letter-spacing: 3.2px;
+    font-size: 11px;
     color: var(--muted);
     font-weight: 750;
+    text-transform: uppercase;
   }}
 
   .h1 {{
     margin-top: 8px;
     font-size: 46px;
-    line-height: 1.02;
+    line-height: 1.03;
     font-weight: 900;
     color: var(--text);
   }}
@@ -207,13 +202,13 @@ hero_html = f"""
   .sub {{
     margin-top: 10px;
     max-width: 620px;
-    font-size: 17px;
-    line-height: 1.45;
+    font-size: 16px;
+    line-height: 1.5;
     color: rgba(11,15,20,0.80);
   }}
 
   .cta {{
-    margin-top: 22px;
+    margin-top: 18px;
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
@@ -230,17 +225,23 @@ hero_html = f"""
     font-weight: 750;
     color: var(--text);
     background: rgba(0,0,0,0.02);
+    transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
   }}
 
   .pill.primary {{
     background: #0b0f14;
     color: #ffffff;
     border-color: #0b0f14;
+    box-shadow: 0 10px 28px rgba(11,15,20,0.25);
+  }}
+
+  .pill:hover {{
+    transform: translateY(-1px);
   }}
 
   .card-foot {{
-    margin-top: 26px;
-    padding-top: 14px;
+    margin-top: 18px;
+    padding-top: 12px;
     border-top: 1px solid rgba(0,0,0,0.08);
     width: 100%;
     display: flex;
@@ -252,8 +253,7 @@ hero_html = f"""
 
   @media (max-width: 780px) {{
     .nav span {{ display: none; }}
-    .h1 {{ font-size: 40px; }}
-    .hero-wrap {{ min-height: 640px; }}
+    .h1 {{ font-size: 38px; }}
   }}
 </style>
 </head>
