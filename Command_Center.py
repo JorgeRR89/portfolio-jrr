@@ -52,18 +52,15 @@ footer {visibility:hidden;}
 .block-container { padding: 0 !important; max-width: 100% !important; }
 section.main > div { padding: 0 !important; }
 
-/* 👉 Dejar espacio real para la flecha/sidebar */
-section.main {
-  padding-left: 64px !important;
-}
-
-/* 👉 Hacer que el iframe respete ese espacio */
 iframe {
-  width: calc(100vw - 64px) !important;
+  width: calc(100vw - 64px) !important;  /* un poco más angosto */
   height: 100vh !important;
   border: 0 !important;
   display: block !important;
+
+  margin-left: 64px !important;          /* 👈 lo mueve a la derecha */
 }
+
 </style>
 """,
     unsafe_allow_html=True,
