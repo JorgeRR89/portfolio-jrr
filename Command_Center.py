@@ -43,7 +43,7 @@ html, body {height: 100%;}
 /* Quitar chrome y paddings */
 header[data-testid="stHeader"] {display:none;}
 footer {visibility:hidden;}
-/*section[data-testid="stSidebar"] {display:none;}/*
+/*section[data-testid="stSidebar"] {display:none;}*/
 .block-container { padding: 0 !important; max-width: 100% !important; }
 section.main > div { padding: 0 !important; }
 
