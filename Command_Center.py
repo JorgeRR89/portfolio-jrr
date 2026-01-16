@@ -88,23 +88,22 @@ app_html = f"""
     z-index: 1;
   }}
 
- video {{
-  position: absolute;
+  /* wrapper para rotar sin romper el video */
+  .video-tilt {{
+    position: absolute;
+    inset: -10%;
+    transform: rotate(-2deg) scale(1.12);
+    transform-origin: center;
+    z-index: 1;
+  }}
 
-  /* agrandamos para evitar bordes al rotar */
-  top: -8%;
-  left: -8%;
-  width: 116%;
-  height: 116%;
-
-  object-fit: cover;
-
-  /* 🔧 AJUSTE FINO DE HORIZONTALIDAD */
-  transform: rotate(20 deg) scale(1.08);
-
-  filter: contrast(1.05) brightness(0.95);
-}}
-
+  .video-tilt video {{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: contrast(1.05) brightness(0.95);
+  }}
 
   .overlay {{
     position: absolute;
@@ -130,7 +129,6 @@ app_html = f"""
     align-items: center;
   }}
 
-  /* typing title container */
   .nav-title {{
     font-family: var(--code-font);
     font-weight: 800;
@@ -141,7 +139,6 @@ app_html = f"""
     white-space: nowrap;
   }}
 
-  /* cursor blink */
   .cursor {{
     display: inline-block;
     width: 10px;
@@ -196,7 +193,6 @@ app_html = f"""
       0 0 0 1px rgba(140,210,255,0.9),
       0 0 22px rgba(0,160,255,0.75),
       inset 0 0 22px rgba(0,140,255,0.35);
-
     transform: translateY(-1px) scale(1.02);
   }}
 
@@ -285,12 +281,12 @@ app_html = f"""
 </head>
 
 <body>
- <div class="hero">
-  <video autoplay muted loop playsinline>
-    <source src="data:video/mp4;base64,..." type="video/mp4">
-  </video>
-  <div class="overlay"></div>
-</div>
+  <div class="hero">
+    <div class="video-tilt">
+      {"<video autoplay muted loop playsinline><source src='data:video/mp4;base64," + video_b64 + "' type='video/mp4'></video>" if video_b64 else ""}
+    </div>
+    <div class="overlay"></div>
+  </div>
 
   <div class="nav-wrap">
     <button class="nav-btn" id="navBtn">
@@ -336,7 +332,7 @@ app_html = f"""
     if (i <= text.length) {{
       target.textContent = text.slice(0, i);
       i++;
-      setTimeout(type, 65);   // velocidad typing
+      setTimeout(type, 65);
     }}
   }}
   type();
