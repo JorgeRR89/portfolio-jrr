@@ -7,7 +7,7 @@ st.set_page_config(page_title="Projects", page_icon="🛰️", layout="wide", in
 cards = [
     ("Bancos & Seguros", "Riesgo, fraude, scoring, churn, KPIs.", "/2a_Bancos_Seguros", "🏦"),
     ("Energía", "Optimización, confiabilidad, mantenimiento, forecasting.", "/2b_Energia", "⚡"),
-    ("Entretenimiento", "Audiencias, recomendación, NLP, visión.", "/3c_Entretenimiento", "🎬"),
+    ("Entretenimiento", "Audiencias, recomendación, NLP, visión.", "/2c_Entretenimiento", "🎬"),
     ("Manufactura", "Calidad, visión artificial, gemelos digitales.", "/2d_Manufactura", "🏭"),
     ("Marketing", "Segmentación, atribución, LTV, performance.", "/2e_Marketing", "📈"),
     ("Política", "Opinión pública, escenarios, señales, OSINT.", "/2f_Politica", "🏛️"),
