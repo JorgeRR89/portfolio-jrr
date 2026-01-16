@@ -100,7 +100,7 @@ app_html = f"""
   object-fit: cover;
 
   /* 🔧 AJUSTE FINO DE HORIZONTALIDAD */
-  transform: rotate(-1.6deg) scale(1.08);
+  transform: rotate(2 deg) scale(1.08);
 
   filter: contrast(1.05) brightness(0.95);
 }}
