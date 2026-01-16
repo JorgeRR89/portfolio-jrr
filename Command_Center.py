@@ -98,7 +98,21 @@ app_html = f"""
       rgba(0,0,0,0.70) 55%,
       rgba(0,0,0,0.92) 100%);
   }}
+  
+/* FOCO IDEA */
+.idea-focus {{
+  position: fixed;
+  top: 50%;
+  right: 14%;
+  transform: translateY(-50%);
+  width: 220px;
+  opacity: 0.92;
+  z-index: 8000;
+  pointer-events: none;
 
+  filter: drop-shadow(0 0 25px rgba(0,180,255,0.75))
+          drop-shadow(0 0 60px rgba(0,120,255,0.35));
+}}
   /* NAV */
   .nav-wrap {{
     position: fixed;
@@ -180,20 +194,7 @@ app_html = f"""
     border-color: rgba(255,255,255,0.30);
     background: rgba(255,255,255,0.10);
   }}
-.idea-focus {
-  position: fixed;
-  top: 50%;
-  right: 14%;                 /* mueve más o menos a la derecha */
-  transform: translateY(-50%);
 
-  width: 220px;               /* tamaño del foco */
-  opacity: 0.92;
-  z-index: 8000;
-  pointer-events: none;
-
-  filter: drop-shadow(0 0 25px rgba(0,180,255,0.75))
-          drop-shadow(0 0 60px rgba(0,120,255,0.35));
-}
 
   
 </style>
