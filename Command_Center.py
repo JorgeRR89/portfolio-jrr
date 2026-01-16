@@ -91,6 +91,7 @@ nav_html = f"""
     left: 22px;
     z-index: 999999;
     user-select: none;
+    overflow: visible;
   }}
 
   .nav-btn {{
@@ -134,13 +135,14 @@ nav_html = f"""
 
   .nav-menu {{
     display: none;
-    margin-top: 10px;
+    margin-top: 8px;
     width: 240px;
     border-radius: 16px;
     padding: 10px;
     background: rgba(0,0,0,0.74);
     border: 1px solid rgba(255,255,255,0.14);
     backdrop-filter: blur(14px);
+    overflow: visible;
   }}
 
   .nav-menu.open {{
@@ -189,7 +191,7 @@ nav_html = f"""
 </script>
 """
 
-components.html(nav_html, height=180, scrolling=False)
+components.html(nav_html, height=70, scrolling=False)
 
 # ----------------------------
 # Hero video fullscreen
