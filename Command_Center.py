@@ -304,5 +304,5 @@ hero_html = f"""
 </body>
 </html>
 """
-components.html(hero_html, height=900, scrolling=False)
+components.html(app_html, height=900, scrolling=False)
 
