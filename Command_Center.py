@@ -75,14 +75,15 @@ hero_html = f"""
 
   /* HERO WRAPPER */
   .hero-wrap {{
-    position: relative;
-    width: 100%;
-    height: 78vh;
-    min-height: 560px;
-    border-radius: 26px;
-    overflow: hidden;
-    background: var(--bg);
-    border: 1px solid rgba(255,255,255,0.08);
+    .hero-wrap {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--bg);
+}
+
   }}
 
   /* VIDEO BG */
@@ -109,30 +110,31 @@ hero_html = f"""
   }}
 
   /* OVERLAY */
-  .hero-overlay {{
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      ellipse at 50% 35%,
-      rgba(0,0,0,0.12),
-      rgba(0,0,0,0.78) 55%,
-      rgba(0,0,0,0.92) 100%
-    );
-  }}
+  .hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0,0,0,0.05),
+    rgba(0,0,0,0.75) 45%,
+    rgba(0,0,0,0.95) 100%
+  );
+}
+
 
   /* CENTER CARD */
-  .command-card {{
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -52%);
-    width: min(1120px, 92%);
-    background: var(--card);
-    border-radius: 26px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    padding: 26px 28px 24px 28px;
-  }}
+  .command-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(820px, 90%);
+  background: var(--card);
+  border-radius: 22px;
+  box-shadow: 0 25px 90px rgba(0,0,0,0.65);
+  border: 1px solid var(--border);
+  padding: 24px 30px 22px 30px;
+}
 
   /* TOP BAR */
   .card-top {{
@@ -195,16 +197,16 @@ hero_html = f"""
   }}
 
   .h1 {{
-    margin-top: 10px;
-    font-size: 56px;
+    margin-top: 8px;
+    font-size: 46px;
     line-height: 1.02;
     font-weight: 900;
     color: var(--text);
   }}
 
   .sub {{
-    margin-top: 14px;
-    max-width: 820px;
+    margin-top: 10px;
+    max-width: 620px;
     font-size: 17px;
     line-height: 1.45;
     color: rgba(11,15,20,0.80);
