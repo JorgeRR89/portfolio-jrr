@@ -211,3 +211,4 @@ for i, it in enumerate(INDUSTRIES):
     st.markdown("</div></div></div>", unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
+
