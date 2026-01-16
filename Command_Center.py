@@ -154,6 +154,36 @@ st.markdown(
   border-color: rgba(255,255,255,0.32) !important;
   background: rgba(0,0,0,0.72) !important;
 }
+/* Force the burger button (key=cc_burger) to be fixed top-right */
+div[data-testid="stButton"]:has(button[kind="secondary"][data-testid="stBaseButton-secondary"]) button:focus {
+  outline: none !important;
+}
+
+/* Streamlit adds a stable attribute: aria-label = label text sometimes.
+   More reliable: target the button by its id pattern using key wrapper. */
+div[data-testid="stButton"] button[kind] {
+  position: relative;
+}
+
+/* Hard-pin ONLY the burger button by key using the DOM order: we wrap it in a unique container */
+#cc-burger-pin {
+  position: fixed;
+  top: 18px;
+  right: 22px;
+  z-index: 999999;
+}
+#cc-burger-pin div[data-testid="stButton"] > button {
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 16px !important;
+  padding: 0 !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  background: rgba(0,0,0,0.50) !important;
+  color: #fff !important;
+  font-weight: 950 !important;
+  font-size: 22px !important;
+  backdrop-filter: blur(12px);
+}
 
 /* Dropdown menu panel */
 .ui-menu{
@@ -199,7 +229,7 @@ st.markdown(f"<div class='ui-brand'>{brand_img}Portfolio JRR</div>", unsafe_allo
 if "cc_menu_open" not in st.session_state:
     st.session_state["cc_menu_open"] = False
 
-st.markdown("<div class='ui-burger'>", unsafe_allow_html=True)
+st.markdown("<div id='cc-burger-pin'>", unsafe_allow_html=True)
 if st.button("≡", key="cc_burger"):
     st.session_state["cc_menu_open"] = not st.session_state["cc_menu_open"]
 st.markdown("</div>", unsafe_allow_html=True)
