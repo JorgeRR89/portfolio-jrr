@@ -60,7 +60,7 @@ elif page == "contact":
 # ----------------------------
 # Topbar HTML (Portfolio JRR ≡ + burger dropdown)
 # ----------------------------
-top_px = 50  # <-- AJUSTA AQUÍ: lo baja/sube a la altura del video
+top_px = 30  # <-- AJUSTA AQUÍ: lo baja/sube a la altura del video
 
 logo_html = f"<img class='nav-logo' src='data:image/png;base64,{logo_b64}'/>" if logo_b64 else ""
 
