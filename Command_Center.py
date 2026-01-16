@@ -50,7 +50,7 @@ about_url = "?" + urlencode({"page": "about"})
 projects_url = "?" + urlencode({"page": "projects"})
 contact_url = "?" + urlencode({"page": "contact"})
 
-top_px = 72
+top_px = 25
 logo_html = f"<img class='nav-logo' src='data:image/png;base64,{logo_b64}'/>" if logo_b64 else ""
 
 app_html = f"""
