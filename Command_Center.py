@@ -102,8 +102,8 @@ app_html = f"""
 /* FOCO IDEA */
 .idea-focus {{
   position: fixed;
-  top: 40%;
-  right: 12%;
+  top: 42%;
+  right: 13%;
   transform: translateY(-50%);
   width: 220px;
   opacity: 0.92;
@@ -116,10 +116,10 @@ app_html = f"""
   /* NAV */
   .nav-wrap {{
     position: fixed;
-    top: 40%;
-    right: 11%;
+    top: 42%;
+    right: 13%;
     left: auto;
-    transform: translateY(110px);
+    transform: translate(-4px, 150px);
     z-index: 999999;   /* arriba del video */
    
   }}
