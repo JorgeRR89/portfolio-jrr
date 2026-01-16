@@ -14,7 +14,7 @@ go = st.query_params.get("go", "")
 ROUTES = {
     "bancos": "pages/2a_Bancos_Seguros.py",
     "energia": "pages/2b_Energia.py",
-    "entretenimiento": "pages/3c_Entretenimiento.py",
+    "entretenimiento": "pages/2c_Entretenimiento.py",
     "manufactura": "pages/2d_Manufactura.py",
     "marketing": "pages/2e_Marketing.py",
     "politica": "pages/2f_Politica.py",
