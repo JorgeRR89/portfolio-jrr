@@ -216,6 +216,10 @@ contact_link = "?page=3_Contact"
 html = f"""
 {css}
 <div class="hero">
+
+  <!-- ✅ Mover el checkbox al nivel del hero -->
+  <input id="menuToggle" type="checkbox">
+
   <video autoplay muted loop playsinline>
     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
   </video>
@@ -228,12 +232,10 @@ html = f"""
       <div>Portfolio JRR</div>
     </div>
 
-    <div>
-      <input id="menuToggle" type="checkbox">
-      <label for="menuToggle" class="burger">
-        <span></span><span></span><span></span>
-      </label>
-    </div>
+    <!-- ✅ El burger solo es el label -->
+    <label for="menuToggle" class="burger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </label>
   </div>
 
   <div class="accents">
