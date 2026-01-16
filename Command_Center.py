@@ -16,15 +16,14 @@ st.set_page_config(
 )
 
 ASSETS = Path(__file__).parent / "assets"
-VIDEO_PATH = ASSETS / "data.mp4"
-LOGO_PATH = ASSETS / "DS.png"
+VIDEO_PATH = ASSETS / "hero.mp4"
+LOGO_PATH = ASSETS / "logo.png"
 
 
 def b64_file(path: Path) -> str:
     return base64.b64encode(path.read_bytes()).decode("utf-8")
 
 
-# Cargar assets (si no existen, se muestran mensajes claros)
 video_b64 = b64_file(VIDEO_PATH) if VIDEO_PATH.exists() else ""
 logo_b64 = b64_file(LOGO_PATH) if LOGO_PATH.exists() else ""
 
@@ -32,19 +31,40 @@ if not video_b64:
     st.error("No encuentro el video. Coloca tu archivo en: assets/hero.mp4")
     st.stop()
 
+
 # =========================
-# CSS + HTML (UNA SOLA PIEZA)
+# Make Streamlit page truly full-height
+# (evita área blanca fuera del iframe)
 # =========================
-css = """
+st.markdown(
+    """
 <style>
-/* Hide streamlit chrome */
+html, body {height: 100%;}
+/* Quitar chrome y paddings */
 header[data-testid="stHeader"] {display:none;}
 footer {visibility:hidden;}
 section[data-testid="stSidebar"] {display:none;}
-
-/* Remove padding/margins */
 .block-container { padding: 0 !important; max-width: 100% !important; }
 section.main > div { padding: 0 !important; }
+
+/* MUY IMPORTANTE: hacer que el iframe de components.html tenga alto de viewport */
+iframe {
+  width: 100% !important;
+  height: 100vh !important;
+  border: 0 !important;
+}
+</style>
+""",
+    unsafe_allow_html=True,
+)
+
+# =========================
+# CSS dentro del iframe
+# =========================
+css = """
+<style>
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; }
 
 /* Hero wrapper */
 .hero {
@@ -58,20 +78,16 @@ section.main > div { padding: 0 !important; }
 /* Video background */
 .hero video {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   filter: contrast(1.05) saturate(1.05);
+  z-index: 0;
 }
 
 /* Dark overlay */
-.hero::after {
-  content: "";
+.overlay-dark {
   position: absolute;
   inset: 0;
   background: rgba(0,0,0,0.35);
@@ -81,9 +97,7 @@ section.main > div { padding: 0 !important; }
 /* Top bar */
 .topbar {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   z-index: 6;
   display: flex;
   align-items: center;
@@ -103,24 +117,22 @@ section.main > div { padding: 0 !important; }
   user-select: none;
 }
 
+/* Logo con fondo blanco SOLO detrás */
 .brand img {
   width: 36px;
   height: 36px;
   object-fit: contain;
-
-  background: white;          /* fondo blanco */
-  padding: 6px;               /* espacio alrededor del logo */
-  border-radius: 10px;        /* bordes suaves */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.25); /* ligero realce */
-}
-
+  background: #fff;
+  padding: 6px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
 }
 
 /* Center headline */
 .center {
   position: absolute;
   inset: 0;
-  z-index: 3;
+  z-index: 5; /* arriba del overlay y de los acentos */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -136,6 +148,7 @@ section.main > div { padding: 0 !important; }
   letter-spacing: 0.5px;
   margin: 0;
   font-weight: 900;
+  text-shadow: 0 10px 30px rgba(0,0,0,0.55);
 }
 
 /* Red tech accents */
@@ -159,9 +172,7 @@ section.main > div { padding: 0 !important; }
 .l4 { top: 30%; left: 55%; width: 250px; transform: rotate(-55deg); opacity: 0.50; }
 
 /* ===== Burger + Drawer (checkbox hack) ===== */
-#menuToggle {
-  display: none;
-}
+#menuToggle { display: none; }
 
 /* Burger button */
 .burger {
@@ -185,15 +196,9 @@ section.main > div { padding: 0 !important; }
 }
 
 /* Animate burger to X */
-#menuToggle:checked + label.burger span:nth-child(1) {
-  transform: translateY(5px) rotate(45deg);
-}
-#menuToggle:checked + label.burger span:nth-child(2) {
-  opacity: 0;
-}
-#menuToggle:checked + label.burger span:nth-child(3) {
-  transform: translateY(-5px) rotate(-45deg);
-}
+#menuToggle:checked + label.burger span:nth-child(1) { transform: translateY(5px) rotate(45deg); }
+#menuToggle:checked + label.burger span:nth-child(2) { opacity: 0; }
+#menuToggle:checked + label.burger span:nth-child(3) { transform: translateY(-5px) rotate(-45deg); }
 
 /* Drawer */
 .drawer {
@@ -214,9 +219,7 @@ section.main > div { padding: 0 !important; }
 }
 
 /* Open drawer when checked */
-#menuToggle:checked ~ .drawer {
-  transform: translateX(0%);
-}
+#menuToggle:checked ~ .drawer { transform: translateX(0%); }
 
 /* Drawer links */
 .drawer a {
@@ -244,10 +247,8 @@ section.main > div { padding: 0 !important; }
   font-size: 0.95rem;
 }
 
-/* Small: tighten spacing */
 @media (max-width: 600px) {
   .topbar { padding: 16px 16px; }
-  .brand { gap: 10px; }
   .center h1 { font-size: 2.1rem; }
   .l1, .l2, .l3, .l4 { display: none; }
 }
@@ -264,13 +265,14 @@ html = f"""
     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
   </video>
 
+  <div class="overlay-dark"></div>
+
   <div class="topbar">
     <div class="brand">
       {logo_html}
       <div>Portfolio JRR</div>
     </div>
 
-    <!-- checkbox + burger -->
     <div>
       <input id="menuToggle" type="checkbox" />
       <label for="menuToggle" class="burger" aria-label="Open menu">
@@ -279,15 +281,15 @@ html = f"""
     </div>
   </div>
 
-  <div class="center">
-    <h1>Welcome to my lab</h1>
-  </div>
-
   <div class="accents">
     <div class="line l1"></div>
     <div class="line l2"></div>
     <div class="line l3"></div>
     <div class="line l4"></div>
+  </div>
+
+  <div class="center">
+    <h1>Welcome to my lab</h1>
   </div>
 
   <div class="drawer">
@@ -299,7 +301,5 @@ html = f"""
 </div>
 """
 
-# =========================
-# RENDER (IMPORTANT)
-# =========================
-components.html(css + html, height=980, scrolling=False)
+# Render full screen
+components.html(css + html, height=1100, scrolling=False)
