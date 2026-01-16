@@ -71,12 +71,77 @@ html, body {{ background:#000; overflow:hidden; }}
   background: #000;
 }}
 
-/* CHECKBOX: NO usar display:none (rompe label en algunos casos) */
-#menuToggle {{
+/* MENU DETAILS */
+.menu {
   position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}}
+  top: 22px;
+  right: 28px;
+  z-index: 10001;
+}
+
+/* quita el triangulito default del summary */
+.menu summary { list-style: none; }
+.menu summary::-webkit-details-marker { display: none; }
+
+/* Burger button */
+.burger {
+  width: 52px;
+  height: 52px;
+  background: #ff2a2a;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  border: none;
+}
+
+.burger span {
+  display:block;
+  width:22px;
+  height:2px;
+  background:#fff;
+  margin:3px 0;
+}
+
+/* Drawer hidden by default */
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(380px, 90vw);
+  height: 100vh;
+  background: rgba(10,10,12,0.92);
+  backdrop-filter: blur(10px);
+  border-left: 1px solid rgba(255,255,255,0.08);
+  padding: 90px 28px 28px;
+  transform: translateX(110%);
+  transition: transform .28s ease;
+  z-index: 10000;
+}
+
+/* When details open, show drawer */
+.menu[open] .drawer { transform: translateX(0%); }
+
+/* Links */
+.drawer a {
+  display:block;
+  padding:16px 14px;
+  margin:10px 0;
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:14px;
+  color:#fff;
+  text-decoration:none;
+  font-weight:800;
+  letter-spacing:.5px;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+.drawer a:hover {
+  background: rgba(255,42,42,0.18);
+  border-color: rgba(255,42,42,0.7);
+  transform: translateY(-1px);
+}
+
 
 /* VIDEO */
 .hero video {{
@@ -231,26 +296,32 @@ html, body {{ background:#000; overflow:hidden; }}
   .l1, .l2, .l3, .l4 {{ display:none; }}
 }}
 </style>
-
+html = f"""
+{css}
 <div class="hero">
-  <input id="menuToggle" type="checkbox" />
-
   <video autoplay muted loop playsinline>
     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
   </video>
 
   <div class="overlay-dark"></div>
 
-  <!-- IMPORTANTE: topbar debe ir justo después del input para los selectores + -->
+  <details class="menu">
+    <summary class="burger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </summary>
+
+    <div class="drawer">
+      <a href="{about_link}">About me</a>
+      <a href="{projects_link}">Projects</a>
+      <a href="{contact_link}">Contact</a>
+    </div>
+  </details>
+
   <div class="topbar">
     <div class="brand">
       {logo_html}
       <div>Portfolio JRR</div>
     </div>
-
-    <label for="menuToggle" class="burger" aria-label="Open menu">
-      <span></span><span></span><span></span>
-    </label>
   </div>
 
   <div class="accents">
@@ -263,13 +334,7 @@ html, body {{ background:#000; overflow:hidden; }}
   <div class="center">
     <h1>Welcome to my lab</h1>
   </div>
-
-  <div class="drawer">
-    <a href="{about_link}">About me</a>
-    <a href="{projects_link}">Projects</a>
-    <a href="{contact_link}">Contact</a>
-  </div>
 </div>
 """
-
 st.markdown(html, unsafe_allow_html=True)
+
