@@ -119,7 +119,7 @@ app_html = f"""
     top: 42%;
     right: 14.5%;
     left: auto;
-    transform: translate(-4px, 150px);
+    transform: translate(-4px, 220px);
     z-index: 999999;   /* arriba del video */
     width: 240px;                     /* MISMO ancho que el menú */
     display: flex;
