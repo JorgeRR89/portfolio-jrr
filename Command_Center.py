@@ -103,7 +103,7 @@ app_html = f"""
 .idea-focus {{
   position: fixed;
   top: 40%;
-  right: 14%;
+  right: 10%;
   transform: translateY(-50%);
   width: 220px;
   opacity: 0.92;
