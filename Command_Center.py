@@ -15,12 +15,16 @@ st.set_page_config(
 ASSETS = Path(__file__).parent / "assets"
 VIDEO_PATH = ASSETS / "data-flow.mp4"
 LOGO_PATH = ASSETS / "logo.png"
+GIF_PATH = ASSETS / "idea.gif"
+
+
 
 def b64_file(path: Path) -> str:
     return base64.b64encode(path.read_bytes()).decode("utf-8")
 
 video_b64 = b64_file(VIDEO_PATH) if VIDEO_PATH.exists() else ""
 logo_b64 = b64_file(LOGO_PATH) if LOGO_PATH.exists() else ""
+gif_b64 = b64_file(GIF_PATH) if GIF_PATH.exists() else ""
 
 # limpia chrome
 st.markdown(
@@ -158,7 +162,7 @@ app_html = f"""
   .nav-menu.open {{
     display: block;
   }}
-
+    
   .nav-item {{
     display: block;
     width: 100%;
@@ -176,6 +180,22 @@ app_html = f"""
     border-color: rgba(255,255,255,0.30);
     background: rgba(255,255,255,0.10);
   }}
+.idea-focus {
+  position: fixed;
+  top: 50%;
+  right: 14%;                 /* mueve más o menos a la derecha */
+  transform: translateY(-50%);
+
+  width: 220px;               /* tamaño del foco */
+  opacity: 0.92;
+  z-index: 8000;
+  pointer-events: none;
+
+  filter: drop-shadow(0 0 25px rgba(0,180,255,0.75))
+          drop-shadow(0 0 60px rgba(0,120,255,0.35));
+}
+
+  
 </style>
 </head>
 <body>
@@ -183,6 +203,8 @@ app_html = f"""
   <div class="hero">
     {"<video autoplay muted loop playsinline><source src='data:video/mp4;base64," + video_b64 + "' type='video/mp4'></video>" if video_b64 else ""}
     <div class="overlay"></div>
+   {"<img class='idea-focus' src='data:image/gif;base64," + gif_b64 + "'/>" if gif_b64 else ""}
+ 
   </div>
 
   <div class="nav-wrap">
