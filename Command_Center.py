@@ -103,7 +103,7 @@ app_html = f"""
 .idea-focus {{
   position: fixed;
   top: 40%;
-  right: 10%;
+  right: 12%;
   transform: translateY(-50%);
   width: 220px;
   opacity: 0.92;
@@ -117,7 +117,7 @@ app_html = f"""
   .nav-wrap {{
     position: fixed;
     top: 40%;
-    right: 14%;
+    right: 11%;
     left: auto;
     transform: translateY(110px);
     z-index: 999999;   /* arriba del video */
