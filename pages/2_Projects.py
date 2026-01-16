@@ -189,7 +189,7 @@ items = [
         "tag": "NLP • Recommenders",
         "desc": "Recomendación, engagement, sentiment y análisis de audiencia.",
         "icon": "🎬",
-        "page": "pages/3c_Entretenimiento.py",
+        "page": "pages/2c_Entretenimiento.py",
     },
     {
         "name": "Manufactura",
