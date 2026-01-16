@@ -88,13 +88,23 @@ app_html = f"""
     z-index: 1;
   }}
 
-  video {{
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }}
+ video {{
+  position: absolute;
+
+  /* agrandamos para evitar bordes al rotar */
+  top: -8%;
+  left: -8%;
+  width: 116%;
+  height: 116%;
+
+  object-fit: cover;
+
+  /* 🔧 AJUSTE FINO DE HORIZONTALIDAD */
+  transform: rotate(-1.6deg) scale(1.08);
+
+  filter: contrast(1.05) brightness(0.95);
+}}
+
 
   .overlay {{
     position: absolute;
