@@ -191,7 +191,7 @@ nav_html = f"""
 </script>
 """
 
-components.html(nav_html, height=70, scrolling=False)
+components.html(nav_html, height=100, scrolling=False)
 
 # ----------------------------
 # Hero video fullscreen
