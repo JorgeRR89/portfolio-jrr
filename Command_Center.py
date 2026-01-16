@@ -39,11 +39,11 @@ div[data-testid="stVerticalBlock"] { gap: 0rem; }
 # routing
 page = st.query_params.get("page", "")
 if page == "about":
-    st.switch_page("pages/3_About_Me.py")
+    st.switch_page("pages/1_About_Me.py")
 elif page == "projects":
-    st.switch_page("pages/4_Projects.py")
+    st.switch_page("pages/2_Projects.py")
 elif page == "contact":
-    st.switch_page("pages/5_Contact.py")
+    st.switch_page("pages/3_Contact.py")
 
 # urls
 about_url = "?" + urlencode({"page": "about"})
