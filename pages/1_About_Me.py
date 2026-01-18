@@ -2,6 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 
 st.set_page_config(page_title="About me | Portfolio JRR", page_icon="🛰️", layout="wide")
+st.warning("ABOUT-ME BUILD: 2026-01-18 16:59 ✅")
 
 # =========================
 # GLOBAL STYLES
