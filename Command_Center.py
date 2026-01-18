@@ -1,6 +1,8 @@
 import base64
 from pathlib import Path
+
 import streamlit as st
+import streamlit.components.v1 as components
 
 # =========================
 # CONFIG
@@ -274,6 +276,7 @@ logo_html = f"<img src='data:image/png;base64,{logo_b64}'>" if logo_b64 else ""
 
 # =========================
 # HTML (Hero + Sections)
+# NOTA: eliminamos la tarjeta que causaba el bloque blanco
 # =========================
 html = f"""
 {css}
@@ -359,17 +362,15 @@ html = f"""
     </div>
 
     <div class="card">
-      <h3>Social & political analysis (evidence-driven)</h3>
+      <h3>What I build</h3>
       <p>
-        Además de lo técnico, desarrollo proyectos para <b>entender y mejorar sistemas sociales</b>:
-        políticas públicas, regulación, incentivos y comportamiento colectivo.
-        No desde ideología, sino desde <b>análisis estructural basado en evidencia</b>.
+        Trabajo end-to-end: datos → lógica → visualización → decisión.
       </p>
       <ul>
-        <li>Evaluación de impacto social y acceso a oportunidades</li>
-        <li>Comportamiento electoral y opinión pública (patrones / sesgos)</li>
-        <li>Modelos de incentivos: por qué las reglas crean resultados</li>
-        <li>Simulación de escenarios y “policy trade-offs”</li>
+        <li>Dashboards y métricas (Power BI / Plotly)</li>
+        <li>Modelos predictivos (clasificación, regresión, NLP)</li>
+        <li>Simulaciones Monte Carlo (incertidumbre / riesgo)</li>
+        <li>Pipelines y automatización (SQL/Python)</li>
       </ul>
     </div>
   </div>
@@ -402,4 +403,8 @@ html = f"""
 </div>
 """
 
-st.markdown(html, unsafe_allow_html=True)
+# =========================
+# RENDER CORRECTO
+# Evita que Streamlit lo trate como "code block"
+# =========================
+components.html(html, height=2600, scrolling=True)
