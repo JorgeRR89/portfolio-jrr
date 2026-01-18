@@ -1,0 +1,116 @@
+# data/projects.yaml
+# tracks: ["cv"], ["lab"], o ["cv","lab"]
+# industry: una de tus industrias (Bancos & Seguros, Energía, etc.)
+
+- id: bancos_risk_scoring
+  title: "Credit Risk Scoring"
+  industry: "Bancos & Seguros"
+  tracks: ["lab", "cv"]
+  stack: ["Python", "Pandas", "Sklearn"]
+  summary: "Modelo de clasificación para riesgo crediticio con evaluación y validación."
+  highlights:
+    - "Pipeline de limpieza + feature engineering"
+    - "Evaluación con métricas y validación"
+  metrics:
+    AUC: 0.89
+    F1: 0.74
+  artifacts:
+    demo: ""
+    repo: ""
+    report: ""
+  date: "2025-10"
+
+- id: energia_consumption_forecast
+  title: "Energy Consumption Forecast"
+  industry: "Energía"
+  tracks: ["lab"]
+  stack: ["Python", "Time Series"]
+  summary: "Pronóstico de consumo energético con validación temporal."
+  highlights:
+    - "Modelo con ventanas y validación temporal"
+  metrics:
+    MAPE: 0.17
+  artifacts:
+    demo: ""
+    repo: ""
+    report: ""
+  date: "2025-11"
+
+- id: film_junky_nlp
+  title: "NLP Sentiment Classifier (Film Junky Union)"
+  industry: "Entretenimiento"
+  tracks: ["lab", "cv"]
+  stack: ["Python", "NLP", "Sklearn"]
+  summary: "Clasificador de sentimiento para reseñas con comparación de modelos."
+  highlights:
+    - "Comparación de enfoques (TF-IDF, modelos clásicos, etc.)"
+  metrics:
+    F1: 0.78
+  artifacts:
+    demo: ""
+    repo: ""
+    report: ""
+  date: "2025-11"
+
+- id: manufactura_quality
+  title: "Manufacturing Quality Analytics"
+  industry: "Manufactura"
+  tracks: ["cv"]
+  stack: ["Power BI", "SQL", "Python"]
+  summary: "Dashboard y análisis de calidad para identificar causas y oportunidades."
+  highlights:
+    - "Dashboard interactivo para KPI de calidad"
+    - "Automatización de extracción y limpieza"
+  metrics: {}
+  artifacts:
+    demo: ""
+    repo: ""
+    report: ""
+  date: "2025-09"
+
+- id: ecommerce_profitability
+  title: "E-commerce Profitability Dashboard"
+  industry: "Marketing"
+  tracks: ["cv"]
+  stack: ["Python", "SQL", "Power BI"]
+  summary: "Rentabilidad por SKU y optimización de recursos."
+  highlights:
+    - "Extracción MySQL + limpieza en Python"
+    - "Modelo de margen por SKU"
+  metrics: {}
+  artifacts:
+    demo: ""
+    repo: ""
+    report: ""
+  date: "2025-11"
+
+- id: policy_text_mining
+  title: "Policy Text Mining"
+  industry: "Política"
+  tracks: ["lab"]
+  stack: ["Python", "NLP"]
+  summary: "Análisis y extracción de temas desde texto (topic modeling / clustering)."
+  highlights:
+    - "Preprocesamiento + análisis exploratorio"
+  metrics: {}
+  artifacts:
+    demo: ""
+    repo: ""
+    report: ""
+  date: "2025-12"
+
+- id: transporte_demand_planning
+  title: "Demand Planning & Optimization"
+  industry: "Transporte"
+  tracks: ["cv", "lab"]
+  stack: ["Python", "Optimization", "Pandas"]
+  summary: "Planeación de demanda con lógica de optimización y simulación."
+  highlights:
+    - "Modelo base + escenarios"
+  metrics:
+    scenarios: 5
+  artifacts:
+    demo: ""
+    repo: ""
+    report: ""
+  date: "2026-01"
