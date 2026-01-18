@@ -13,7 +13,7 @@ st.set_page_config(
 )
 
 # =========================
-# ROUTING (✅ HTML -> query param -> switch_page)
+# ROUTING (query param -> switch_page)
 # =========================
 go = st.query_params.get("go", None)
 
@@ -102,7 +102,7 @@ html, body { background:#000; overflow-y:auto; }
 .topbar {
   position:absolute;
   top:0; left:0; right:0;
-  z-index:5;
+  z-index:6;              /* 👈 topbar arriba */
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -160,12 +160,13 @@ html, body { background:#000; overflow-y:auto; }
   position:absolute;
   top:22px;
   right:28px;
-  z-index:10000;
+  z-index:7;              /* 👈 arriba del topbar para que no lo tape */
 }
 
 .menu summary { list-style:none; cursor:pointer; }
 .menu summary::-webkit-details-marker { display:none; }
 
+/* BURGER */
 .burger {
   width:52px;
   height:52px;
@@ -213,6 +214,9 @@ html, body { background:#000; overflow-y:auto; }
   letter-spacing:.5px;
 }
 
+/* 👇 evita que Streamlit intente abrir nueva pestaña */
+.drawer a { target-new: none; }
+
 .drawer a:hover {
   background:rgba(255,42,42,.18);
   border-color:rgba(255,42,42,.7);
@@ -222,7 +226,7 @@ html, body { background:#000; overflow-y:auto; }
 
 logo_html = f"<img src='data:image/png;base64,{logo_b64}'>" if logo_b64 else ""
 
-# ✅ Links correctos: query param que python convierte en switch_page
+# ✅ Links via query param (misma pestaña)
 about_link = "?go=about"
 projects_link = "?go=projects"
 lab_link = "?go=lab"
@@ -242,11 +246,12 @@ html = f"""
     <summary class="burger" aria-label="Open menu">
       <span></span><span></span><span></span>
     </summary>
+
     <div class="drawer">
-      <a href="{about_link}">About me</a>
-      <a href="{projects_link}">Projects</a>
-      <a href="{lab_link}">Lab</a>
-      <a href="{contact_link}">Contact</a>
+      <a href="{about_link}" target="_self" rel="noopener">About me</a>
+      <a href="{projects_link}" target="_self" rel="noopener">Projects</a>
+      <a href="{lab_link}" target="_self" rel="noopener">Lab</a>
+      <a href="{contact_link}" target="_self" rel="noopener">Contact</a>
     </div>
   </details>
 
@@ -255,6 +260,7 @@ html = f"""
       {logo_html}
       <div>Portfolio JRR</div>
     </div>
+    <div></div>
   </div>
 
   <div class="accents">
