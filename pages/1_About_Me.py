@@ -1,131 +1,138 @@
 import streamlit as st
 
-st.set_page_config(layout="wide")
-
-# =========================
-# ABOUT ME
-# =========================
-
 st.title("About me")
 
+# =========================
+# HERO
+# =========================
 st.markdown("""
 ### Jorge Reyes  
 **Engineer · Data Scientist · Technical Architect**
 
-Construyo soluciones donde se cruzan **ingeniería, datos y sistemas complejos**.  
-Mi trabajo combina diseño técnico, análisis avanzado y ejecución en contextos reales.
+Construyo soluciones donde convergen **ingeniería, datos y sistemas complejos**.  
+Mi trabajo se mueve entre la ejecución técnica real y el análisis profundo de cómo funcionan los sistemas — técnicos, industriales y sociales.
 
 Este portafolio es dos cosas al mismo tiempo:
 
-- ⚙️ **Un perfil profesional para industria y tecnología**
-- 🧪 **Un laboratorio técnico donde desarrollo y documento sistemas**
-
-Aquí no solo muestro resultados. Muestro **cómo pienso, cómo modelo y cómo diseño.**
+- 🧾 Un **perfil profesional claro** para roles técnicos y estratégicos  
+- 🧪 Un **laboratorio activo** donde analizo, modelo y experimento con sistemas reales
 """)
 
-st.divider()
-
 # =========================
-# PROFESSIONAL PROFILE
+# PERFIL PROFESIONAL
 # =========================
-
 st.markdown("## Professional profile")
 
 st.markdown("""
-Soy ingeniero industrial y mecatrónico, con especialización práctica en  
-**ciencia de datos, analítica avanzada y modelado de sistemas.**
+Ingeniero industrial y mecatrónico con enfoque en **ciencia de datos, analítica avanzada y diseño de sistemas**.
 
-He trabajado en proyectos de:
+He trabajado en contextos donde los problemas no vienen “limpios”, sino con:
+- múltiples variables,
+- restricciones reales,
+- información incompleta,
+- y consecuencias operativas, económicas o sociales.
 
-- 📊 Análisis de datos y automatización  
-- 🏭 Industria, energía y manufactura  
-- 🛢️ Ingeniería aplicada en entornos reales  
-- 🤖 Simulación, optimización y modelos predictivos  
+Mi especialidad es **convertir complejidad en estructura**:
+modelar el sistema, entender sus dinámicas y proponer mejoras medibles.
 
-Mi enfoque no es solo programar o analizar.  
-Es **entender sistemas completos, abstraerlos, modelarlos y mejorarlos.**
-
-Busco roles y proyectos donde se crucen:
-
-**ingeniería · datos · automatización · toma de decisiones.**
+Busco roles donde se crucen:
+**ingeniería · datos · automatización · toma de decisiones**.
 """)
 
-st.divider()
-
 # =========================
-# LAB MINDSET
+# MENTALIDAD DE LABORATORIO
 # =========================
-
 st.markdown("## My lab mindset")
 
 st.markdown("""
-Este portafolio funciona como un **laboratorio técnico activo.**
+Este portafolio no es solo un escaparate de resultados finales.  
+Es un **laboratorio técnico y analítico en evolución**.
 
-Aquí desarrollo:
+Aquí desarrollo y documento:
 
 - 🔬 Modelos predictivos y de simulación  
-- 📈 Análisis de comportamiento de sistemas  
-- 🧠 Experimentos de machine learning  
-- ⚙️ Arquitecturas técnicas  
-- 🛰️ Proyectos donde convergen software, hardware e industria  
+- 📊 Análisis de comportamiento y patrones  
+- ⚙️ Arquitecturas de datos y flujos técnicos  
+- 🧠 Experimentos con machine learning y estadística  
+- 🛰️ Proyectos que conectan software, industria y realidad  
 
-Trabajo como **arquitecto técnico**:  
-entiendo el sistema, diseño el modelo, pruebo escenarios y optimizo decisiones.
-
-No construyo solo dashboards.  
-Construyo **sistemas que piensan.**
+Mi enfoque es el de un **arquitecto de sistemas**:  
+entender el todo antes de optimizar las partes.
 """)
 
-st.divider()
-
 # =========================
-# SOCIAL & POLITICAL SYSTEMS
+# DIMENSION SOCIAL Y POLITICA
 # =========================
-
-st.markdown("## Social & political systems")
+st.markdown("## Social & political analysis projects")
 
 st.markdown("""
-Además de sistemas técnicos, me interesa profundamente el análisis de  
-**sistemas sociales, políticos y económicos.**
+Además de sistemas técnicos, me interesa profundamente **entender cómo funcionan los sistemas sociales y políticos**.
 
-Desarrollo proyectos enfocados en:
+No desde una postura ideológica, sino desde un enfoque **analítico y estructural**:
+datos, incentivos, comportamiento colectivo y consecuencias.
 
-- 🏙️ Dinámicas sociales  
-- 🗳️ Comportamiento político  
-- 📊 Opinión pública y narrativa  
-- ⚖️ Desigualdad, acceso y estructuras de poder  
-- 🧠 Psicología colectiva y toma de decisiones  
+Desarrollo proyectos orientados a:
 
-Mi objetivo no es solo analizar la sociedad, sino **entenderla como sistema.**
+- 🏛️ **Análisis de políticas públicas**  
+- 📈 Evaluación de impacto social  
+- 🗳️ Comportamiento electoral y opinión pública  
+- ⚖️ Sistemas de incentivos, regulación y toma de decisiones  
+- 🌎 Dinámicas sociales, desigualdad y acceso a oportunidades  
 
-Modelar:
-
-- flujos de información  
-- incentivos  
-- ciclos de retroalimentación  
-- puntos de ruptura  
-- palancas de cambio  
-
-Para responder preguntas como:
-
-- ¿Por qué los sistemas fallan?  
-- ¿Dónde se generan las distorsiones?  
-- ¿Cómo se pueden diseñar mejores estructuras?  
-- ¿Qué intervenciones realmente cambian resultados?
-
-Aquí es donde ingeniería y ciencia de datos se convierten en  
-**herramientas para mejorar sistemas humanos.**
+El objetivo no es opinar, sino **entender el sistema para identificar palancas de mejora**.
 """)
 
-st.divider()
+st.markdown("""
+Creo que muchos problemas sociales y políticos pueden analizarse como sistemas:
+con entradas, procesos, retroalimentaciones y salidas.
+
+Aplicar herramientas de ingeniería y ciencia de datos a estos dominios permite:
+- detectar fallas estructurales,
+- evaluar escenarios,
+- y proponer soluciones basadas en evidencia.
+""")
 
 # =========================
-# STACK
+# STACK Y HERRAMIENTAS
 # =========================
-
 st.markdown("## Stack & tools")
 
-c1, c2 = st.columns(2)
+col1, col2 = st.columns(2)
 
-with c1:
-    st
+with col1:
+    st.markdown("""
+**Data & Modeling**
+- Python (pandas, NumPy)
+- Scikit-learn, TensorFlow
+- Simulación y Monte Carlo
+- Estadística aplicada
+- Visualización (Plotly, Power BI)
+""")
+
+with col2:
+    st.markdown("""
+**Engineering & Systems**
+- Diseño de sistemas técnicos
+- Automatización de procesos
+- Análisis industrial
+- Optimización
+- Documentación técnica y modelado
+""")
+
+# =========================
+# LINEAS DE TRABAJO
+# =========================
+st.markdown("## Lines of work")
+
+st.markdown("""
+Actualmente desarrollo proyectos en:
+
+- 📊 Data Science & Analytics  
+- ⚙️ Ingeniería aplicada e industrial  
+- 🏭 Energía, manufactura y sistemas productivos  
+- 🧪 Simulación, optimización y modelos complejos  
+- 🏛️ Análisis social y político basado en datos  
+
+Cada proyecto que aparece en **Projects** y **Lab** está tratado como si fuera parte de un entorno real:
+con supuestos claros, métricas, limitaciones y conclusiones accionables.
+""")
