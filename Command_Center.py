@@ -28,11 +28,11 @@ if not video_b64:
     st.error("No encuentro el video. Coloca tu archivo en: assets/data.mp4")
     st.stop()
 
-
 # =========================
 # GLOBAL CSS STREAMLIT
 # =========================
-st.markdown("""
+st.markdown(
+    """
 <style>
 html, body {height:100%; margin:0;}
 header[data-testid="stHeader"] {display:none;}
@@ -40,16 +40,19 @@ footer {visibility:hidden;}
 .block-container { padding:0 !important; max-width:100% !important; }
 section.main > div { padding:0 !important; }
 </style>
-""", unsafe_allow_html=True)
-
+""",
+    unsafe_allow_html=True,
+)
 
 # =========================
-# HERO + MENU CSS
+# HERO + MENU + SECTIONS CSS
 # =========================
 css = """
 <style>
 * { box-sizing:border-box; }
-html, body { background:#000; overflow:hidden; }
+
+/* ✅ Permitir scroll (antes estaba hidden) */
+html, body { background:#000; overflow-y:auto; }
 
 /* HERO */
 .hero {
@@ -139,7 +142,7 @@ html, body { background:#000; overflow:hidden; }
 
 /* MENU */
 .menu {
-  position:absolute;
+  position:fixed;     /* ✅ fijo para que funcione en scroll */
   top:22px;
   right:28px;
   z-index:10000;
@@ -199,19 +202,58 @@ html, body { background:#000; overflow:hidden; }
   background:rgba(255,42,42,.18);
   border-color:rgba(255,42,42,.7);
 }
+
+/* ✅ SECCIONES (para scroll landing) */
+.section {
+  width: calc(100vw - 64px);
+  margin-left: 64px;
+  padding: 70px 28px;
+  color: #fff;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  background: #060607;
+}
+
+.section h2 {
+  margin: 0 0 12px;
+  font-size: 2rem;
+}
+
+.section p {
+  opacity: 0.85;
+  max-width: 980px;
+  line-height: 1.6;
+}
+
+/* ✅ offset para que el título no quede debajo del topbar */
+.anchor {
+  position: relative;
+  top: -90px;
+}
 </style>
 """
 
-
 logo_html = f"<img src='data:image/png;base64,{logo_b64}'>" if logo_b64 else ""
 
-about_link = "/1_About_Me"
-projects_link = "/2_Projects"
-contact_link = "/3_Contact"
-
+# ✅ Links internos (scroll), NO multipage
+about_link = "#about"
+projects_link = "#projects"
+contact_link = "#contact"
 
 html = f"""
 {css}
+
+<details class="menu">
+  <summary class="burger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </summary>
+  <div class="drawer">
+    <a href="{about_link}">About me</a>
+    <a href="{projects_link}">Projects</a>
+    <a href="{contact_link}">Contact</a>
+  </div>
+</details>
+
 <div class="hero">
 
   <video autoplay muted loop playsinline>
@@ -219,17 +261,6 @@ html = f"""
   </video>
 
   <div class="overlay-dark"></div>
-
-  <details class="menu">
-    <summary class="burger">
-      <span></span><span></span><span></span>
-    </summary>
-    <div class="drawer">
-      <a href="{about_link}">About me</a>
-      <a href="{projects_link}">Projects</a>
-      <a href="{contact_link}">Contact</a>
-    </div>
-  </details>
 
   <div class="topbar">
     <div class="brand">
@@ -250,6 +281,32 @@ html = f"""
   </div>
 
 </div>
+
+<!-- ✅ Secciones para scroll -->
+<div id="about" class="anchor"></div>
+<section class="section">
+  <h2>About me</h2>
+  <p>
+    Aquí va tu resumen 50/50: CV profesional + laboratorio técnico.
+    (Luego lo conectamos con tu página About y lo hacemos dinámico).
+  </p>
+</section>
+
+<div id="projects" class="anchor"></div>
+<section class="section">
+  <h2>Projects</h2>
+  <p>
+    Aquí va tu hub por industrias (luego lo renderizamos desde data/projects.yaml).
+  </p>
+</section>
+
+<div id="contact" class="anchor"></div>
+<section class="section">
+  <h2>Contact</h2>
+  <p>
+    Aquí van tus links: LinkedIn, GitHub, correo, etc.
+  </p>
+</section>
 """
 
 st.markdown(html, unsafe_allow_html=True)
