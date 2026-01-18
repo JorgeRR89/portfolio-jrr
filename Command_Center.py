@@ -31,8 +31,7 @@ if not video_b64:
 # =========================
 # GLOBAL CSS STREAMLIT
 # =========================
-st.markdown(
-    """
+st.markdown("""
 <style>
 html, body {height:100%; margin:0;}
 header[data-testid="stHeader"] {display:none;}
@@ -40,9 +39,7 @@ footer {visibility:hidden;}
 .block-container { padding:0 !important; max-width:100% !important; }
 section.main > div { padding:0 !important; }
 </style>
-""",
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
 
 # =========================
 # HERO + MENU + SECTIONS CSS
@@ -50,8 +47,6 @@ section.main > div { padding:0 !important; }
 css = """
 <style>
 * { box-sizing:border-box; }
-
-/* ✅ Permitir scroll (antes estaba hidden) */
 html, body { background:#000; overflow-y:auto; }
 
 /* HERO */
@@ -142,7 +137,7 @@ html, body { background:#000; overflow-y:auto; }
 
 /* MENU */
 .menu {
-  position:fixed;     /* ✅ fijo para que funcione en scroll */
+  position:fixed;
   top:22px;
   right:28px;
   z-index:10000;
@@ -186,7 +181,7 @@ html, body { background:#000; overflow-y:auto; }
 
 .menu[open] .drawer { transform:translateX(0%); }
 
-.drawer a {
+.drawer a, .close-btn {
   display:block;
   padding:16px;
   margin:10px 0;
@@ -196,14 +191,17 @@ html, body { background:#000; overflow-y:auto; }
   text-decoration:none;
   font-weight:800;
   letter-spacing:.5px;
+  background:none;
+  cursor:pointer;
+  text-align:left;
 }
 
-.drawer a:hover {
+.drawer a:hover, .close-btn:hover {
   background:rgba(255,42,42,.18);
   border-color:rgba(255,42,42,.7);
 }
 
-/* ✅ SECCIONES (para scroll landing) */
+/* SECTIONS */
 .section {
   width: calc(100vw - 64px);
   margin-left: 64px;
@@ -214,28 +212,24 @@ html, body { background:#000; overflow-y:auto; }
   background: #060607;
 }
 
-.section h2 {
-  margin: 0 0 12px;
-  font-size: 2rem;
-}
-
-.section p {
-  opacity: 0.85;
-  max-width: 980px;
-  line-height: 1.6;
-}
-
-/* ✅ offset para que el título no quede debajo del topbar */
-.anchor {
-  position: relative;
-  top: -90px;
-}
+.anchor { position:relative; top:-90px; }
 </style>
+
+<script>
+function closeMenu() {
+  document.querySelector(".menu").removeAttribute("open");
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".drawer a").forEach(link => {
+    link.addEventListener("click", () => closeMenu());
+  });
+});
+</script>
 """
 
 logo_html = f"<img src='data:image/png;base64,{logo_b64}'>" if logo_b64 else ""
 
-# ✅ Links internos (scroll), NO multipage
 about_link = "#about"
 projects_link = "#projects"
 contact_link = "#contact"
@@ -244,10 +238,12 @@ html = f"""
 {css}
 
 <details class="menu">
-  <summary class="burger" aria-label="Open menu">
+  <summary class="burger">
     <span></span><span></span><span></span>
   </summary>
+
   <div class="drawer">
+    <button class="close-btn" onclick="closeMenu()">✕ Close</button>
     <a href="{about_link}">About me</a>
     <a href="{projects_link}">Projects</a>
     <a href="{contact_link}">Contact</a>
@@ -255,7 +251,6 @@ html = f"""
 </details>
 
 <div class="hero">
-
   <video autoplay muted loop playsinline>
     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
   </video>
@@ -279,34 +274,18 @@ html = f"""
   <div class="center">
     <h1>Welcome to my lab</h1>
   </div>
-
 </div>
 
-<!-- ✅ Secciones para scroll -->
 <div id="about" class="anchor"></div>
-<section class="section">
-  <h2>About me</h2>
-  <p>
-    Aquí va tu resumen 50/50: CV profesional + laboratorio técnico.
-    (Luego lo conectamos con tu página About y lo hacemos dinámico).
-  </p>
-</section>
+<section class="section"><h2>About me</h2></section>
 
 <div id="projects" class="anchor"></div>
-<section class="section">
-  <h2>Projects</h2>
-  <p>
-    Aquí va tu hub por industrias (luego lo renderizamos desde data/projects.yaml).
-  </p>
-</section>
+<section class="section"><h2>Projects</h2></section>
 
 <div id="contact" class="anchor"></div>
-<section class="section">
-  <h2>Contact</h2>
-  <p>
-    Aquí van tus links: LinkedIn, GitHub, correo, etc.
-  </p>
-</section>
+<section class="section"><h2>Contact</h2></section>
 """
 
 st.markdown(html, unsafe_allow_html=True)
+
+
