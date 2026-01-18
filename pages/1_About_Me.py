@@ -203,40 +203,7 @@ card(
 
 st.write("")
 
-# =========================
-# SOCIAL & POLITICAL
-# =========================
-st.markdown("## Social & political analysis (evidence-driven)")
-card(
-    """
-<div class="card">
-  <p class="muted">
-    Además de sistemas técnicos, me interesa profundamente entender <b>cómo funcionan los sistemas sociales y políticos</b>.
-  </p>
-  <p class="muted">
-    No lo abordo desde ideología, sino desde un enfoque <b>analítico y estructural</b>:
-    <b>datos → incentivos → comportamiento colectivo → consecuencias</b>.
-  </p>
-  <p class="muted">
-    Me interesa construir herramientas y análisis que ayuden a medir impacto, evaluar escenarios y proponer mejoras basadas en evidencia.
-  </p>
 
-  <h3 style="margin-top:14px;">Topics I explore</h3>
-  <ul class="muted">
-    <li>🏛️ <b>Política pública y regulación:</b> qué incentiva realmente una regla</li>
-    <li>📈 <b>Evaluación de impacto:</b> antes/después, contrafactuales, métricas útiles</li>
-    <li>🗳️ <b>Opinión pública y comportamiento electoral:</b> patrones, segmentación, sesgos</li>
-    <li>⚖️ <b>Diseño de incentivos:</b> por qué las reglas producen resultados inesperados</li>
-    <li>🌎 <b>Acceso a oportunidades:</b> desigualdad, movilidad, “cuellos de botella” del sistema</li>
-  </ul>
-
-  <p class="muted"><i>Mi objetivo no es “opinar más fuerte”, sino <b>modelar mejor</b>.</i></p>
-</div>
-""",
-    height=410,
-)
-
-st.write("")
 
 # =========================
 # STACK & TOOLS
