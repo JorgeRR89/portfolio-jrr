@@ -31,8 +31,7 @@ if not video_b64:
     st.stop()
 
 # =========================
-# GLOBAL CSS STREAMLIT
-# (importante: no bloquear scroll)
+# GLOBAL CSS + KILL SWITCH (oculta code blocks)
 # =========================
 st.markdown(
     """
@@ -42,6 +41,10 @@ header[data-testid="stHeader"] {display:none;}
 footer {visibility:hidden;}
 .block-container { padding:0 !important; max-width:100% !important; }
 section.main > div { padding:0 !important; }
+
+/* KILL SWITCH: si algún archivo imprime HTML como código, lo oculta */
+div[data-testid="stCodeBlock"] { display:none !important; }
+pre { display:none !important; }
 </style>
 """,
     unsafe_allow_html=True,
@@ -53,8 +56,6 @@ section.main > div { padding:0 !important; }
 css = """
 <style>
 * { box-sizing:border-box; }
-
-/* IMPORTANTE: permitir scroll en la página */
 html, body { background:#000; overflow-x:hidden; overflow-y:auto; }
 
 /* HERO */
@@ -218,12 +219,7 @@ html, body { background:#000; overflow-x:hidden; overflow-y:auto; }
   border-top: 1px solid rgba(255,255,255,0.06);
 }
 
-.section h2 {
-  margin: 0 0 14px 0;
-  font-size: 2rem;
-  letter-spacing: .2px;
-}
-
+.section h2 { margin: 0 0 14px 0; font-size: 2rem; }
 .section p {
   margin: 0 0 14px 0;
   line-height: 1.7;
@@ -232,13 +228,7 @@ html, body { background:#000; overflow-x:hidden; overflow-y:auto; }
   color: rgba(255,255,255,0.82);
 }
 
-.badges {
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin-top: 18px;
-}
-
+.badges { display:flex; flex-wrap:wrap; gap:10px; margin-top: 18px; }
 .badge {
   border: 1px solid rgba(255,255,255,0.14);
   border-radius: 999px;
@@ -276,7 +266,7 @@ logo_html = f"<img src='data:image/png;base64,{logo_b64}'>" if logo_b64 else ""
 
 # =========================
 # HTML (Hero + Sections)
-# NOTA: eliminamos la tarjeta que causaba el bloque blanco
+# Nota: HOME usa anclas (#about etc). Las páginas /about-me se manejan en pages/
 # =========================
 html = f"""
 {css}
@@ -295,7 +285,7 @@ html = f"""
     </summary>
 
     <div class="drawer">
-      <a href="#about" target="_self" rel="noopener">About me</a>
+      <a href="#about" target="_self" rel="noopener">About</a>
       <a href="#projects" target="_self" rel="noopener">Projects</a>
       <a href="#lab" target="_self" rel="noopener">Lab</a>
       <a href="#contact" target="_self" rel="noopener">Contact</a>
@@ -333,11 +323,6 @@ html = f"""
     los sistemas — técnicos, industriales y sociales.
   </p>
 
-  <p>
-    Este portafolio es dos cosas al mismo tiempo: un <b>CV profesional</b> para reclutadores y un <b>laboratorio técnico</b>
-    donde documento experimentos, modelos, simulaciones y aprendizaje aplicado.
-  </p>
-
   <div class="badges">
     <div class="badge">Python</div>
     <div class="badge">Data Science</div>
@@ -349,10 +334,7 @@ html = f"""
   <div class="grid2">
     <div class="card">
       <h3>Professional profile</h3>
-      <p>
-        Me especializo en convertir complejidad en estructura: modelar el sistema,
-        entender sus dinámicas y proponer mejoras medibles con datos.
-      </p>
+      <p>Me especializo en convertir complejidad en estructura: modelar el sistema, entender dinámicas y proponer mejoras medibles.</p>
       <ul>
         <li>Análisis, preparación y modelado de datos</li>
         <li>Dashboards y métricas accionables</li>
@@ -363,9 +345,7 @@ html = f"""
 
     <div class="card">
       <h3>What I build</h3>
-      <p>
-        Trabajo end-to-end: datos → lógica → visualización → decisión.
-      </p>
+      <p>Trabajo end-to-end: datos → lógica → visualización → decisión.</p>
       <ul>
         <li>Dashboards y métricas (Power BI / Plotly)</li>
         <li>Modelos predictivos (clasificación, regresión, NLP)</li>
@@ -376,35 +356,24 @@ html = f"""
   </div>
 </div>
 
-<!-- ===================== PROJECTS (placeholder) ===================== -->
+<!-- ===================== PROJECTS ===================== -->
 <div class="section" id="projects">
   <h2>Projects</h2>
-  <p>
-    Aquí irá el “hub” por industria (tarjetas por sector) leído desde <code>data/projects.yaml</code>.
-    En el siguiente paso lo conectamos al YAML.
-  </p>
+  <p>Aquí irá el hub por industria leído desde <code>data/projects.yaml</code>.</p>
 </div>
 
-<!-- ===================== LAB (placeholder) ===================== -->
+<!-- ===================== LAB ===================== -->
 <div class="section" id="lab">
   <h2>Lab</h2>
-  <p>
-    Aquí van experimentos técnicos, notebooks, prototipos, simulaciones y pruebas.
-    (Podemos leerlos desde otro YAML o desde el mismo por tipo = lab.)
-  </p>
+  <p>Aquí van experimentos técnicos, notebooks, prototipos, simulaciones y pruebas.</p>
 </div>
 
-<!-- ===================== CONTACT (placeholder) ===================== -->
+<!-- ===================== CONTACT ===================== -->
 <div class="section" id="contact">
   <h2>Contact</h2>
-  <p>
-    Correo · LinkedIn · GitHub (lo ponemos después)
-  </p>
+  <p>Correo · LinkedIn · GitHub</p>
 </div>
 """
 
-# =========================
-# RENDER CORRECTO
-# Evita que Streamlit lo trate como "code block"
-# =========================
+# Render correcto
 components.html(html, height=2600, scrolling=True)
