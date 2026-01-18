@@ -35,7 +35,7 @@ LOGO_PATH = ASSETS / "DS.png"
 
 
 def b64_file(path: Path) -> str:
-    return base64.b64encode(path.read_bytes()).decode("utf-8")
+    return base64.encodebytes(path.read_bytes()).decode("utf-8")
 
 
 video_b64 = b64_file(VIDEO_PATH) if VIDEO_PATH.exists() else ""
@@ -48,8 +48,7 @@ if not video_b64:
 # =========================
 # GLOBAL CSS STREAMLIT
 # =========================
-st.markdown(
-    """
+st.markdown("""
 <style>
 html, body {height:100%; margin:0;}
 header[data-testid="stHeader"] {display:none;}
@@ -57,9 +56,7 @@ footer {visibility:hidden;}
 .block-container { padding:0 !important; max-width:100% !important; }
 section.main > div { padding:0 !important; }
 </style>
-""",
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
 
 # =========================
 # HERO + MENU CSS
@@ -102,7 +99,7 @@ html, body { background:#000; overflow-y:auto; }
 .topbar {
   position:absolute;
   top:0; left:0; right:0;
-  z-index:5;
+  z-index:6;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -147,32 +144,21 @@ html, body { background:#000; overflow-y:auto; }
   text-shadow:0 10px 30px rgba(0,0,0,0.6);
 }
 
-/* ACCENTS */
-.accents { position:absolute; inset:0; z-index:3; pointer-events:none; }
-.line { position:absolute; height:3px; background:#ff2a2a; opacity:.9; }
-.l1 { top:92px; right:130px; width:120px; }
-.l2 { top:122px; right:40px; width:240px; }
-.l3 { bottom:70px; left:40px; width:220px; opacity:.55; }
-.l4 { top:30%; left:55%; width:250px; transform:rotate(-55deg); opacity:.5; }
+/* BURGER */
+#menuToggle { display:none; }
 
-/* MENU (details) */
-.menu {
+.burger {
   position:absolute;
   top:22px;
   right:28px;
-  z-index:10000;
-}
-
-.menu summary { list-style:none; cursor:pointer; }
-.menu summary::-webkit-details-marker { display:none; }
-
-.burger {
   width:52px;
   height:52px;
   background:#ff2a2a;
   display:grid;
   place-items:center;
   box-shadow:0 10px 25px rgba(0,0,0,.25);
+  z-index:10001;
+  cursor:pointer;
 }
 
 .burger span {
@@ -196,10 +182,12 @@ html, body { background:#000; overflow-y:auto; }
   padding:90px 28px 28px;
   transform:translateX(110%);
   transition:transform .3s ease;
-  z-index:9999;
+  z-index:10000;
 }
 
-.menu[open] .drawer { transform:translateX(0%); }
+#menuToggle:checked ~ .drawer {
+  transform:translateX(0%);
+}
 
 .drawer a {
   display:block;
@@ -220,10 +208,8 @@ html, body { background:#000; overflow-y:auto; }
 </style>
 """
 
-logo_html = f"<img src='data:image/png;base64,{logo_b64}' alt='logo'>" if logo_b64 else ""
+logo_html = f"<img src='data:image/png;base64,{logo_b64}'>" if logo_b64 else ""
 
-# ✅ Links correctos: query param que python convierte en switch_page
-# ✅ target="_self" fuerza misma pestaña
 about_link = "?go=about"
 projects_link = "?go=projects"
 lab_link = "?go=lab"
@@ -233,24 +219,24 @@ html = f"""
 {css}
 <div class="hero">
 
+  <input type="checkbox" id="menuToggle"/>
+
+  <label for="menuToggle" class="burger" aria-label="Open menu">
+    <span></span><span></span><span></span>
+  </label>
+
   <video autoplay muted loop playsinline>
     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
   </video>
 
   <div class="overlay-dark"></div>
 
-  <details class="menu">
-    <summary class="burger" aria-label="Open menu">
-      <span></span><span></span><span></span>
-    </summary>
-
-    <div class="drawer">
-      <a href="{about_link}" target="_self" rel="noopener">About me</a>
-      <a href="{projects_link}" target="_self" rel="noopener">Projects</a>
-      <a href="{lab_link}" target="_self" rel="noopener">Lab</a>
-      <a href="{contact_link}" target="_self" rel="noopener">Contact</a>
-    </div>
-  </details>
+  <div class="drawer">
+    <a href="{about_link}" target="_self">About me</a>
+    <a href="{projects_link}" target="_self">Projects</a>
+    <a href="{lab_link}" target="_self">Lab</a>
+    <a href="{contact_link}" target="_self">Contact</a>
+  </div>
 
   <div class="topbar">
     <div class="brand">
@@ -259,16 +245,10 @@ html = f"""
     </div>
   </div>
 
-  <div class="accents">
-    <div class="line l1"></div>
-    <div class="line l2"></div>
-    <div class="line l3"></div>
-    <div class="line l4"></div>
-  </div>
-
   <div class="center">
     <h1>Welcome to my lab</h1>
   </div>
+
 </div>
 """
 
