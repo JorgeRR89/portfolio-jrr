@@ -1,24 +1,21 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
 st.set_page_config(page_title="About me | Portfolio JRR", page_icon="🛰️", layout="wide")
 
 # =========================
 # GLOBAL STYLES
 # =========================
-st.markdown(
-    """
+CSS = """
 <style>
-/* page spacing */
 .block-container { padding-top: 2rem; padding-bottom: 2.5rem; max-width: 1200px; }
 
-/* subtle dark look even if Streamlit theme varies */
 html, body, [data-testid="stAppViewContainer"] {
   background: radial-gradient(1200px 600px at 20% 0%, rgba(255,255,255,0.06), transparent 60%),
               radial-gradient(900px 500px at 80% 30%, rgba(255,255,255,0.04), transparent 55%),
               #0b0f14;
 }
 
-/* cards */
 .card {
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.10);
@@ -28,14 +25,10 @@ html, body, [data-testid="stAppViewContainer"] {
   backdrop-filter: blur(10px);
 }
 
-.card h2, .card h3 {
-  margin: 0 0 10px 0;
-}
-
+.card h2, .card h3 { margin: 0 0 10px 0; }
 .muted { color: rgba(255,255,255,0.72); }
 .tight p { margin-bottom: 0.6rem; }
 
-/* chips */
 .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
 .chip {
   display: inline-flex;
@@ -48,13 +41,6 @@ html, body, [data-testid="stAppViewContainer"] {
   font-size: 13px;
 }
 
-/* section title */
-.section-title {
-  margin: 0 0 12px 0;
-  font-size: 22px;
-}
-
-/* metrics spacing */
 [data-testid="stMetric"] {
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.10);
@@ -62,16 +48,27 @@ html, body, [data-testid="stAppViewContainer"] {
   padding: 10px 12px;
 }
 </style>
-""",
-    unsafe_allow_html=True,
-)
+"""
+
+st.markdown(CSS, unsafe_allow_html=True)
+
+def card(inner_html: str, height: int = 10):
+    """
+    Render seguro (evita que se muestre como bloque de código con botón copiar).
+    height se auto-ajusta con 'scrolling=False' pero Streamlit requiere un número.
+    """
+    html = f"""
+    {CSS}
+    {inner_html}
+    """
+    components.html(html, height=height, scrolling=False)
 
 st.title("About me")
 
 # =========================
-# HERO (card)
+# HERO
 # =========================
-st.markdown(
+card(
     """
 <div class="card tight">
   <h3>Jorge Reyes — Engineer · Data Scientist · Technical Architect</h3>
@@ -80,9 +77,7 @@ st.markdown(
     Me muevo entre la ejecución técnica (código, modelos, dashboards, automatización) y el análisis profundo de
     <b>cómo se comportan los sistemas</b>: técnicos, industriales y sociales.
   </p>
-  <p class="muted">
-    Este portafolio es dos cosas al mismo tiempo:
-  </p>
+  <p class="muted">Este portafolio es dos cosas al mismo tiempo:</p>
   <ul class="muted">
     <li>🧾 Un <b>perfil profesional claro</b> (lo que he hecho, cómo genero impacto y qué sé construir)</li>
     <li>🧪 Un <b>laboratorio activo</b> (experimentos, modelos, simulaciones y documentación técnica)</li>
@@ -97,7 +92,7 @@ st.markdown(
   </div>
 </div>
 """,
-    unsafe_allow_html=True,
+    height=260,
 )
 
 st.write("")
@@ -115,13 +110,13 @@ with c4:
 st.write("")
 
 # =========================
-# PROFESSIONAL PROFILE (2-column layout)
+# PROFESSIONAL PROFILE
 # =========================
 st.markdown("## Professional profile")
 left, right = st.columns([1, 2], gap="large")
 
 with left:
-    st.markdown(
+    card(
         """
 <div class="card">
   <h3>Professional profile</h3>
@@ -137,11 +132,11 @@ with left:
   </ul>
 </div>
 """,
-        unsafe_allow_html=True,
+        height=290,
     )
 
 with right:
-    st.markdown(
+    card(
         """
 <div class="card">
   <h3>Cómo trabajo</h3>
@@ -156,6 +151,7 @@ with right:
     Lo que mejor hago es <b>convertir complejidad en estructura</b>: definir el sistema, traducirlo a datos,
     construir una solución medible y comunicar decisiones con claridad.
   </p>
+
   <h3 style="margin-top:14px;">What I build</h3>
   <ul class="muted">
     <li><b>Dashboards y métricas</b> (Power BI / Plotly) para monitoreo y decisión</li>
@@ -172,7 +168,7 @@ with right:
   </p>
 </div>
 """,
-        unsafe_allow_html=True,
+        height=520,
     )
 
 st.write("")
@@ -181,7 +177,7 @@ st.write("")
 # LAB MINDSET
 # =========================
 st.markdown("## My lab mindset")
-st.markdown(
+card(
     """
 <div class="card">
   <p class="muted">
@@ -202,7 +198,7 @@ st.markdown(
   </ul>
 </div>
 """,
-    unsafe_allow_html=True,
+    height=360,
 )
 
 st.write("")
@@ -211,7 +207,7 @@ st.write("")
 # SOCIAL & POLITICAL
 # =========================
 st.markdown("## Social & political analysis (evidence-driven)")
-st.markdown(
+card(
     """
 <div class="card">
   <p class="muted">
@@ -234,10 +230,10 @@ st.markdown(
     <li>🌎 <b>Acceso a oportunidades:</b> desigualdad, movilidad, “cuellos de botella” del sistema</li>
   </ul>
 
-  <p class="muted"><i>Mi objetivo no es “opinar más fuerte”, sino <b>modelar mejor</b>: identificar palancas de mejora y riesgos de implementación.</i></p>
+  <p class="muted"><i>Mi objetivo no es “opinar más fuerte”, sino <b>modelar mejor</b>.</i></p>
 </div>
 """,
-    unsafe_allow_html=True,
+    height=410,
 )
 
 st.write("")
@@ -249,7 +245,7 @@ st.markdown("## Stack & tools")
 col1, col2 = st.columns(2, gap="large")
 
 with col1:
-    st.markdown(
+    card(
         """
 <div class="card">
   <h3>Data & Modeling</h3>
@@ -262,11 +258,11 @@ with col1:
   </ul>
 </div>
 """,
-        unsafe_allow_html=True,
+        height=260,
     )
 
 with col2:
-    st.markdown(
+    card(
         """
 <div class="card">
   <h3>Engineering & Systems</h3>
@@ -279,7 +275,7 @@ with col2:
   </ul>
 </div>
 """,
-        unsafe_allow_html=True,
+        height=260,
     )
 
 st.write("")
@@ -288,7 +284,7 @@ st.write("")
 # LINES OF WORK
 # =========================
 st.markdown("## Lines of work")
-st.markdown(
+card(
     """
 <div class="card">
   <p class="muted">Actualmente desarrollo proyectos en:</p>
@@ -305,5 +301,6 @@ st.markdown(
   </p>
 </div>
 """,
-    unsafe_allow_html=True,
+    height=320,
 )
+
