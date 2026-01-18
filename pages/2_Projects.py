@@ -1,40 +1,45 @@
 import streamlit as st
-from src.loaders import load_projects, group_by_industry, ordered_industries
+from src.loaders import load_projects, group_by_industry
 
 st.set_page_config(page_title="Projects", layout="wide")
 
-st.title("Projects")
-st.caption("Portafolio organizado por industria.")
+projects, errors = load_projects()
 
-projects = load_projects()
+st.title("Projects")
+st.caption("Organizados por industria. Fuente: data/projects.yaml")
+
+if errors:
+    st.error("Hay errores en projects.yaml:")
+    for e in errors:
+        st.write(f"- {e}")
+    st.stop()
 
 if not projects:
-    st.warning("No hay proyectos aún. Agrega proyectos en data/projects.yaml")
+    st.warning("Aún no hay proyectos. Agrega entradas en data/projects.yaml")
     st.stop()
 
 grouped = group_by_industry(projects)
 
-for industry in ordered_industries(grouped):
-    with st.expander(industry, expanded=False):
-        for p in grouped[industry]:
+for industry, items in grouped.items():
+    with st.expander(f"{industry} ({len(items)})", expanded=False):
+        for p in items:
             with st.container(border=True):
-                st.subheader(p.get("title", "Untitled"))
-                st.write(p.get("summary", ""))
+                st.subheader(p["title"])
+                st.write(p["summary"])
 
-                st.caption(
-                    f"Tracks: {', '.join(p.get('tracks', []))} · "
-                    f"Stack: {' · '.join(p.get('stack', []))}"
-                )
+                meta = f"**Fecha:** {p.get('date','')} · **Status:** {p.get('status','')}"
+                st.markdown(meta)
 
-                for h in p.get("highlights", []):
-                    st.markdown(f"- {h}")
+                if p.get("highlights"):
+                    st.markdown("**Highlights**")
+                    for h in p["highlights"]:
+                        st.markdown(f"- {h}")
 
-                artifacts = p.get("artifacts", {})
-                c1, c2, c3 = st.columns(3)
-
+                artifacts = p.get("artifacts", {}) or {}
+                cols = st.columns(3)
                 if artifacts.get("demo"):
-                    c1.link_button("Demo", artifacts["demo"])
+                    cols[0].link_button("Demo", artifacts["demo"])
                 if artifacts.get("repo"):
-                    c2.link_button("Repo", artifacts["repo"])
+                    cols[1].link_button("Repo", artifacts["repo"])
                 if artifacts.get("report"):
-                    c3.link_button("Report", artifacts["report"])
+                    cols[2].link_button("Report", artifacts["report"])
