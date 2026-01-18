@@ -31,7 +31,8 @@ if not video_b64:
 # =========================
 # GLOBAL CSS STREAMLIT
 # =========================
-st.markdown("""
+st.markdown(
+    """
 <style>
 html, body {height:100%; margin:0;}
 header[data-testid="stHeader"] {display:none;}
@@ -39,10 +40,12 @@ footer {visibility:hidden;}
 .block-container { padding:0 !important; max-width:100% !important; }
 section.main > div { padding:0 !important; }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # =========================
-# HERO + MENU + SECTIONS CSS
+# HERO + MENU + SECTIONS CSS (NO JS)
 # =========================
 css = """
 <style>
@@ -135,24 +138,31 @@ html, body { background:#000; overflow-y:auto; }
 .l3 { bottom:70px; left:40px; width:220px; opacity:.55; }
 .l4 { top:30%; left:55%; width:250px; transform:rotate(-55deg); opacity:.5; }
 
-/* MENU */
-.menu {
-  position:fixed;
-  top:22px;
-  right:28px;
-  z-index:10000;
+/* =========================
+   MENU (Checkbox hack)
+========================= */
+
+/* checkbox oculto */
+#navToggle {
+  position: fixed;
+  opacity: 0;
+  pointer-events: none;
 }
 
-.menu summary { list-style:none; cursor:pointer; }
-.menu summary::-webkit-details-marker { display:none; }
-
+/* Burger button (abre/cierra) */
 .burger {
+  position: fixed;
+  top: 22px;
+  right: 28px;
+  z-index: 10000;
   width:52px;
   height:52px;
   background:#ff2a2a;
   display:grid;
   place-items:center;
   box-shadow:0 10px 25px rgba(0,0,0,.25);
+  cursor: pointer;
+  user-select:none;
 }
 
 .burger span {
@@ -161,11 +171,17 @@ html, body { background:#000; overflow-y:auto; }
   height:2px;
   background:#fff;
   margin:3px 0;
+  transition: .25s ease;
 }
 
-/* DRAWER */
+/* animación a X cuando está abierto */
+#navToggle:checked + label.burger span:nth-child(1){transform:translateY(5px) rotate(45deg);}
+#navToggle:checked + label.burger span:nth-child(2){opacity:0;}
+#navToggle:checked + label.burger span:nth-child(3){transform:translateY(-5px) rotate(-45deg);}
+
+/* Drawer */
 .drawer {
-  position:fixed;
+  position: fixed;
   top:0;
   right:0;
   width:min(380px,90vw);
@@ -179,9 +195,10 @@ html, body { background:#000; overflow-y:auto; }
   z-index:9999;
 }
 
-.menu[open] .drawer { transform:translateX(0%); }
+/* abrir drawer cuando checkbox checked */
+#navToggle:checked ~ .drawer { transform:translateX(0%); }
 
-/* Links */
+/* Links del drawer */
 .drawer a {
   display:block;
   padding:16px;
@@ -199,13 +216,14 @@ html, body { background:#000; overflow-y:auto; }
   border-color:rgba(255,42,42,.7);
 }
 
-/* ✅ Close button: 50% smaller + top-right */
+/* ✅ Close button (50% smaller + top-right) 
+   Es LABEL del mismo checkbox -> CIERRA seguro */
 .close-btn {
   position:absolute;
   top:18px;
   right:18px;
-  padding:8px 10px;          /* más pequeño */
-  font-size:0.85rem;         /* más pequeño */
+  padding:8px 10px;
+  font-size:0.85rem;
   border-radius:12px;
   border:1px solid rgba(255,255,255,.18);
   color:#fff;
@@ -214,6 +232,7 @@ html, body { background:#000; overflow-y:auto; }
   font-weight:800;
   letter-spacing:.3px;
   line-height:1;
+  user-select:none;
 }
 
 .close-btn:hover {
@@ -234,25 +253,6 @@ html, body { background:#000; overflow-y:auto; }
 
 .anchor { position:relative; top:-90px; }
 </style>
-
-<script>
-function closeMenu() {
-  const menu = document.querySelector(".menu");
-  if (menu) menu.removeAttribute("open");
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-  // ✅ cerrar al dar click en links del drawer
-  document.querySelectorAll(".drawer a").forEach(link => {
-    link.addEventListener("click", () => closeMenu());
-  });
-
-  // ✅ cerrar al presionar ESC
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeMenu();
-  });
-});
-</script>
 """
 
 logo_html = f"<img src='data:image/png;base64,{logo_b64}'>" if logo_b64 else ""
@@ -264,18 +264,23 @@ contact_link = "#contact"
 html = f"""
 {css}
 
-<details class="menu">
-  <summary class="burger" aria-label="Open menu">
-    <span></span><span></span><span></span>
-  </summary>
+<!-- ✅ Control del menú -->
+<input id="navToggle" type="checkbox" />
 
-  <div class="drawer">
-    <button class="close-btn" onclick="closeMenu()" aria-label="Close menu">✕</button>
-    <a href="{about_link}">About me</a>
-    <a href="{projects_link}">Projects</a>
-    <a href="{contact_link}">Contact</a>
-  </div>
-</details>
+<!-- ✅ Burger (label del checkbox) -->
+<label for="navToggle" class="burger" aria-label="Open menu">
+  <span></span><span></span><span></span>
+</label>
+
+<!-- ✅ Drawer (se abre/cierra por CSS) -->
+<div class="drawer">
+  <!-- ✅ Close (label del checkbox) -->
+  <label for="navToggle" class="close-btn" aria-label="Close menu">✕</label>
+
+  <a href="{about_link}">About me</a>
+  <a href="{projects_link}">Projects</a>
+  <a href="{contact_link}">Contact</a>
+</div>
 
 <div class="hero">
   <video autoplay muted loop playsinline>
