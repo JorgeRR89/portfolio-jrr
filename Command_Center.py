@@ -198,11 +198,18 @@ html, body { background:#000; overflow-y:auto; }
 /* abrir drawer cuando checkbox checked */
 #navToggle:checked ~ .drawer { transform:translateX(0%); }
 
-/* Links del drawer */
-.drawer a {
+/* Items del drawer: usamos label para cerrar, y dentro va el link */
+.drawer .nav-item {
+  display:block;
+  margin:10px 0;
+  cursor:pointer;
+  user-select:none;
+}
+
+/* estilo del link/botón */
+.drawer .nav-item a {
   display:block;
   padding:16px;
-  margin:10px 0;
   border:1px solid rgba(255,255,255,.12);
   border-radius:14px;
   color:white;
@@ -211,31 +218,7 @@ html, body { background:#000; overflow-y:auto; }
   letter-spacing:.5px;
 }
 
-.drawer a:hover {
-  background:rgba(255,42,42,.18);
-  border-color:rgba(255,42,42,.7);
-}
-
-/* ✅ Close button (50% smaller + top-right) 
-   Es LABEL del mismo checkbox -> CIERRA seguro */
-.close-btn {
-  position:absolute;
-  top:18px;
-  right:18px;
-  padding:8px 10px;
-  font-size:0.85rem;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.18);
-  color:#fff;
-  background:rgba(255,255,255,0.06);
-  cursor:pointer;
-  font-weight:800;
-  letter-spacing:.3px;
-  line-height:1;
-  user-select:none;
-}
-
-.close-btn:hover {
+.drawer .nav-item a:hover {
   background:rgba(255,42,42,.18);
   border-color:rgba(255,42,42,.7);
 }
@@ -267,19 +250,25 @@ html = f"""
 <!-- ✅ Control del menú -->
 <input id="navToggle" type="checkbox" />
 
-<!-- ✅ Burger (label del checkbox) -->
-<label for="navToggle" class="burger" aria-label="Open menu">
+<!-- ✅ Burger (mismo botón abre/cierra) -->
+<label for="navToggle" class="burger" aria-label="Toggle menu">
   <span></span><span></span><span></span>
 </label>
 
 <!-- ✅ Drawer (se abre/cierra por CSS) -->
 <div class="drawer">
-  <!-- ✅ Close (label del checkbox) -->
-  <label for="navToggle" class="close-btn" aria-label="Close menu">✕</label>
+  <!-- ✅ Cada item es LABEL (cierra) + A (scroll) -->
+  <label for="navToggle" class="nav-item">
+    <a href="{about_link}">About me</a>
+  </label>
 
-  <a href="{about_link}">About me</a>
-  <a href="{projects_link}">Projects</a>
-  <a href="{contact_link}">Contact</a>
+  <label for="navToggle" class="nav-item">
+    <a href="{projects_link}">Projects</a>
+  </label>
+
+  <label for="navToggle" class="nav-item">
+    <a href="{contact_link}">Contact</a>
+  </label>
 </div>
 
 <div class="hero">
