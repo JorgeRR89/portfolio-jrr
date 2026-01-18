@@ -1,8 +1,6 @@
 import base64
 from pathlib import Path
-
 import streamlit as st
-import streamlit.components.v1 as components
 
 # =========================
 # CONFIG
@@ -14,6 +12,23 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+# =========================
+# ROUTING (✅ HTML -> query param -> switch_page)
+# =========================
+go = st.query_params.get("go", None)
+
+if go == "about":
+    st.switch_page("pages/1_About_Me.py")
+elif go == "projects":
+    st.switch_page("pages/2_Projects.py")
+elif go == "lab":
+    st.switch_page("pages/4_Lab.py")
+elif go == "contact":
+    st.switch_page("pages/3_Contact.py")
+
+# =========================
+# ASSETS
+# =========================
 ASSETS = Path(__file__).parent / "assets"
 VIDEO_PATH = ASSETS / "data.mp4"
 LOGO_PATH = ASSETS / "DS.png"
@@ -31,7 +46,7 @@ if not video_b64:
     st.stop()
 
 # =========================
-# GLOBAL CSS + KILL SWITCH (oculta code blocks)
+# GLOBAL CSS STREAMLIT
 # =========================
 st.markdown(
     """
@@ -41,22 +56,18 @@ header[data-testid="stHeader"] {display:none;}
 footer {visibility:hidden;}
 .block-container { padding:0 !important; max-width:100% !important; }
 section.main > div { padding:0 !important; }
-
-/* KILL SWITCH: si algún archivo imprime HTML como código, lo oculta */
-div[data-testid="stCodeBlock"] { display:none !important; }
-pre { display:none !important; }
 </style>
 """,
     unsafe_allow_html=True,
 )
 
 # =========================
-# HERO + SECTIONS CSS
+# HERO + MENU CSS
 # =========================
 css = """
 <style>
 * { box-sizing:border-box; }
-html, body { background:#000; overflow-x:hidden; overflow-y:auto; }
+html, body { background:#000; overflow-y:auto; }
 
 /* HERO */
 .hero {
@@ -127,7 +138,6 @@ html, body { background:#000; overflow-x:hidden; overflow-y:auto; }
   justify-content:center;
   text-align:center;
   color:white;
-  padding: 0 24px;
 }
 
 .center h1 {
@@ -145,7 +155,7 @@ html, body { background:#000; overflow-x:hidden; overflow-y:auto; }
 .l3 { bottom:70px; left:40px; width:220px; opacity:.55; }
 .l4 { top:30%; left:55%; width:250px; transform:rotate(-55deg); opacity:.5; }
 
-/* ===== BURGER MENU (details) ===== */
+/* MENU (details) */
 .menu {
   position:absolute;
   top:22px;
@@ -173,7 +183,7 @@ html, body { background:#000; overflow-x:hidden; overflow-y:auto; }
   margin:3px 0;
 }
 
-/* Drawer */
+/* DRAWER */
 .drawer {
   position:fixed;
   top:0;
@@ -207,71 +217,20 @@ html, body { background:#000; overflow-x:hidden; overflow-y:auto; }
   background:rgba(255,42,42,.18);
   border-color:rgba(255,42,42,.7);
 }
-
-/* Sections */
-.section {
-  width: calc(100vw - 64px);
-  margin-left: 64px;
-  padding: 72px 36px;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  color: rgba(255,255,255,0.92);
-  background: #070709;
-  border-top: 1px solid rgba(255,255,255,0.06);
-}
-
-.section h2 { margin: 0 0 14px 0; font-size: 2rem; }
-.section p {
-  margin: 0 0 14px 0;
-  line-height: 1.7;
-  font-size: 1.05rem;
-  max-width: 980px;
-  color: rgba(255,255,255,0.82);
-}
-
-.badges { display:flex; flex-wrap:wrap; gap:10px; margin-top: 18px; }
-.badge {
-  border: 1px solid rgba(255,255,255,0.14);
-  border-radius: 999px;
-  padding: 8px 12px;
-  font-weight: 700;
-  font-size: .92rem;
-  color: rgba(255,255,255,0.86);
-}
-
-.grid2 {
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-  margin-top: 18px;
-  max-width: 980px;
-}
-
-.card {
-  border: 1px solid rgba(255,255,255,0.10);
-  background: rgba(255,255,255,0.04);
-  border-radius: 18px;
-  padding: 18px 18px;
-}
-
-.card h3 { margin: 0 0 10px 0; }
-.card ul { margin: 0; padding-left: 18px; color: rgba(255,255,255,0.82); }
-
-@media (max-width: 900px) {
-  .grid2 { grid-template-columns: 1fr; }
-}
 </style>
 """
 
 logo_html = f"<img src='data:image/png;base64,{logo_b64}'>" if logo_b64 else ""
 
-# =========================
-# HTML (Hero + Sections)
-# Nota: HOME usa anclas (#about etc). Las páginas /about-me se manejan en pages/
-# =========================
+# ✅ Links correctos: query param que python convierte en switch_page
+about_link = "?go=about"
+projects_link = "?go=projects"
+lab_link = "?go=lab"
+contact_link = "?go=contact"
+
 html = f"""
 {css}
-
-<div class="hero" id="home">
+<div class="hero">
 
   <video autoplay muted loop playsinline>
     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
@@ -283,12 +242,11 @@ html = f"""
     <summary class="burger" aria-label="Open menu">
       <span></span><span></span><span></span>
     </summary>
-
     <div class="drawer">
-      <a href="#about" target="_self" rel="noopener">About</a>
-      <a href="#projects" target="_self" rel="noopener">Projects</a>
-      <a href="#lab" target="_self" rel="noopener">Lab</a>
-      <a href="#contact" target="_self" rel="noopener">Contact</a>
+      <a href="{about_link}">About me</a>
+      <a href="{projects_link}">Projects</a>
+      <a href="{lab_link}">Lab</a>
+      <a href="{contact_link}">Contact</a>
     </div>
   </details>
 
@@ -309,71 +267,7 @@ html = f"""
   <div class="center">
     <h1>Welcome to my lab</h1>
   </div>
-
-</div>
-
-<!-- ===================== ABOUT ===================== -->
-<div class="section" id="about">
-  <h2>About me</h2>
-  <p><b>Jorge Reyes — Engineer · Data Scientist · Technical Architect</b></p>
-
-  <p>
-    Construyo soluciones donde convergen <b>ingeniería, datos y sistemas complejos</b>.
-    Mi trabajo se mueve entre la ejecución técnica real y el análisis profundo de cómo funcionan
-    los sistemas — técnicos, industriales y sociales.
-  </p>
-
-  <div class="badges">
-    <div class="badge">Python</div>
-    <div class="badge">Data Science</div>
-    <div class="badge">Simulación / Monte Carlo</div>
-    <div class="badge">Power BI</div>
-    <div class="badge">Sistemas complejos</div>
-  </div>
-
-  <div class="grid2">
-    <div class="card">
-      <h3>Professional profile</h3>
-      <p>Me especializo en convertir complejidad en estructura: modelar el sistema, entender dinámicas y proponer mejoras medibles.</p>
-      <ul>
-        <li>Análisis, preparación y modelado de datos</li>
-        <li>Dashboards y métricas accionables</li>
-        <li>Optimización, simulación y escenarios</li>
-        <li>Arquitectura y documentación técnica</li>
-      </ul>
-    </div>
-
-    <div class="card">
-      <h3>What I build</h3>
-      <p>Trabajo end-to-end: datos → lógica → visualización → decisión.</p>
-      <ul>
-        <li>Dashboards y métricas (Power BI / Plotly)</li>
-        <li>Modelos predictivos (clasificación, regresión, NLP)</li>
-        <li>Simulaciones Monte Carlo (incertidumbre / riesgo)</li>
-        <li>Pipelines y automatización (SQL/Python)</li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<!-- ===================== PROJECTS ===================== -->
-<div class="section" id="projects">
-  <h2>Projects</h2>
-  <p>Aquí irá el hub por industria leído desde <code>data/projects.yaml</code>.</p>
-</div>
-
-<!-- ===================== LAB ===================== -->
-<div class="section" id="lab">
-  <h2>Lab</h2>
-  <p>Aquí van experimentos técnicos, notebooks, prototipos, simulaciones y pruebas.</p>
-</div>
-
-<!-- ===================== CONTACT ===================== -->
-<div class="section" id="contact">
-  <h2>Contact</h2>
-  <p>Correo · LinkedIn · GitHub</p>
 </div>
 """
 
-# Render correcto
-components.html(html, height=2600, scrolling=True)
+st.markdown(html, unsafe_allow_html=True)
