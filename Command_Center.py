@@ -181,7 +181,8 @@ html, body { background:#000; overflow-y:auto; }
 
 .menu[open] .drawer { transform:translateX(0%); }
 
-.drawer a, .close-btn {
+/* Links */
+.drawer a {
   display:block;
   padding:16px;
   margin:10px 0;
@@ -191,12 +192,31 @@ html, body { background:#000; overflow-y:auto; }
   text-decoration:none;
   font-weight:800;
   letter-spacing:.5px;
-  background:none;
-  cursor:pointer;
-  text-align:left;
 }
 
-.drawer a:hover, .close-btn:hover {
+.drawer a:hover {
+  background:rgba(255,42,42,.18);
+  border-color:rgba(255,42,42,.7);
+}
+
+/* ✅ Close button: 50% smaller + top-right */
+.close-btn {
+  position:absolute;
+  top:18px;
+  right:18px;
+  padding:8px 10px;          /* más pequeño */
+  font-size:0.85rem;         /* más pequeño */
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+  background:rgba(255,255,255,0.06);
+  cursor:pointer;
+  font-weight:800;
+  letter-spacing:.3px;
+  line-height:1;
+}
+
+.close-btn:hover {
   background:rgba(255,42,42,.18);
   border-color:rgba(255,42,42,.7);
 }
@@ -217,12 +237,19 @@ html, body { background:#000; overflow-y:auto; }
 
 <script>
 function closeMenu() {
-  document.querySelector(".menu").removeAttribute("open");
+  const menu = document.querySelector(".menu");
+  if (menu) menu.removeAttribute("open");
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  // ✅ cerrar al dar click en links del drawer
   document.querySelectorAll(".drawer a").forEach(link => {
     link.addEventListener("click", () => closeMenu());
+  });
+
+  // ✅ cerrar al presionar ESC
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
   });
 });
 </script>
@@ -238,12 +265,12 @@ html = f"""
 {css}
 
 <details class="menu">
-  <summary class="burger">
+  <summary class="burger" aria-label="Open menu">
     <span></span><span></span><span></span>
   </summary>
 
   <div class="drawer">
-    <button class="close-btn" onclick="closeMenu()">✕ Close</button>
+    <button class="close-btn" onclick="closeMenu()" aria-label="Close menu">✕</button>
     <a href="{about_link}">About me</a>
     <a href="{projects_link}">Projects</a>
     <a href="{contact_link}">Contact</a>
@@ -287,5 +314,3 @@ html = f"""
 """
 
 st.markdown(html, unsafe_allow_html=True)
-
-
