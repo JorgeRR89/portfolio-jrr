@@ -12,6 +12,23 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
+# =========================
+# ROUTING (✅ HTML -> query param -> switch_page)
+# =========================
+go = st.query_params.get("go", None)
+
+if go == "about":
+    st.switch_page("pages/1_About_Me.py")
+elif go == "projects":
+    st.switch_page("pages/2_Projects.py")
+elif go == "lab":
+    st.switch_page("pages/4_Lab.py")
+elif go == "contact":
+    st.switch_page("pages/3_Contact.py")
+
+# =========================
+# ASSETS
+# =========================
 ASSETS = Path(__file__).parent / "assets"
 VIDEO_PATH = ASSETS / "data.mp4"
 LOGO_PATH = ASSETS / "DS.png"
@@ -45,7 +62,7 @@ section.main > div { padding:0 !important; }
 )
 
 # =========================
-# HERO + MENU + SECTIONS CSS (NO JS)
+# HERO + MENU CSS
 # =========================
 css = """
 <style>
@@ -138,31 +155,24 @@ html, body { background:#000; overflow-y:auto; }
 .l3 { bottom:70px; left:40px; width:220px; opacity:.55; }
 .l4 { top:30%; left:55%; width:250px; transform:rotate(-55deg); opacity:.5; }
 
-/* =========================
-   MENU (Checkbox hack)
-========================= */
-
-/* checkbox oculto */
-#navToggle {
-  position: fixed;
-  opacity: 0;
-  pointer-events: none;
+/* MENU (details) */
+.menu {
+  position:absolute;
+  top:22px;
+  right:28px;
+  z-index:10000;
 }
 
-/* Burger button (abre/cierra) */
+.menu summary { list-style:none; cursor:pointer; }
+.menu summary::-webkit-details-marker { display:none; }
+
 .burger {
-  position: fixed;
-  top: 22px;
-  right: 28px;
-  z-index: 10000;
   width:52px;
   height:52px;
   background:#ff2a2a;
   display:grid;
   place-items:center;
   box-shadow:0 10px 25px rgba(0,0,0,.25);
-  cursor: pointer;
-  user-select:none;
 }
 
 .burger span {
@@ -171,17 +181,11 @@ html, body { background:#000; overflow-y:auto; }
   height:2px;
   background:#fff;
   margin:3px 0;
-  transition: .25s ease;
 }
 
-/* animación a X cuando está abierto */
-#navToggle:checked + label.burger span:nth-child(1){transform:translateY(5px) rotate(45deg);}
-#navToggle:checked + label.burger span:nth-child(2){opacity:0;}
-#navToggle:checked + label.burger span:nth-child(3){transform:translateY(-5px) rotate(-45deg);}
-
-/* Drawer */
+/* DRAWER */
 .drawer {
-  position: fixed;
+  position:fixed;
   top:0;
   right:0;
   width:min(380px,90vw);
@@ -195,21 +199,12 @@ html, body { background:#000; overflow-y:auto; }
   z-index:9999;
 }
 
-/* abrir drawer cuando checkbox checked */
-#navToggle:checked ~ .drawer { transform:translateX(0%); }
+.menu[open] .drawer { transform:translateX(0%); }
 
-/* Items del drawer: usamos label para cerrar, y dentro va el link */
-.drawer .nav-item {
-  display:block;
-  margin:10px 0;
-  cursor:pointer;
-  user-select:none;
-}
-
-/* estilo del link/botón */
-.drawer .nav-item a {
+.drawer a {
   display:block;
   padding:16px;
+  margin:10px 0;
   border:1px solid rgba(255,255,255,.12);
   border-radius:14px;
   color:white;
@@ -218,65 +213,42 @@ html, body { background:#000; overflow-y:auto; }
   letter-spacing:.5px;
 }
 
-.drawer .nav-item a:hover {
+.drawer a:hover {
   background:rgba(255,42,42,.18);
   border-color:rgba(255,42,42,.7);
 }
-
-/* SECTIONS */
-.section {
-  width: calc(100vw - 64px);
-  margin-left: 64px;
-  padding: 70px 28px;
-  color: #fff;
-  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  background: #060607;
-}
-
-.anchor { position:relative; top:-90px; }
 </style>
 """
 
 logo_html = f"<img src='data:image/png;base64,{logo_b64}'>" if logo_b64 else ""
 
-about_link = "#about"
-projects_link = "#projects"
-contact_link = "#contact"
+# ✅ Links correctos: query param que python convierte en switch_page
+about_link = "?go=about"
+projects_link = "?go=projects"
+lab_link = "?go=lab"
+contact_link = "?go=contact"
 
 html = f"""
 {css}
-
-<!-- ✅ Control del menú -->
-<input id="navToggle" type="checkbox" />
-
-<!-- ✅ Burger (mismo botón abre/cierra) -->
-<label for="navToggle" class="burger" aria-label="Toggle menu">
-  <span></span><span></span><span></span>
-</label>
-
-<!-- ✅ Drawer (se abre/cierra por CSS) -->
-<div class="drawer">
-  <!-- ✅ Cada item es LABEL (cierra) + A (scroll) -->
-  <label for="navToggle" class="nav-item">
-    <a href="{about_link}">About me</a>
-  </label>
-
-  <label for="navToggle" class="nav-item">
-    <a href="{projects_link}">Projects</a>
-  </label>
-
-  <label for="navToggle" class="nav-item">
-    <a href="{contact_link}">Contact</a>
-  </label>
-</div>
-
 <div class="hero">
+
   <video autoplay muted loop playsinline>
     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
   </video>
 
   <div class="overlay-dark"></div>
+
+  <details class="menu">
+    <summary class="burger" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </summary>
+    <div class="drawer">
+      <a href="{about_link}">About me</a>
+      <a href="{projects_link}">Projects</a>
+      <a href="{lab_link}">Lab</a>
+      <a href="{contact_link}">Contact</a>
+    </div>
+  </details>
 
   <div class="topbar">
     <div class="brand">
@@ -296,15 +268,6 @@ html = f"""
     <h1>Welcome to my lab</h1>
   </div>
 </div>
-
-<div id="about" class="anchor"></div>
-<section class="section"><h2>About me</h2></section>
-
-<div id="projects" class="anchor"></div>
-<section class="section"><h2>Projects</h2></section>
-
-<div id="contact" class="anchor"></div>
-<section class="section"><h2>Contact</h2></section>
 """
 
 st.markdown(html, unsafe_allow_html=True)
