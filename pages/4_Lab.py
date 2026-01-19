@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
+import html as _html
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
@@ -216,14 +217,33 @@ def _log_append(msg: str):
     st.session_state["lab_log"] = st.session_state["lab_log"][-120:]
 
 
+import html as _html  # <-- agrega este import arriba (una sola vez)
+
 def _render_log():
     lines = st.session_state.get("lab_log", [])
     if not lines:
         lines = ["[system] ready."]
+
+    safe_lines = []
+    for line in lines:
+        # Permitimos etiquetas simples de color que ya usamos (badge-ok/warn/err),
+        # pero escapamos TODO lo demás para evitar que rompa el HTML.
+        # Estrategia: escapamos todo y luego "re-habilitamos" solo nuestros spans.
+        escaped = _html.escape(str(line))
+
+        # Re-habilitar spans de estado (los usamos en _log_append)
+        escaped = escaped.replace("&lt;span class=&#x27;badge-ok&#x27;&gt;", "<span class='badge-ok'>")
+        escaped = escaped.replace("&lt;span class=&#x27;badge-warn&#x27;&gt;", "<span class='badge-warn'>")
+        escaped = escaped.replace("&lt;span class=&#x27;badge-err&#x27;&gt;", "<span class='badge-err'>")
+        escaped = escaped.replace("&lt;/span&gt;", "</span>")
+
+        safe_lines.append(escaped)
+
     st.markdown(
-        "<div class='console'>" + "<br/>".join([st._to_html(line) for line in lines]) + "</div>",
+        "<div class='console'>" + "<br/>".join(safe_lines) + "</div>",
         unsafe_allow_html=True,
     )
+
 
 
 def auto_insights(df: pd.DataFrame):
