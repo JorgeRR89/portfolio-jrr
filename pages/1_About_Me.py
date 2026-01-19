@@ -132,35 +132,38 @@ with col1:
         """
 <div class="card">
   <h3>Who I am</h3>
- <p>
-  I’m Jorge Reyes — an engineer who transitioned into data science, analytics, and machine learning.
-  I like turning messy data into decision systems: dashboards, pipelines, forecasts,
-  simulations, and intelligent automation that improve outcomes.
-</p>
-
-<p>
-  Beyond performance and optimization, I’m especially interested in projects with real-world
-  and social impact — technology applied to improve safety, access, efficiency, and quality of life.
-  I’m motivated by problems where data and engineering can meaningfully affect people, not just metrics.
-</p>
-
 
   <p>
-    <!-- TODO: ajusta a tu realidad -->
-    My work spans e-commerce performance, industrial engineering projects,
-    and sports simulation workflows — always with a focus on clarity, speed, and measurable impact.
+    I’m Jorge Reyes — an engineer working at the intersection of data science,
+    machine learning, and real-world systems.
+    I build analytical and intelligent tools that transform raw data into
+    decision frameworks: dashboards, models, simulations, and automated pipelines
+    designed to operate beyond the screen.
   </p>
 
-  <h3>What I optimize for</h3>
-  <ul>
-  <li>Clean, reproducible analysis (Python/SQL) and readable results.</li>
-  <li>Practical machine learning when it truly adds value (not for decoration).</li>
-  <li>Automation to remove manual work and reduce errors.</li>
-  <li>Systems designed for real-world and social impact.</li>
-  <li>Strong communication: explain complex systems simply.</li>
-</ul>
+  <p>
+    My background blends engineering thinking with applied data science.
+    I’m drawn to complex, imperfect environments — where information is incomplete,
+    conditions change, and systems must be both technically sound and operationally viable.
+  </p>
 
+  <p>
+    Beyond performance metrics, I’m especially interested in projects with real-world
+    and social impact. Problems where technology can improve safety, efficiency,
+    access, and quality of life.
+    I care about building systems that influence reality, not just reports.
+  </p>
+
+  <h3>What drives my work</h3>
+  <ul>
+    <li>Designing data and ML systems meant to be used, not just analyzed.</li>
+    <li>Bridging engineering constraints with analytical intelligence.</li>
+    <li>Applying machine learning where it creates real leverage.</li>
+    <li>Automation as a way to free people from manual and error-prone work.</li>
+    <li>Clear thinking, clean structure, and explainable solutions.</li>
+  </ul>
 </div>
+
 """,
         unsafe_allow_html=True,
     )
