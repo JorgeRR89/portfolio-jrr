@@ -341,7 +341,7 @@ html = r"""
         <div>Portfolio JRR</div>
       </div>
       <div class="menu">
-        <a href="./About_Me" target="_self">About</a>
+        <a href="./About_Me" target="_self">About me</a>
         <a href="./Projects" target="_self">Projects</a>
         <a href="./Lab" target="_self">Lab</a>
         <a href="./Contact" target="_self">Contact</a>
