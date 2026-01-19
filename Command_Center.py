@@ -229,20 +229,20 @@ html = r"""
 /* caret absoluto, altura basada en el line-box */
 .cursor{
   position: absolute;
-  left: calc(100% + 14px); /* separación del texto */
+  left: calc(100% + 14px);
   top: 50%;
-  transform: translateY(-55%);  /* centra respecto al texto */
+  transform: translateY(-50%);
 
   width: 0;
-  height: 1.12em;          /* ahora sí: un poco más que 1em */
   border-left: 3px solid rgba(255,255,255,.92);
   border-radius: 2px;
 
+  /* glow */
   filter: drop-shadow(0 0 10px rgba(255,255,255,.22))
           drop-shadow(0 0 18px rgba(255,255,255,.10));
 
   opacity: 1;
-  animation: caretBlink 1.6s steps(1) infinite, caretFloat 1.6s ease-in-out infinite;
+  animation: caretBlink 1.6s steps(1) infinite;
 }
 
 .cursor.typing{
@@ -251,10 +251,18 @@ html = r"""
 }
 
 .cursor.ready{
-  animation:
-    caretBlink 1.6s steps(1) infinite,
-    caretFloat 1.6s ease-in-out infinite,
-    caretIn 260ms cubic-bezier(.22,1.2,.36,1) 1;
+  animation: caretBlink 1.6s steps(1) infinite, caretIn 260ms cubic-bezier(.22,1.2,.36,1) 1;
+}
+
+@keyframes caretBlink{
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes caretIn{
+  0%   { opacity: 0; transform: translateY(-50%) scaleY(0.7); }
+  60%  { opacity: 1; transform: translateY(-50%) scaleY(1.05); }
+  100% { opacity: 1; transform: translateY(-50%) scaleY(1); }
 }
 
 /* micro movimiento */
@@ -375,10 +383,11 @@ html = r"""
 
     <div class="hero">
       <div class="headline">
-        <span class="typedWrap">
+       <span class="typedWrap" id="wrap">
   <span id="typed"></span>
   <span class="cursor" id="caret"></span>
 </span>
+
 
       </div>
     </div>
@@ -402,6 +411,13 @@ html = r"""
   const maxDelay = 150;
 
   function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+  function syncCaretSize(){
+  const r = typedEl.getBoundingClientRect();
+  // usa la altura real del texto visible
+  caret.style.height = Math.max(18, Math.round(r.height)) + "px";
+}
+window.addEventListener("resize", syncCaretSize);
+
 
   async function typeText(){
     await sleep(startDelay);
@@ -410,9 +426,10 @@ html = r"""
     caret.classList.remove("ready");
 
     typedEl.textContent = "";
-
+    syncCaretSize(); // <-- hace el caret 1:1 con el texto
     for (let i = 0; i < text.length; i++){
       typedEl.textContent += text[i];
+      
       const jitter = Math.floor(minDelay + Math.random() * (maxDelay - minDelay));
       await sleep(jitter);
     }
