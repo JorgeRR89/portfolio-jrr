@@ -26,7 +26,6 @@ def b64_file(path: Path) -> str:
 
 
 def pick_video() -> tuple[Path | None, str]:
-    """Return (path, mime). Prefer webm; fallback mp4."""
     if VIDEO_WEBM.exists():
         return VIDEO_WEBM, "video/webm"
     if VIDEO_MP4.exists():
@@ -94,7 +93,6 @@ html = Template(r"""
     position:relative; width:100vw; height:100vh; overflow:hidden; background:#000;
   }
 
-  /* Video background (si está habilitado) */
   .bgvideo {
     position:absolute; inset:0; width:100%; height:100%;
     object-fit:cover;
@@ -103,14 +101,12 @@ html = Template(r"""
     z-index: 1;
   }
 
-  /* Fallback background */
   .bgsolid {
     position:absolute; inset:0;
     background: radial-gradient(900px 500px at 50% 40%, rgba(255,255,255,.06), rgba(0,0,0,.95));
     z-index: 1;
   }
 
-  /* Canvas reactive layer */
   #react {
     position:absolute; inset:0; width:100%; height:100%;
     z-index:2;
@@ -126,7 +122,6 @@ html = Template(r"""
       linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.72));
   }
 
-  /* Top nav */
   .nav {
     position:absolute; top:0; left:0; right:0; z-index:5;
     display:flex; align-items:center; justify-content:space-between;
@@ -168,7 +163,6 @@ html = Template(r"""
     backdrop-filter: blur(8px);
   }
 
-  /* Center */
   .hero {
     position:absolute; inset:0; z-index:6;
     display:grid; place-items:center;
@@ -185,10 +179,7 @@ html = Template(r"""
     backdrop-filter: blur(12px);
     box-shadow: 0 25px 65px rgba(0,0,0,.45);
     max-width: 980px;
-
-    /* subtle breathing motion */
     animation: floaty 6.2s ease-in-out infinite;
-    will-change: transform;
   }
 
   .terminal .line {
@@ -198,7 +189,6 @@ html = Template(r"""
     align-items: baseline;
   }
 
-  /* Premium typing */
   #typed{
     color: rgba(255,255,255,.94);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -208,18 +198,19 @@ html = Template(r"""
     line-height: 1.03;
     white-space: pre-wrap;
     text-align: center;
-
     text-shadow:
       0 0 18px rgba(255,255,255,.10),
       0 0 42px rgba(255,255,255,.08),
       0 18px 60px rgba(0,0,0,.55);
-
     filter: blur(10px);
     opacity: 0;
     transform: translateY(10px);
     animation: reveal 900ms ease forwards;
     animation-delay: 250ms;
-    will-change: transform, filter, opacity;
+  }
+
+  #typed.pulse{
+    animation: reveal 900ms ease forwards, glowPulse 680ms ease-in-out 1;
   }
 
   .cursor{
@@ -241,6 +232,30 @@ html = Template(r"""
       filter: blur(0px);
       opacity: 1;
       transform: translateY(0);
+    }
+  }
+
+  @keyframes glowPulse{
+    0%{
+      text-shadow:
+        0 0 18px rgba(255,255,255,.10),
+        0 0 42px rgba(255,255,255,.08),
+        0 18px 60px rgba(0,0,0,.55);
+      transform: scale(1);
+    }
+    50%{
+      text-shadow:
+        0 0 26px rgba(255,255,255,.18),
+        0 0 68px rgba(255,255,255,.14),
+        0 24px 70px rgba(0,0,0,.55);
+      transform: scale(1.01);
+    }
+    100%{
+      text-shadow:
+        0 0 18px rgba(255,255,255,.10),
+        0 0 42px rgba(255,255,255,.08),
+        0 18px 60px rgba(0,0,0,.55);
+      transform: scale(1);
     }
   }
 
@@ -308,13 +323,12 @@ html = Template(r"""
 
 <script>
 (() => {
-  // ===== 1) Typing effect (ONLY "welcome to my LAB") =====
   const typedEl = document.getElementById('typed');
   const text = "welcome to my LAB";
 
-  const startDelay = 650;
-  const minDelay = 22;
-  const maxDelay = 48;
+  const startDelay = 950;
+  const minDelay = 65;
+  const maxDelay = 115;
 
   function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
@@ -326,10 +340,10 @@ html = Template(r"""
       const jitter = Math.floor(minDelay + Math.random() * (maxDelay - minDelay));
       await sleep(jitter);
     }
+    typedEl.classList.add("pulse");
   }
   typeText();
 
-  // ===== 2) Reactive field (antigravity-ish) =====
   const canvas = document.getElementById('react');
   const ctx = canvas.getContext('2d', { alpha: true });
 
