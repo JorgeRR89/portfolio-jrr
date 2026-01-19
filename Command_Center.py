@@ -206,16 +206,19 @@ html = r"""
 
 
   .cursor{
-    display:inline-block;
-    width: 14px;
-    height: 1.05em;
-    transform: translateY(10px);
-    background: rgba(255,255,255,.88);
-    margin-left: 10px;
-    border-radius: 3px;
-    animation: blink 900ms steps(1) infinite;
-    box-shadow: 0 0 18px rgba(255,255,255,.18);
-  }
+  display:inline-block;
+  width: 2px;                      /* barra delgada */
+  height: 1.05em;
+  transform: translateY(8px);
+  background: rgba(255,255,255,.92);
+  margin-left: 8px;
+  border-radius: 2px;
+  animation: blink 900ms steps(1) infinite;
+  box-shadow: 
+    0 0 8px rgba(255,255,255,.25),
+    0 0 18px rgba(255,255,255,.15);
+}
+
 
   /* Final micro zoom + blur -> focus */
   #typed.finalFocus{
