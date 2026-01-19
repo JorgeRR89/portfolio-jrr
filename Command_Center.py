@@ -182,27 +182,28 @@ html = r"""
   }
 
   #typed{
-    color: var(--fg);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-size: clamp(54px, 7.0vw, 112px);
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    line-height: 1.02;
-    white-space: pre-wrap;
-    text-align: center;
+  color: var(--fg);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  font-size: clamp(54px, 7.0vw, 112px);
+  font-weight: 300;              /* más delgada */
+  letter-spacing: -0.04em;       /* estilo headline */
+  line-height: 1.02;
+  white-space: pre-wrap;
+  text-align: center;
 
-    text-shadow:
-      0 0 16px rgba(255,255,255,.10),
-      0 0 44px rgba(255,255,255,.08),
-      0 18px 65px rgba(0,0,0,.58);
+  text-shadow:
+    0 0 12px rgba(255,255,255,.08),
+    0 0 40px rgba(255,255,255,.06),
+    0 18px 65px rgba(0,0,0,.58);
 
-    opacity: 0;
-    filter: blur(14px);
-    transform: translateY(10px) scale(0.995);
-    animation: reveal 900ms ease forwards;
-    animation-delay: 220ms;
-    will-change: transform, filter, opacity, text-shadow;
-  }
+  opacity: 0;
+  filter: blur(14px);
+  transform: translateY(10px) scale(0.995);
+  animation: reveal 900ms ease forwards;
+  animation-delay: 220ms;
+  will-change: transform, filter, opacity, text-shadow;
+}
+
 
   .cursor{
     display:inline-block;
