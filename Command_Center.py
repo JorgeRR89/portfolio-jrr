@@ -67,7 +67,7 @@ if video_enabled:
 else:
     video_tag = """<div class="bgsolid"></div>"""
 
-# HTML base (sin f-string, sin Template). Usamos placeholders únicos y luego .replace()
+# HTML base (sin f-string ni Template). Usamos placeholders únicos y luego .replace()
 html = r"""
 <!doctype html>
 <html>
@@ -85,7 +85,7 @@ html = r"""
 
   html, body{
     margin:0; padding:0; height:100%; background:#000;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
   }
 
   .stage{
@@ -182,78 +182,27 @@ html = r"""
   }
 
   #typed{
-  color: var(--fg);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  font-size: clamp(54px, 7.0vw, 112px);
-  font-weight: 300;              /* más delgada */
-  letter-spacing: -0.04em;       /* estilo headline */
-  line-height: 1.02;
-  white-space: pre-wrap;
-  text-align: center;
+    color: var(--fg);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
+    font-size: clamp(54px, 7.0vw, 112px);
+    font-weight: 300;             /* delgada tipo antigravity */
+    letter-spacing: -0.04em;
+    line-height: 1.02;
+    white-space: pre-wrap;
+    text-align: center;
 
-  text-shadow:
-    0 0 12px rgba(255,255,255,.08),
-    0 0 40px rgba(255,255,255,.06),
-    0 18px 65px rgba(0,0,0,.58);
+    text-shadow:
+      0 0 12px rgba(255,255,255,.08),
+      0 0 40px rgba(255,255,255,.06),
+      0 18px 65px rgba(0,0,0,.58);
 
-  opacity: 0;
-  filter: blur(14px);
-  transform: translateY(10px) scale(0.995);
-  animation: reveal 900ms ease forwards;
-  animation-delay: 220ms;
-  will-change: transform, filter, opacity, text-shadow;
-}
-
-
-  .cursor{
-  display:inline-block;
-  width: 2px;               /* barra delgada */
-  height: 1.05em;
-  transform: translateY(8px);
-  margin-left: 8px;
-  border-radius: 2px;
-
-  /* gradiente vertical sutil */
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,.35) 0%,
-    rgba(255,255,255,.95) 45%,
-    rgba(255,255,255,.55) 100%
-  );
-
-  /* glow fino */
-  box-shadow:
-    0 0 8px rgba(255,255,255,.22),
-    0 0 18px rgba(255,255,255,.12);
-
-  /* por defecto visible */
-  opacity: 1;
-
-  /* blink más lento */
-  animation: caretBlink 1.35s steps(1) infinite;
-}
-
-/* oculto durante typing */
-.cursor.typing{
-  opacity: 0 !important;
-  animation: none !important;
-}
-
-/* reaparece al final con un micro fade */
-.cursor.ready{
-  animation: caretBlink 1.35s steps(1) infinite, caretIn 240ms ease-out 1;
-}
-
-@keyframes caretBlink{
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
-}
-
-@keyframes caretIn{
-  from { opacity: 0; transform: translateY(8px) scaleY(0.85); }
-  to   { opacity: 1; transform: translateY(8px) scaleY(1); }
-}
-
+    opacity: 0;
+    filter: blur(14px);
+    transform: translateY(10px) scale(0.995);
+    animation: reveal 900ms ease forwards;
+    animation-delay: 220ms;
+    will-change: transform, filter, opacity, text-shadow;
+  }
 
   /* Final micro zoom + blur -> focus */
   #typed.finalFocus{
@@ -270,7 +219,50 @@ html = r"""
       glowPulse 650ms ease-in-out 1;
   }
 
-  @keyframes blink{ 50%{ opacity:0; } }
+  /* Cursor tipo IDE: barra delgada con gradiente, blink lento
+     - desaparece mientras escribe
+     - reaparece al final con micro fade */
+  .cursor{
+    display:inline-block;
+    width: 2px;
+    height: 1.05em;
+    transform: translateY(10px);
+    margin-left: 8px;
+    border-radius: 2px;
+
+    background: linear-gradient(
+      to bottom,
+      rgba(255,255,255,.35) 0%,
+      rgba(255,255,255,.95) 45%,
+      rgba(255,255,255,.55) 100%
+    );
+
+    box-shadow:
+      0 0 8px rgba(255,255,255,.22),
+      0 0 18px rgba(255,255,255,.12);
+
+    opacity: 1;
+    animation: caretBlink 1.35s steps(1) infinite;
+  }
+
+  .cursor.typing{
+    opacity: 0 !important;
+    animation: none !important;
+  }
+
+  .cursor.ready{
+    animation: caretBlink 1.35s steps(1) infinite, caretIn 240ms ease-out 1;
+  }
+
+  @keyframes caretBlink{
+    0%, 49% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+
+  @keyframes caretIn{
+    from { opacity: 0; transform: translateY(10px) scaleY(0.85); }
+    to   { opacity: 1; transform: translateY(10px) scaleY(1); }
+  }
 
   @keyframes reveal{
     to{
@@ -289,20 +281,20 @@ html = r"""
   @keyframes glowPulse{
     0%{
       text-shadow:
-        0 0 16px rgba(255,255,255,.10),
-        0 0 44px rgba(255,255,255,.08),
+        0 0 12px rgba(255,255,255,.08),
+        0 0 40px rgba(255,255,255,.06),
         0 18px 65px rgba(0,0,0,.58);
     }
     50%{
       text-shadow:
-        0 0 26px rgba(255,255,255,.18),
-        0 0 82px rgba(255,255,255,.14),
+        0 0 22px rgba(255,255,255,.16),
+        0 0 72px rgba(255,255,255,.12),
         0 24px 78px rgba(0,0,0,.58);
     }
     100%{
       text-shadow:
-        0 0 16px rgba(255,255,255,.10),
-        0 0 44px rgba(255,255,255,.08),
+        0 0 12px rgba(255,255,255,.08),
+        0 0 40px rgba(255,255,255,.06),
         0 18px 65px rgba(0,0,0,.58);
     }
   }
@@ -344,8 +336,7 @@ html = r"""
 
     <div class="hero">
       <div>
-     <span id="typed"></span><span class="cursor" id="caret"></span>
-
+        <span id="typed"></span><span class="cursor" id="caret"></span>
       </div>
     </div>
 
@@ -359,10 +350,11 @@ html = r"""
 (() => {
   // ===== Typing =====
   const typedEl = document.getElementById('typed');
+  const caret = document.getElementById('caret');
   const nav = document.getElementById('topnav');
   const text = "welcome to my LAB";
 
-  // slower typing
+  // typing más lento
   const startDelay = 980;
   const minDelay = 85;
   const maxDelay = 150;
@@ -371,6 +363,11 @@ html = r"""
 
   async function typeText(){
     await sleep(startDelay);
+
+    // oculta cursor mientras escribe
+    caret.classList.add("typing");
+    caret.classList.remove("ready");
+
     typedEl.textContent = "";
 
     for (let i = 0; i < text.length; i++){
@@ -379,46 +376,20 @@ html = r"""
       await sleep(jitter);
     }
 
-    // micro zoom + blur -> focus, then glow pulse 1x
+    // micro zoom + blur -> focus, luego glow pulse 1x
     typedEl.classList.add("finalFocus");
     await sleep(520);
     typedEl.classList.add("glowPulse");
 
-    // show menu with fade-slide after typing finishes
+    // reaparece cursor al final
+    caret.classList.remove("typing");
+    caret.classList.add("ready");
+
+    // mostrar menú con fade-slide
     await sleep(180);
     nav.classList.add("show");
   }
-  const caret = document.getElementById('caret');
-
-  async function typeText(){
-  await sleep(startDelay);
-
-  // oculta cursor mientras escribe
-  caret.classList.add("typing");
-  caret.classList.remove("ready");
-
-  typedEl.textContent = "";
-
-  for (let i = 0; i < text.length; i++){
-    typedEl.textContent += text[i];
-    const jitter = Math.floor(minDelay + Math.random() * (maxDelay - minDelay));
-    await sleep(jitter);
-  }
-
-  // micro focus + glow pulse
-  typedEl.classList.add("finalFocus");
-  await sleep(520);
-  typedEl.classList.add("glowPulse");
-
-  // reaparece cursor al final
-  caret.classList.remove("typing");
-  caret.classList.add("ready");
-
-  // mostrar menú después del typing
-  await sleep(180);
-  nav.classList.add("show");
-}
-
+  typeText();
 
   // ===== Reactive field (breathing) =====
   const canvas = document.getElementById('react');
@@ -554,7 +525,7 @@ html = r"""
 </html>
 """
 
-# Inyecta video y logo sin depender de f-strings ni Template ($)
+# Inyecta video y logo sin depender de f-strings ni Template
 html = html.replace("__VIDEO_TAG__", video_tag).replace("__BRAND_IMG__", brand_img)
 
 st.components.v1.html(html, height=920, scrolling=False)
