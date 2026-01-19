@@ -38,7 +38,7 @@ elif nav == "Contact":
 # ASSETS
 # =========================
 ASSETS = Path(__file__).parent / "assets"
-VIDEO_PATH = ASSETS / "data.mp4"
+VIDEO_PATH = ASSETS / "Data.mp4"
 LOGO_PATH = ASSETS / "DS.png"
 
 
