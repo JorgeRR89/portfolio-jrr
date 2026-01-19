@@ -21,7 +21,6 @@ theme = """
   --fg2: rgba(255,255,255,.72);
   --line: rgba(255,255,255,.10);
   --card: rgba(255,255,255,.04);
-  --card2: rgba(0,0,0,.25);
 }
 html, body, [data-testid="stAppViewContainer"]{
   background: radial-gradient(900px 520px at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,.98)) !important;
@@ -29,12 +28,8 @@ html, body, [data-testid="stAppViewContainer"]{
 }
 h1,h2,h3{ letter-spacing: -0.03em; }
 small, p, li { color: var(--fg2); }
-.hr{
-  height:1px; background: var(--line); margin: 18px 0 26px 0;
-}
-.chips{
-  display:flex; gap:10px; flex-wrap: wrap; margin-top: 10px;
-}
+.hr{ height:1px; background: var(--line); margin: 18px 0 26px 0; }
+.chips{ display:flex; gap:10px; flex-wrap: wrap; margin-top: 10px; }
 .chip{
   display:inline-flex; align-items:center; gap:8px;
   padding: 8px 12px;
@@ -60,18 +55,6 @@ small, p, li { color: var(--fg2); }
   color: rgba(255,255,255,.78);
   font-size: 12px;
 }
-.cta{
-  display:flex; gap:10px; flex-wrap:wrap; margin-top: 14px;
-}
-.cta a{
-  display:inline-block;
-  padding: 10px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,.04);
-  color: rgba(255,255,255,.88) !important;
-}
-.cta a:hover{ background: rgba(255,255,255,.07); }
 .kpi{
   display:grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -85,6 +68,16 @@ small, p, li { color: var(--fg2); }
 }
 .kpi .k b{ font-size: 18px; color: rgba(255,255,255,.92); }
 .kpi .k span{ display:block; margin-top: 2px; font-size: 12px; color: rgba(255,255,255,.68); }
+.cta{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 14px; }
+.cta a{
+  display:inline-block;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.88) !important;
+}
+.cta a:hover{ background: rgba(255,255,255,.07); }
 @media (max-width: 780px){
   .kpi{ grid-template-columns: 1fr; }
 }
@@ -93,8 +86,7 @@ small, p, li { color: var(--fg2); }
 st.markdown(theme, unsafe_allow_html=True)
 
 # --- Header ---
-st.markdown(
-    """
+st.markdown("""
 # About
 
 ### I build data-driven systems and ship real-world solutions.
@@ -106,43 +98,24 @@ st.markdown(
 </div>
 
 <div class="hr"></div>
-""",
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
 
-# --- KPIs (edit to your truth) ---
-st.markdown(
-    """
+# --- KPIs ---
+st.markdown("""
 <div class="kpi">
-  <div class="k">
-    <b>10+ years</b>
-    <span>Oil, gas & industrial engineering systems</span>
-  </div>
-
-  <div class="k">
-    <b>1+ year</b>
-    <span>Data science, analytics & machine learning</span>
-  </div>
-
-  <div class="k">
-    <b>1+ year</b>
-    <span>Teaching automation & electrical systems</span>
-  </div>
+  <div class="k"><b>10+ years</b><span>Oil, gas & industrial engineering systems</span></div>
+  <div class="k"><b>1+ year</b><span>Data science, analytics & machine learning</span></div>
+  <div class="k"><b>1+ year</b><span>Teaching automation & electrical systems</span></div>
 </div>
-
-
-""",
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
 
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
-# --- Main two columns ---
 col1, col2 = st.columns([1.35, 1], gap="large")
 
+# --- Left column ---
 with col1:
-    st.markdown(
-        """
+    st.markdown("""
 <div class="card">
   <h3>Who I am</h3>
 
@@ -206,13 +179,11 @@ with col1:
     and data-driven engineering — especially where they intersect with social and real-world impact.
   </p>
 </div>
-""",
-        unsafe_allow_html=True,
-    )
+""", unsafe_allow_html=True)
 
+# --- Right column ---
 with col2:
-    st.markdown(
-        """
+    st.markdown("""
 <div class="card">
   <h3>Core stack</h3>
   <div class="tagwrap">
@@ -234,16 +205,13 @@ with col2:
     <li>Shipping projects end-to-end (data → insight → interface).</li>
   </ul>
 </div>
-""",
-        unsafe_allow_html=True,
-    )
+""", unsafe_allow_html=True)
 
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
-# --- Timeline / Experience (edit) ---
+# --- Timeline ---
 st.markdown("### Timeline", unsafe_allow_html=True)
-st.markdown(
-    """
+st.markdown("""
 <div class="card">
   <h3>Account Manager / Data Analyst — Virtual Integration Warehouse (Contract)</h3>
   <small>Apr 2023 — Nov 2025</small>
@@ -259,27 +227,60 @@ st.markdown(
 
 <div class="card">
   <h3>Technical Instructor — Electricity / Automation</h3>
-  <small><!-- TODO: dates --></small>
+  <small>Recent years</small>
   <ul>
     <li>Taught hands-on classes on installations, PLCs, Arduino, and control systems.</li>
     <li>Designed competency-based evaluations and interactive learning materials.</li>
   </ul>
 </div>
-""",
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
+
+st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
+
+# --- Where this lab is going ---
+st.markdown("""
+<div class="card">
+  <h3>Where this lab is going</h3>
+
+  <p>
+    This lab is evolving toward the design of intelligent systems that interact
+    with the physical and social world.
+    Not just software products, but decision engines, autonomous tools,
+    and analytical architectures that sense, learn, and adapt.
+  </p>
+
+  <p>
+    My long-term direction focuses on applied machine learning in environments
+    where reliability, safety, and real-world constraints matter:
+    industrial systems, intelligent infrastructure, automation,
+    and data-driven platforms with social impact.
+  </p>
+
+  <p>Over the next years, this lab will concentrate on:</p>
+
+  <ul>
+    <li>Autonomous and semi-autonomous decision systems.</li>
+    <li>Simulation, forecasting, and optimization of complex operations.</li>
+    <li>Machine learning applied to physical processes and performance systems.</li>
+    <li>Technology for safety, efficiency, access, and quality of life.</li>
+  </ul>
+
+  <p>
+    The goal is to build systems that don’t just visualize reality —
+    but actively participate in improving it.
+  </p>
+</div>
+""", unsafe_allow_html=True)
 
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
 # --- CTAs ---
-st.markdown(
-    """
+st.markdown("""
 ### Want the projects?
 <div class="cta">
   <a href="./Projects" target="_self">→ Explore Projects</a>
   <a href="./Contact" target="_self">→ Contact</a>
   <a href="./Lab" target="_self">→ Enter the Lab</a>
 </div>
-""",
-    unsafe_allow_html=True,
-)
+""", unsafe_allow_html=True)
+
