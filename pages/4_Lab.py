@@ -1,64 +1,66 @@
-from __future__ import annotations
-
-import re
-from io import BytesIO
-from pathlib import Path
-from typing import Dict, Optional, Tuple
-
+import io
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 import streamlit as st
 
-# Safe imports (page won't crash without clear message)
-try:
-    import numpy as np
-except Exception:
-    np = None
-
-try:
-    import pandas as pd
-except Exception:
-    pd = None
-
-try:
-    import matplotlib.pyplot as plt
-except Exception:
-    plt = None
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    r2_score,
+)
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.linear_model import LogisticRegression, Ridge
 
 
+# =========================
+# Page config
+# =========================
 st.set_page_config(page_title="Lab • Portfolio JRR", page_icon="🧪", layout="wide")
 
-# ---- Minimal UI cleanup ----
+
+# =========================
+# Styles (console / lab)
+# =========================
 st.markdown(
     """
 <style>
 header[data-testid="stHeader"] {display:none;}
 footer {visibility:hidden;}
 .block-container { padding-top: 1.4rem; padding-bottom: 3rem; max-width: 1180px; }
-</style>
-""",
-    unsafe_allow_html=True,
-)
+a { text-decoration: none; }
 
-# ---- Console UI theme ----
-st.markdown(
-    """
-<style>
 :root{
   --fg: rgba(255,255,255,.92);
   --fg2: rgba(255,255,255,.72);
-  --line: rgba(255,255,255,.12);
+  --line: rgba(255,255,255,.10);
   --card: rgba(255,255,255,.04);
-  --glass: rgba(0,0,0,.35);
+  --card2: rgba(0,0,0,.22);
+  --ok: rgba(120,255,180,.95);
+  --warn: rgba(255,210,120,.95);
+  --err: rgba(255,120,140,.95);
 }
+
 html, body, [data-testid="stAppViewContainer"]{
-  background: radial-gradient(980px 560px at 50% 0%, rgba(255,255,255,.06), rgba(0,0,0,.985)) !important;
+  background: radial-gradient(1000px 620px at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,.98)) !important;
   color: var(--fg) !important;
 }
+
 h1,h2,h3{ letter-spacing: -0.03em; }
+small, p, li { color: var(--fg2); }
+
 .hr{ height:1px; background: var(--line); margin: 14px 0 18px 0; }
 
 .topbar{
   display:flex; align-items:flex-start; justify-content:space-between;
-  gap: 12px; padding: 10px 0 2px 0;
+  gap: 12px;
+  padding: 6px 0 6px 0;
 }
 .navbtns{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
 .navbtns a{
@@ -68,33 +70,21 @@ h1,h2,h3{ letter-spacing: -0.03em; }
   border: 1px solid var(--line);
   background: rgba(255,255,255,.04);
   color: rgba(255,255,255,.88) !important;
-  text-decoration:none;
   font-size: 13px;
 }
-.navbtns a:hover{ background: rgba(255,255,255,.07); }
+.navbtns a:hover{ background: rgba(255,255,255,.08); }
 
-.console{
-  border: 1px solid rgba(255,255,255,.14);
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.22));
+.card{
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, var(--card), rgba(0,0,0,.16));
+  border-radius: 18px;
   padding: 16px 16px;
 }
-.badge{
-  display:inline-flex; align-items:center; gap:8px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,.03);
-  color: rgba(255,255,255,.84);
-  font-size: 12px;
-}
-.small{ color: rgba(255,255,255,.72); }
 
 .kpi{
   display:grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0,1fr));
   gap: 10px;
-  margin-top: 12px;
 }
 .kpi .k{
   border: 1px solid var(--line);
@@ -104,448 +94,279 @@ h1,h2,h3{ letter-spacing: -0.03em; }
 }
 .kpi .k b{ font-size: 16px; color: rgba(255,255,255,.92); }
 .kpi .k span{ display:block; margin-top: 2px; font-size: 12px; color: rgba(255,255,255,.68); }
-@media (max-width: 900px){
+@media (max-width: 920px){
   .kpi{ grid-template-columns: 1fr 1fr; }
 }
+@media (max-width: 640px){
+  .kpi{ grid-template-columns: 1fr; }
+}
 
-.log{
-  border: 1px solid rgba(255,255,255,.10);
+.console{
+  border: 1px solid var(--line);
   border-radius: 16px;
   background: rgba(0,0,0,.35);
-  padding: 12px 12px;
+  padding: 14px 14px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-size: 12px;
-  color: rgba(255,255,255,.78);
+  color: rgba(255,255,255,.82);
+  overflow: auto;
+  max-height: 260px;
 }
-.log .line{ margin: 2px 0; }
-.log .ok{ color: rgba(170,255,210,.92); }
-.log .warn{ color: rgba(255,230,170,.90); }
-.log .err{ color: rgba(255,170,170,.90); }
+.badge-ok{ color: var(--ok); }
+.badge-warn{ color: var(--warn); }
+.badge-err{ color: var(--err); }
 
-.pills{ display:flex; gap:8px; flex-wrap:wrap; margin-top: 10px; }
 .pill{
-  padding: 6px 9px;
+  display:inline-flex; align-items:center; gap:8px;
+  padding: 7px 10px;
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: rgba(0,0,0,.22);
-  color: rgba(255,255,255,.78);
+  background: rgba(255,255,255,.03);
+  color: rgba(255,255,255,.80);
   font-size: 12px;
 }
-
 </style>
 """,
     unsafe_allow_html=True,
 )
 
-# ---- Guardrails ----
-missing = []
-if np is None:
-    missing.append("numpy")
-if pd is None:
-    missing.append("pandas")
-if plt is None:
-    missing.append("matplotlib")
-
-if missing:
-    st.error(
-        "Lab needs these packages installed to render results: "
-        + ", ".join(missing)
-        + ".\n\nAdd them to requirements.txt and redeploy."
-    )
-    st.stop()
-
 
 # =========================
-# Helpers: dataset + engine
+# Helpers
 # =========================
-@st.cache_data(show_spinner=False)
-def make_ops_dataset(n: int = 900, seed: int = 7) -> pd.DataFrame:
-    """Synthetic but realistic 'ops/industrial' dataset with profit/risk/impact flavor."""
+def _numeric_cols(df: pd.DataFrame):
+    return [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
+
+
+def _cat_cols(df: pd.DataFrame):
+    return [c for c in df.columns if (df[c].dtype == "object" or pd.api.types.is_categorical_dtype(df[c]))]
+
+
+def _infer_time_col(df: pd.DataFrame):
+    for c in df.columns:
+        if "date" in c.lower() or "time" in c.lower():
+            try:
+                _ = pd.to_datetime(df[c], errors="raise")
+                return c
+            except Exception:
+                pass
+    return None
+
+
+def _demo_dataset(seed: int = 7, n: int = 900) -> pd.DataFrame:
     rng = np.random.default_rng(seed)
+    dates = pd.date_range("2025-01-01", periods=n, freq="D")
+    channel = rng.choice(["Amazon", "Mercado Libre", "Direct", "Wholesale"], size=n, p=[0.34, 0.38, 0.18, 0.10])
+    region = rng.choice(["North", "Central", "South"], size=n, p=[0.32, 0.43, 0.25])
 
-    sites = np.array(["Altamira", "Tuxpan", "Veracruz", "Monterrey"])
-    assets = np.array(["Pump", "Compressor", "Valve", "Sensor", "Line"])
-    teams = np.array(["Ops", "Maintenance", "Reliability"])
+    price = np.clip(rng.normal(45, 12, size=n), 10, None)
+    marketing = np.clip(rng.normal(1800, 650, size=n), 200, None)
+    lead_time = np.clip(rng.normal(4.5, 2.0, size=n), 0.5, None)
+
+    demand = (
+        120
+        + (region == "Central") * 12
+        + (channel == "Mercado Libre") * 18
+        - 0.85 * price
+        + 0.006 * marketing
+        - 2.6 * lead_time
+        + rng.normal(0, 9, size=n)
+    )
+
+    demand = np.clip(demand, 5, None)
+
+    cost = np.clip(rng.normal(26, 7, size=n), 6, None)
+    profit = (price - cost) * demand - 0.15 * marketing
+
+    risk_score = (
+        0.35 * (lead_time / (lead_time.max() + 1e-9))
+        + 0.25 * (price / (price.max() + 1e-9))
+        + 0.40 * (rng.random(n))
+    )
+    risk_score = (risk_score * 100).round(2)
+
+    # make binary label for quick classification
+    profitable = (profit > np.percentile(profit, 55)).astype(int)
 
     df = pd.DataFrame(
         {
-            "site": rng.choice(sites, size=n, p=[0.30, 0.20, 0.25, 0.25]),
-            "asset": rng.choice(assets, size=n, p=[0.22, 0.18, 0.20, 0.25, 0.15]),
-            "team": rng.choice(teams, size=n, p=[0.45, 0.35, 0.20]),
+            "date": dates,
+            "channel": channel,
+            "region": region,
+            "price": price.round(2),
+            "marketing_spend": marketing.round(0),
+            "lead_time_days": lead_time.round(2),
+            "demand_units": demand.round(0),
+            "profit": profit.round(2),
+            "risk_score": risk_score,
+            "profitable": profitable,
         }
     )
 
-    # time axis (monthly)
-    months = pd.date_range("2024-01-01", periods=18, freq="MS")
-    df["month"] = rng.choice(months, size=n)
-    df["month"] = df["month"].dt.strftime("%Y-%m")
-
-    # operational metrics
-    df["pressure_bar"] = np.clip(rng.normal(78, 12, size=n), 35, 115)
-    df["temp_c"] = np.clip(rng.normal(46, 8, size=n), 18, 78)
-    df["flow_m3h"] = np.clip(rng.normal(120, 35, size=n), 30, 240)
-
-    # events / reliability
-    base_inc = rng.poisson(lam=0.8, size=n)
-    stress = (df["pressure_bar"] > 92).astype(int) + (df["temp_c"] > 58).astype(int)
-    df["incidents"] = np.clip(base_inc + stress + rng.binomial(1, 0.12, size=n), 0, 8)
-
-    df["downtime_h"] = np.clip(
-        rng.gamma(shape=1.6, scale=3.2, size=n) + df["incidents"] * rng.uniform(0.8, 3.2, size=n),
-        0,
-        72,
-    )
-
-    # costs and savings (simple business layer)
-    df["maintenance_cost"] = np.round(
-        np.clip(rng.lognormal(mean=8.2, sigma=0.35, size=n), 1500, 25000)
-        + df["incidents"] * rng.uniform(150, 900, size=n),
-        0,
-    )
-
-    df["revenue"] = np.round(
-        np.clip(rng.lognormal(mean=9.2, sigma=0.22, size=n), 8000, 120000)
-        - df["downtime_h"] * rng.uniform(50, 220, size=n),
-        0,
-    )
-
-    df["profit"] = np.round(df["revenue"] - df["maintenance_cost"], 0)
-
-    # risk score (0-100), intentionally explainable
-    risk = (
-        0.35 * (df["pressure_bar"] / 115) * 100
-        + 0.22 * (df["temp_c"] / 78) * 100
-        + 0.28 * (df["incidents"] / 8) * 100
-        + 0.15 * (df["downtime_h"] / 72) * 100
-    )
-    df["risk_score"] = np.round(np.clip(risk, 0, 100), 1)
-
-    # social impact proxy (0-100): safer ops + less downtime -> higher
-    impact = 100 - (0.55 * df["risk_score"] + 0.45 * (df["downtime_h"] / 72) * 100)
-    df["impact_score"] = np.round(np.clip(impact, 0, 100), 1)
+    # sprinkle missing
+    miss_idx = rng.choice(np.arange(n), size=int(n * 0.03), replace=False)
+    df.loc[miss_idx, "lead_time_days"] = np.nan
 
     return df
 
 
-def _infer_time_col(df: pd.DataFrame) -> Optional[str]:
-    for c in df.columns:
-        if "month" in c.lower() or "date" in c.lower() or "time" in c.lower():
-            return c
-    return None
+def _log_append(msg: str):
+    st.session_state.setdefault("lab_log", [])
+    st.session_state["lab_log"].append(msg)
+    st.session_state["lab_log"] = st.session_state["lab_log"][-120:]
 
 
-def _numeric_cols(df: pd.DataFrame) -> list[str]:
-    return [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
+def _render_log():
+    lines = st.session_state.get("lab_log", [])
+    if not lines:
+        lines = ["[system] ready."]
+    st.markdown(
+        "<div class='console'>" + "<br/>".join([st._to_html(line) for line in lines]) + "</div>",
+        unsafe_allow_html=True,
+    )
 
 
-def _cat_cols(df: pd.DataFrame) -> list[str]:
-    return [c for c in df.columns if df[c].dtype == "object"]
+def auto_insights(df: pd.DataFrame):
+    insights = []
+    tables = {}
+    figs = []
 
-
-def _find_col_by_keyword(df: pd.DataFrame, keyword: str) -> Optional[str]:
-    k = keyword.lower().strip()
-    # direct match
-    for c in df.columns:
-        if c.lower() == k:
-            return c
-    # contains match
-    for c in df.columns:
-        if k in c.lower():
-            return c
-    return None
-
-
-def detect_intent(q: str) -> str:
-    s = q.lower().strip()
-
-    if any(w in s for w in ["correlation", "correlate", "corr", "relationship"]):
-        return "correlation"
-    if any(w in s for w in ["trend", "over time", "time series", "month", "evolution"]):
-        return "trend"
-    if any(w in s for w in ["compare", "vs", "by", "group", "segment", "site", "team", "asset"]):
-        return "group_compare"
-    if any(w in s for w in ["outlier", "anomaly", "weird", "extreme"]):
-        return "outliers"
-    if any(w in s for w in ["top", "highest", "best", "max"]):
-        return "top"
-    if any(w in s for w in ["bottom", "lowest", "worst", "min"]):
-        return "bottom"
-    if any(w in s for w in ["distribution", "hist", "histogram", "spread"]):
-        return "distribution"
-    if any(w in s for w in ["summary", "describe", "overview", "what columns", "schema"]):
-        return "summary"
-    return "auto"
-
-
-def extract_metric(df: pd.DataFrame, q: str) -> str:
-    """Pick a metric column based on question keywords; fallback to 'profit' or first numeric."""
-    s = q.lower()
-    preferred = ["profit", "risk_score", "impact_score", "revenue", "maintenance_cost", "downtime_h", "incidents"]
-    for p in preferred:
-        if p.replace("_", " ") in s or p in s:
-            if p in df.columns:
-                return p
     nums = _numeric_cols(df)
-    return "profit" if "profit" in df.columns else (nums[0] if nums else df.columns[0])
-
-
-def extract_group(df: pd.DataFrame, q: str) -> Optional[str]:
-    s = q.lower()
-    for g in ["site", "asset", "team", "segment", "category"]:
-        if g in df.columns and g in s:
-            return g
-    # heuristic: if user writes "by X"
-    m = re.search(r"\bby\s+([a-zA-Z_]+)", s)
-    if m:
-        candidate = _find_col_by_keyword(df, m.group(1))
-        if candidate and candidate in _cat_cols(df):
-            return candidate
-    # fallback: choose a common categorical if present
-    for g in ["site", "asset", "team"]:
-        if g in df.columns:
-            return g
     cats = _cat_cols(df)
-    return cats[0] if cats else None
-
-
-def run_query(df: pd.DataFrame, q: str) -> Tuple[str, Optional[pd.DataFrame], Optional[plt.Figure], Dict[str, str]]:
-    """
-    Returns: (answer_text, result_table, figure, debug)
-    """
-    debug = {}
-    intent = detect_intent(q)
-    debug["intent"] = intent
-
-    metric = extract_metric(df, q)
-    debug["metric"] = metric
-
-    group = extract_group(df, q)
-    debug["group"] = group or "(none)"
-
     time_col = _infer_time_col(df)
-    debug["time_col"] = time_col or "(none)"
 
-    nums = _numeric_cols(df)
-    cats = _cat_cols(df)
+    insights.append(f"• Rows: {len(df):,} | Columns: {df.shape[1]}")
 
-    # AUTO intent: pick a useful default based on keywords
-    if intent == "auto":
-        if any(w in q.lower() for w in ["risk", "safe", "incident", "downtime"]):
-            intent = "group_compare"
-        else:
-            intent = "summary"
-        debug["intent"] = f"auto → {intent}"
+    missing = (df.isna().mean() * 100).sort_values(ascending=False)
+    missing = missing[missing > 0].round(2)
+    if len(missing) > 0:
+        insights.append(f"• Missing data detected in {len(missing)} column(s).")
+        tables["missing_%"] = missing.reset_index().rename(columns={"index": "column", 0: "missing_%"} if 0 in missing.reset_index().columns else {})
+    else:
+        insights.append("• No missing data detected.")
 
-    fig = None
-    table = None
-
-    # ---------- SUMMARY ----------
-    if intent == "summary":
-        answer = (
-            f"Loaded **{len(df):,} rows** and **{df.shape[1]} columns**.\n\n"
-            f"• Categorical: {', '.join(cats[:8]) if cats else '(none)'}\n"
-            f"• Numeric: {', '.join(nums[:10]) if nums else '(none)'}\n\n"
-            "If you ask something like **'compare profit by site'** or **'correlation with risk'**, "
-            "I'll compute it and show the result."
-        )
-        # small schema table
-        table = pd.DataFrame({"column": df.columns, "dtype": [str(df[c].dtype) for c in df.columns]})
-        return answer, table, None, debug
-
-    # ---------- DISTRIBUTION ----------
-    if intent == "distribution":
-        if metric not in df.columns or not pd.api.types.is_numeric_dtype(df[metric]):
-            metric = nums[0] if nums else df.columns[0]
-            debug["metric"] = metric
-
-        x = df[metric].dropna().values
-        p05, p50, p95 = np.quantile(x, [0.05, 0.50, 0.95])
-
-        answer = (
-            f"Distribution of **{metric}**:\n\n"
-            f"• Mean: **{np.mean(x):,.2f}**\n"
-            f"• P05 / Median / P95: **{p05:,.2f} / {p50:,.2f} / {p95:,.2f}**\n"
-            f"• Std: **{np.std(x):,.2f}**"
-        )
-
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        ax.hist(x, bins=60)
-        ax.set_title(f"Distribution: {metric}")
-        ax.set_xlabel(metric)
-        ax.set_ylabel("Frequency")
-
-        return answer, None, fig, debug
-
-    # ---------- GROUP COMPARE ----------
-    if intent == "group_compare":
-        if not group:
-            return "I couldn't find a categorical column to group by. Try: `by site` or `by asset`.", None, None, debug
-
-        if metric not in df.columns or not pd.api.types.is_numeric_dtype(df[metric]):
-            metric = nums[0] if nums else df.columns[0]
-            debug["metric"] = metric
-
-        g = (
-            df.groupby(group, dropna=False)[metric]
-            .agg(["mean", "median", "count"])
-            .sort_values("mean", ascending=False)
-            .reset_index()
-        )
-        table = g
-
-        top_row = g.iloc[0]
-        bottom_row = g.iloc[-1]
-        answer = (
-            f"Comparison of **{metric} by {group}**:\n\n"
-            f"• Best: **{top_row[group]}** (mean **{top_row['mean']:,.2f}**, n={int(top_row['count'])})\n"
-            f"• Lowest: **{bottom_row[group]}** (mean **{bottom_row['mean']:,.2f}**, n={int(bottom_row['count'])})\n"
-            "Showing mean/median/count."
-        )
-
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        ax.bar(g[group].astype(str).values[:12], g["mean"].values[:12])
-        ax.set_title(f"Mean {metric} by {group} (top)")
-        ax.set_xlabel(group)
-        ax.set_ylabel(f"Mean {metric}")
-        ax.tick_params(axis="x", rotation=25)
-
-        return answer, table, fig, debug
-
-    # ---------- TREND ----------
-    if intent == "trend":
-        if not time_col:
-            return "I couldn't infer a time column. Try adding a `month` or `date` column.", None, None, debug
-
-        if metric not in df.columns or not pd.api.types.is_numeric_dtype(df[metric]):
-            metric = nums[0] if nums else df.columns[0]
-            debug["metric"] = metric
-
-        s = df.groupby(time_col)[metric].mean().reset_index()
-        table = s
-
-        answer = (
-            f"Trend of **{metric} over {time_col}** (mean by period).\n"
-            "If you want a specific grouping, ask: *'trend of profit by site'* (we can add that next)."
-        )
-
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        ax.plot(s[time_col].astype(str).values, s[metric].values, marker="o")
-        ax.set_title(f"{metric} trend over {time_col}")
-        ax.tick_params(axis="x", rotation=28)
-        ax.set_xlabel(time_col)
-        ax.set_ylabel(metric)
-
-        return answer, table, fig, debug
-
-    # ---------- CORRELATION ----------
-    if intent == "correlation":
-        if len(nums) < 2:
-            return "Not enough numeric columns to compute correlations.", None, None, debug
-
-        corr = df[nums].corr(numeric_only=True)
-        # correlations with metric
-        if metric in corr.columns:
-            rel = corr[metric].drop(index=metric).sort_values(ascending=False).reset_index()
-            rel.columns = ["feature", "corr_with_" + metric]
-            table = rel
-
-            top = rel.iloc[0]
-            low = rel.iloc[-1]
-            answer = (
-                f"Correlation analysis (numeric) — **what relates to {metric}**:\n\n"
-                f"• Strongest positive: **{top['feature']}** (ρ={top.iloc[1]:.2f})\n"
-                f"• Most negative: **{low['feature']}** (ρ={low.iloc[1]:.2f})\n"
-                "Correlation is not causality, but it’s a fast signal for what to inspect."
-            )
+    # Correlations with profit if present
+    profit_col = "profit" if "profit" in df.columns else (nums[0] if nums else None)
+    if profit_col and len(nums) >= 2:
+        corr = df[nums].corr(numeric_only=True)[profit_col].drop(index=profit_col).sort_values(ascending=False)
+        if len(corr) > 0:
+            top = corr.iloc[0]
+            low = corr.iloc[-1]
+            insights.append(f"• Strongest positive driver of {profit_col}: {top.name} (ρ={top:.2f})")
+            insights.append(f"• Strongest negative driver of {profit_col}: {low.name} (ρ={low:.2f})")
+            tables["correlation_with_" + profit_col] = corr.reset_index().rename(columns={"index": "feature", profit_col: "correlation"})
 
             fig = plt.figure()
             ax = fig.add_subplot(111)
-            ax.bar(rel["feature"].values[:10].astype(str), rel.iloc[:10, 1].values)
-            ax.set_title(f"Top correlations with {metric}")
-            ax.set_xlabel("Feature")
-            ax.set_ylabel("Correlation (ρ)")
+            topn = corr.head(8)
+            ax.bar(topn.index, topn.values)
+            ax.set_title(f"Top correlations with {profit_col}")
             ax.tick_params(axis="x", rotation=25)
+            figs.append(fig)
 
-            return answer, table, fig, debug
+    # Group performance (first categorical)
+    if profit_col and cats:
+        gcol = cats[0]
+        g = df.groupby(gcol)[profit_col].mean().sort_values(ascending=False)
+        if len(g) >= 2:
+            insights.append(f"• Best {gcol}: {g.index[0]} (avg {profit_col}: {g.iloc[0]:,.2f})")
+            insights.append(f"• Worst {gcol}: {g.index[-1]} (avg {profit_col}: {g.iloc[-1]:,.2f})")
+        tables[f"mean_{profit_col}_by_{gcol}"] = g.reset_index().rename(columns={profit_col: f"mean_{profit_col}"})
 
-        return "Metric not found for correlation. Try: `correlation with risk_score`.", None, None, debug
+    # Risk concentration
+    risk_col = "risk_score" if "risk_score" in df.columns else None
+    if risk_col and cats:
+        high = df[df[risk_col] > df[risk_col].quantile(0.85)]
+        if not high.empty:
+            rc = high[cats[0]].value_counts(normalize=True).head(1)
+            insights.append(f"• High risk concentrates in {rc.index[0]} ({rc.iloc[0]*100:.1f}% of top-risk rows)")
 
-    # ---------- OUTLIERS ----------
-    if intent == "outliers":
-        if metric not in df.columns or not pd.api.types.is_numeric_dtype(df[metric]):
-            metric = nums[0] if nums else df.columns[0]
-            debug["metric"] = metric
+    # Trend
+    if profit_col and time_col:
+        try:
+            tmp = df.copy()
+            tmp[time_col] = pd.to_datetime(tmp[time_col], errors="coerce")
+            tmp = tmp.dropna(subset=[time_col])
+            if not tmp.empty:
+                t = tmp.groupby(tmp[time_col].dt.to_period("M"))[profit_col].mean()
+                if len(t) >= 2:
+                    delta = t.iloc[-1] - t.iloc[0]
+                    insights.append(f"• {profit_col} trend: {'upward' if delta>0 else 'downward'} ({delta:,.1f})")
 
-        x = df[metric].dropna()
-        q1, q3 = x.quantile(0.25), x.quantile(0.75)
-        iqr = q3 - q1
-        lo, hi = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+                fig = plt.figure()
+                ax = fig.add_subplot(111)
+                ax.plot(t.index.astype(str), t.values, marker="o")
+                ax.set_title(f"{profit_col} trend (monthly)")
+                ax.tick_params(axis="x", rotation=25)
+                figs.append(fig)
+        except Exception:
+            pass
 
-        out = df[(df[metric] < lo) | (df[metric] > hi)].copy()
-        out = out.sort_values(metric, ascending=False).head(20)
-        table = out
-
-        answer = (
-            f"Outliers for **{metric}** using IQR rule:\n\n"
-            f"• Bounds: [{lo:,.2f}, {hi:,.2f}]\n"
-            f"• Found: **{len(out):,}** sample rows (showing top 20 by {metric})."
-        )
-
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        ax.hist(df[metric].dropna().values, bins=60)
-        ax.set_title(f"Outliers context: {metric}")
-        ax.set_xlabel(metric)
-        ax.set_ylabel("Frequency")
-
-        return answer, table, fig, debug
-
-    # ---------- TOP/BOTTOM ----------
-    if intent in ["top", "bottom"]:
-        if metric not in df.columns or not pd.api.types.is_numeric_dtype(df[metric]):
-            metric = nums[0] if nums else df.columns[0]
-            debug["metric"] = metric
-
-        n = 12
-        ascending = intent == "bottom"
-        sample_cols = [c for c in ["site", "asset", "team", "month", metric, "risk_score", "impact_score"] if c in df.columns]
-        out = df[sample_cols].sort_values(metric, ascending=ascending).head(n).copy()
-        table = out
-        answer = f"Showing **{n} {'lowest' if ascending else 'highest'}** rows by **{metric}**."
-
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        ax.plot(out[metric].values[::-1] if ascending else out[metric].values, marker="o")
-        ax.set_title(f"{'Lowest' if ascending else 'Highest'} {metric} (sample)")
-        ax.set_xlabel("Rank")
-        ax.set_ylabel(metric)
-
-        return answer, table, fig, debug
-
-    return "I couldn't interpret that yet. Try: `compare profit by site` or `correlation with risk_score`.", None, None, debug
+    return insights, tables, figs
 
 
-def df_to_csv_bytes(df: pd.DataFrame) -> bytes:
-    return df.to_csv(index=False).encode("utf-8")
+def build_quick_model(df: pd.DataFrame, target: str):
+    X = df.drop(columns=[target])
+    y = df[target]
+
+    num_cols = _numeric_cols(X)
+    cat_cols = _cat_cols(X)
+
+    # Determine task: classification if y is small set of ints/bools
+    y_unique = pd.Series(y.dropna().unique())
+    is_classification = False
+    if pd.api.types.is_bool_dtype(y) or (pd.api.types.is_integer_dtype(y) and y_unique.nunique() <= 20):
+        is_classification = True
+
+    pre = ColumnTransformer(
+        transformers=[
+            ("num", Pipeline(steps=[("imputer", SimpleImputer(strategy="median"))]), num_cols),
+            ("cat", Pipeline(steps=[
+                ("imputer", SimpleImputer(strategy="most_frequent")),
+                ("ohe", OneHotEncoder(handle_unknown="ignore")),
+            ]), cat_cols),
+        ],
+        remainder="drop",
+    )
+
+    if is_classification:
+        model = LogisticRegression(max_iter=1200)
+    else:
+        model = Ridge(alpha=1.0)
+
+    pipe = Pipeline(steps=[("pre", pre), ("model", model)])
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.24, random_state=42)
+
+    pipe.fit(X_train, y_train)
+    pred = pipe.predict(X_test)
+
+    metrics = {}
+    if is_classification:
+        # ensure ints
+        pred_bin = np.round(pred).astype(int)
+        y_test_bin = pd.Series(y_test).astype(int)
+        metrics["task"] = "classification"
+        metrics["accuracy"] = float(accuracy_score(y_test_bin, pred_bin))
+        metrics["f1"] = float(f1_score(y_test_bin, pred_bin, zero_division=0))
+    else:
+        metrics["task"] = "regression"
+        metrics["mae"] = float(mean_absolute_error(y_test, pred))
+        metrics["rmse"] = float(np.sqrt(mean_squared_error(y_test, pred)))
+        metrics["r2"] = float(r2_score(y_test, pred))
+
+    return metrics
 
 
-# ============
-# UI: Console
-# ============
+# =========================
+# Top bar
+# =========================
 st.markdown(
     """
 <div class="topbar">
   <div>
-    <h1 style="margin:0;">Lab Console</h1>
-    <div class="small">Load data → ask a question → get a structured answer (text + table + chart).</div>
-    <div class="pills">
-      <span class="pill">🧪 Experimental console</span>
-      <span class="pill">🧠 Interpretable reasoning</span>
-      <span class="pill">📈 Visible results</span>
-    </div>
+    <h1 style="margin:0;">Lab</h1>
+    <div class="pill">🧪 Data Console • Auto Insights • Experiments</div>
   </div>
   <div class="navbtns">
     <a href="./" target="_self">← Home</a>
@@ -559,148 +380,184 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-left, right = st.columns([1.0, 1.25], gap="large")
+# =========================
+# Sidebar: data source
+# =========================
+with st.sidebar:
+    st.markdown("### System")
+    st.caption("Load a dataset, explore, then run auto insights & experiments.")
 
-with left:
-    st.markdown('<div class="console">', unsafe_allow_html=True)
-    st.markdown('<div class="badge">DATA INPUT</div>', unsafe_allow_html=True)
+    src = st.radio("Data source", ["Demo dataset (recommended)", "Upload CSV"], index=0)
 
-    mode = st.radio("Dataset", ["OpsLab (built-in)", "Upload CSV"], horizontal=True)
-    df = None
+    uploaded = None
+    if src == "Upload CSV":
+        uploaded = st.file_uploader("Upload a CSV", type=["csv"], accept_multiple_files=False)
 
-    if mode == "OpsLab (built-in)":
-        n = st.slider("Rows", 300, 3000, 900, 100)
-        seed = st.number_input("Seed", value=7, min_value=0, step=1)
-        df = make_ops_dataset(int(n), int(seed))
-        st.caption("Built-in dataset designed to look real: ops metrics, risk, downtime, profit, impact.")
+    st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
+    st.markdown("### Actions")
+    run_insights = st.button("⚡ Run Auto Insights", use_container_width=True)
+    clear_log = st.button("🧹 Clear output log", use_container_width=True)
 
-    else:
-        up = st.file_uploader("Upload a CSV", type=["csv"])
-        if up is not None:
-            try:
-                df = pd.read_csv(up)
-            except Exception as e:
-                st.error(f"Could not read CSV: {e}")
-                df = None
+    if clear_log:
+        st.session_state["lab_log"] = []
+        _log_append("[system] log cleared.")
 
-    st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
-    st.markdown('<div class="badge">ASK THE LAB</div>', unsafe_allow_html=True)
-
-    examples = [
-        "compare profit by site",
-        "correlation with risk_score",
-        "trend of downtime_h over time",
-        "distribution of maintenance_cost",
-        "outliers in incidents",
-        "top highest risk_score",
-        "summary / schema",
-    ]
-
-    ex_cols = st.columns(2)
-    if ex_cols[0].button("▶ compare profit by site", use_container_width=True):
-        st.session_state["lab_q"] = "compare profit by site"
-    if ex_cols[1].button("▶ correlation with risk_score", use_container_width=True):
-        st.session_state["lab_q"] = "correlation with risk_score"
-    if ex_cols[0].button("▶ trend of profit over time", use_container_width=True):
-        st.session_state["lab_q"] = "trend of profit over time"
-    if ex_cols[1].button("▶ outliers in downtime_h", use_container_width=True):
-        st.session_state["lab_q"] = "outliers in downtime_h"
-    if ex_cols[0].button("▶ distribution of profit", use_container_width=True):
-        st.session_state["lab_q"] = "distribution of profit"
-    if ex_cols[1].button("▶ summary / schema", use_container_width=True):
-        st.session_state["lab_q"] = "summary / schema"
-
-    q = st.text_input("Ask a question", key="lab_q", placeholder="e.g., compare profit by asset")
-    run = st.button("Run analysis", type="primary", use_container_width=True)
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-with right:
-    st.markdown('<div class="console">', unsafe_allow_html=True)
-    st.markdown('<div class="badge">OUTPUT</div>', unsafe_allow_html=True)
-
-    if df is None:
-        st.info("Load a dataset on the left to activate the console.")
-        st.markdown("</div>", unsafe_allow_html=True)
+# =========================
+# Load data
+# =========================
+if src == "Demo dataset (recommended)":
+    df = _demo_dataset()
+    _log_append("[data] demo dataset loaded.")
+else:
+    if uploaded is None:
+        st.info("Upload a CSV to begin — or switch back to Demo dataset.")
+        st.stop()
+    try:
+        df = pd.read_csv(uploaded)
+        _log_append(f"[data] loaded CSV: {uploaded.name} ({len(df):,} rows).")
+    except Exception as e:
+        _log_append(f"<span class='badge-err'>[error]</span> failed to read CSV: {e}")
+        st.error("Could not read that CSV.")
         st.stop()
 
-    # KPI strip
-    nums = _numeric_cols(df)
+# =========================
+# Status KPIs
+# =========================
+n_rows, n_cols = df.shape
+n_missing = int(df.isna().sum().sum())
+n_num = len(_numeric_cols(df))
+n_cat = len(_cat_cols(df))
+
+st.markdown(
+    f"""
+<div class="kpi">
+  <div class="k"><b>{n_rows:,}</b><span>rows</span></div>
+  <div class="k"><b>{n_cols}</b><span>columns</span></div>
+  <div class="k"><b>{n_num}</b><span>numeric</span></div>
+  <div class="k"><b>{n_missing:,}</b><span>missing cells</span></div>
+</div>
+<div class="hr"></div>
+""",
+    unsafe_allow_html=True,
+)
+
+# =========================
+# Data explorer
+# =========================
+st.markdown("## Data Explorer")
+
+colA, colB = st.columns([1.1, 1], gap="large")
+with colA:
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown("### Preview")
+    st.dataframe(df.head(30), use_container_width=True, height=360)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+with colB:
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown("### Quick filters")
     cats = _cat_cols(df)
+    nums = _numeric_cols(df)
 
-    k1, k2, k3, k4 = st.columns(4)
-    k1.metric("Rows", f"{len(df):,}")
-    k2.metric("Columns", f"{df.shape[1]}")
-    k3.metric("Numeric", f"{len(nums)}")
-    k4.metric("Categorical", f"{len(cats)}")
+    view = df.copy()
+    if cats:
+        c = st.selectbox("Filter by categorical column", ["(none)"] + cats, index=0)
+        if c != "(none)":
+            vals = sorted([v for v in view[c].dropna().unique()])[:150]
+            pick = st.multiselect("Pick values", vals, default=vals[: min(3, len(vals))])
+            if pick:
+                view = view[view[c].isin(pick)]
+                _log_append(f"[filter] {c} in {pick[:3]}{'...' if len(pick)>3 else ''}")
 
-    st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
+    if nums:
+        n = st.selectbox("Filter by numeric column", ["(none)"] + nums, index=0)
+        if n != "(none)":
+            lo, hi = float(view[n].min()), float(view[n].max())
+            rng = st.slider("Range", min_value=lo, max_value=hi, value=(lo, hi))
+            view = view[(view[n] >= rng[0]) & (view[n] <= rng[1])]
+            _log_append(f"[filter] {n} in [{rng[0]:.2f}, {rng[1]:.2f}]")
 
-    # Always show preview collapsed
-    with st.expander("Dataset preview", expanded=False):
-        st.dataframe(df.head(40), use_container_width=True)
-
-    if run and q.strip():
-        answer, table, fig, debug = run_query(df, q)
-
-        # Console logs
-        st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
-        st.markdown('<div class="badge">CONSOLE LOG</div>', unsafe_allow_html=True)
-
-        log_lines = [
-            ("ok", f"Intent: {debug.get('intent','(none)')}"),
-            ("ok", f"Metric: {debug.get('metric','(none)')}"),
-            ("ok", f"Group: {debug.get('group','(none)')}"),
-            ("ok", f"Time col: {debug.get('time_col','(none)')}"),
-        ]
-
-        st.markdown('<div class="log">', unsafe_allow_html=True)
-        for level, line in log_lines:
-            st.markdown(f'<div class="line {level}">• {line}</div>', unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        # Answer
-        st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
-        st.markdown("### Answer")
-        st.markdown(answer)
-
-        # Table
-        if table is not None:
-            st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
-            st.markdown("### Table")
-            st.dataframe(table, use_container_width=True, height=360)
-
-            # Download table
-            st.download_button(
-                "Download table as CSV",
-                data=df_to_csv_bytes(table),
-                file_name="lab_result.csv",
-                mime="text/csv",
-                use_container_width=True,
-            )
-
-        # Chart
-        if fig is not None:
-            st.markdown('<div class="hr"></div>', unsafe_allow_html=True)
-            st.markdown("### Chart")
-            st.pyplot(fig, clear_figure=True)
-
-        # Logic
-        with st.expander("Logic used (how the console interpreted your question)", expanded=False):
-            st.write(
-                {
-                    "Detected intent": debug.get("intent"),
-                    "Chosen metric": debug.get("metric"),
-                    "Chosen group": debug.get("group"),
-                    "Detected time column": debug.get("time_col"),
-                    "Tip": "Try phrasing like: 'compare X by Y', 'distribution of X', 'correlation with X', 'trend of X over time'.",
-                }
-            )
-
-    else:
-        st.caption("Ask something on the left, then click **Run analysis**. You’ll get text + table + chart here.")
-
+    st.markdown(f"<small>Filtered rows: <b>{len(view):,}</b></small>", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
-st.caption("This Lab is intentionally designed as a visible system: data → reasoning → output.")
+
+# =========================
+# Auto Insights
+# =========================
+st.markdown("## ⚡ Auto Insights")
+
+if run_insights:
+    _log_append("<span class='badge-ok'>[run]</span> auto insights started...")
+    insights, tables, figs = auto_insights(view)
+
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown("### Findings")
+    for i in insights:
+        st.markdown(i)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    for name, table in tables.items():
+        st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown(f"### {name.replace('_',' ').title()}")
+        st.dataframe(table, use_container_width=True, height=280)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    for fig in figs:
+        st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.pyplot(fig, clear_figure=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+
+    _log_append("<span class='badge-ok'>[done]</span> auto insights complete.")
+else:
+    st.caption("Press **Run Auto Insights** to generate insights + charts automatically.")
+
+st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
+
+# =========================
+# Experiments
+# =========================
+st.markdown("## 🧪 Experiments")
+
+targets = ["(none)"] + list(df.columns)
+default_target = "(none)"
+if "profitable" in df.columns:
+    default_target = "profitable"
+elif "target" in df.columns:
+    default_target = "target"
+
+tcol = st.selectbox("Select a target column (optional)", targets, index=targets.index(default_target))
+run_model = st.button("Run quick model", type="primary")
+
+if run_model:
+    if tcol == "(none)":
+        st.warning("Select a target column to run a quick model.")
+        _log_append("<span class='badge-warn'>[warn]</span> model skipped — no target selected.")
+    else:
+        _log_append(f"<span class='badge-ok'>[run]</span> training quick model on target: {tcol}")
+        try:
+            metrics = build_quick_model(df, tcol)
+            st.markdown("<div class='card'>", unsafe_allow_html=True)
+            st.markdown(f"### Model result — {metrics['task'].title()}")
+            if metrics["task"] == "classification":
+                st.markdown(f"• Accuracy: **{metrics['accuracy']:.3f}**")
+                st.markdown(f"• F1 score: **{metrics['f1']:.3f}**")
+            else:
+                st.markdown(f"• MAE: **{metrics['mae']:.3f}**")
+                st.markdown(f"• RMSE: **{metrics['rmse']:.3f}**")
+                st.markdown(f"• R²: **{metrics['r2']:.3f}**")
+            st.markdown("</div>", unsafe_allow_html=True)
+            _log_append("<span class='badge-ok'>[done]</span> model finished.")
+        except Exception as e:
+            st.error("Model run failed. Check your dataset types.")
+            _log_append(f"<span class='badge-err'>[error]</span> model failed: {e}")
+
+st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
+
+# =========================
+# Output log
+# =========================
+st.markdown("## Output Log")
+_render_log()
