@@ -1,6 +1,5 @@
 import base64
 from pathlib import Path
-from string import Template
 
 import streamlit as st
 
@@ -36,6 +35,7 @@ def pick_video() -> tuple[Path | None, str]:
 video_path, video_mime = pick_video()
 logo_b64 = b64_file(LOGO_PATH)
 
+# Limpia UI Streamlit
 st.markdown(
     """
 <style>
@@ -67,7 +67,8 @@ if video_enabled:
 else:
     video_tag = """<div class="bgsolid"></div>"""
 
-html = Template(r"""
+# HTML base (sin f-string, sin Template). Usamos placeholders únicos y luego .replace()
+html = r"""
 <!doctype html>
 <html>
 <head>
@@ -195,13 +196,12 @@ html = Template(r"""
       0 0 44px rgba(255,255,255,.08),
       0 18px 65px rgba(0,0,0,.58);
 
-    /* Entrance soft */
     opacity: 0;
     filter: blur(14px);
     transform: translateY(10px) scale(0.995);
     animation: reveal 900ms ease forwards;
     animation-delay: 220ms;
-    will-change: transform, filter, opacity;
+    will-change: transform, filter, opacity, text-shadow;
   }
 
   .cursor{
@@ -223,7 +223,7 @@ html = Template(r"""
       microFocus 520ms ease-in-out 1;
   }
 
-  /* Optional: tiny glow pulse after focus */
+  /* tiny glow pulse after focus */
   #typed.glowPulse{
     animation:
       reveal 900ms ease forwards,
@@ -242,18 +242,9 @@ html = Template(r"""
   }
 
   @keyframes microFocus{
-    0%{
-      filter: blur(1px);
-      transform: translateY(0) scale(1.000);
-    }
-    50%{
-      filter: blur(2.2px);
-      transform: translateY(0) scale(1.018);
-    }
-    100%{
-      filter: blur(0px);
-      transform: translateY(0) scale(1.000);
-    }
+    0%{ filter: blur(1px); transform: translateY(0) scale(1.000); }
+    50%{ filter: blur(2.2px); transform: translateY(0) scale(1.018); }
+    100%{ filter: blur(0px); transform: translateY(0) scale(1.000); }
   }
 
   @keyframes glowPulse{
@@ -295,13 +286,13 @@ html = Template(r"""
 
 <body>
   <div class="stage">
-    $video_tag
+    __VIDEO_TAG__
     <canvas id="react"></canvas>
     <div class="vignette"></div>
 
     <div class="nav" id="topnav">
       <div class="brand">
-        $brand_img
+        __BRAND_IMG__
         <div>Portfolio JRR</div>
       </div>
       <div class="menu">
@@ -348,7 +339,7 @@ html = Template(r"""
       await sleep(jitter);
     }
 
-    // micro zoom + blur -> focus, then tiny glow pulse
+    // micro zoom + blur -> focus, then glow pulse 1x
     typedEl.classList.add("finalFocus");
     await sleep(520);
     typedEl.classList.add("glowPulse");
@@ -419,7 +410,7 @@ html = Template(r"""
   function frame() {
     t += 0.016;
 
-    // breathing: modula opacidad y “glow” sutil del canvas
+    // breathing: modula opacidad y glow sutil del canvas
     const breathe = 0.90 + 0.10 * Math.sin(t * 0.85);
     canvas.style.opacity = String(breathe);
     canvas.style.filter = `blur(${0.15 + 0.25*(1-breathe)}px)`;
@@ -491,9 +482,9 @@ html = Template(r"""
 </script>
 </body>
 </html>
-""").substitute(
-    video_tag=video_tag,
-    brand_img=brand_img,
-)
+"""
+
+# Inyecta video y logo sin depender de f-strings ni Template ($)
+html = html.replace("__VIDEO_TAG__", video_tag).replace("__BRAND_IMG__", brand_img)
 
 st.components.v1.html(html, height=920, scrolling=False)
