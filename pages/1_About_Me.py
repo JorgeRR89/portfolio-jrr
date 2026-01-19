@@ -100,9 +100,11 @@ st.markdown(
 ### I build data-driven systems and ship real-world solutions.
 <div class="chips">
   <span class="chip">🧠 Data Science</span>
+  <span class="chip">🤖 Machine Learning</span>
   <span class="chip">🛰️ Analytics & Automation</span>
   <span class="chip">⚙️ Engineering mindset</span>
 </div>
+
 
 <div class="hr"></div>
 """,
@@ -130,12 +132,18 @@ with col1:
         """
 <div class="card">
   <h3>Who I am</h3>
-  <p>
-    <!-- TODO: escribe 4–6 líneas con tu narrativa -->
-    I’m Jorge Reyes — an engineer who transitioned into data science and analytics.
-    I like turning messy data into decision systems: dashboards, pipelines, forecasts,
-    simulations, and automation that improve outcomes.
-  </p>
+ <p>
+  I’m Jorge Reyes — an engineer who transitioned into data science, analytics, and machine learning.
+  I like turning messy data into decision systems: dashboards, pipelines, forecasts,
+  simulations, and intelligent automation that improve outcomes.
+</p>
+
+<p>
+  Beyond performance and optimization, I’m especially interested in projects with real-world
+  and social impact — technology applied to improve safety, access, efficiency, and quality of life.
+  I’m motivated by problems where data and engineering can meaningfully affect people, not just metrics.
+</p>
+
 
   <p>
     <!-- TODO: ajusta a tu realidad -->
@@ -145,11 +153,13 @@ with col1:
 
   <h3>What I optimize for</h3>
   <ul>
-    <li>Clean, reproducible analysis (Python/SQL) and readable results.</li>
-    <li>Practical ML when it truly adds value (not for decoration).</li>
-    <li>Automation to remove manual work and reduce errors.</li>
-    <li>Strong communication: explain complex systems simply.</li>
-  </ul>
+  <li>Clean, reproducible analysis (Python/SQL) and readable results.</li>
+  <li>Practical machine learning when it truly adds value (not for decoration).</li>
+  <li>Automation to remove manual work and reduce errors.</li>
+  <li>Systems designed for real-world and social impact.</li>
+  <li>Strong communication: explain complex systems simply.</li>
+</ul>
+
 </div>
 """,
         unsafe_allow_html=True,
