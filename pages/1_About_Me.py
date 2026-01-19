@@ -113,11 +113,23 @@ st.markdown(
 # --- KPIs (edit to your truth) ---
 st.markdown(
     """
-<<div class="kpi">
-  <div class="k"><b>10+ years</b><span>Industrial & oil/gas engineering</span></div>
-  <div class="k"><b>1+ year</b><span>Applied data science & machine learning</span></div>
-  <div class="k"><b>One profile</b><span>Where physical systems meet AI</span></div>
+<div class="kpi">
+  <div class="k">
+    <b>10+ years</b>
+    <span>Oil, gas & industrial engineering systems</span>
+  </div>
+
+  <div class="k">
+    <b>1+ year</b>
+    <span>Data science, analytics & machine learning</span>
+  </div>
+
+  <div class="k">
+    <b>1+ year</b>
+    <span>Teaching automation & electrical systems</span>
+  </div>
 </div>
+
 
 """,
     unsafe_allow_html=True,
