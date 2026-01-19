@@ -74,7 +74,7 @@ else:
     # Fondo negro elegante si video está apagado
     video_tag = """<div class="bgsolid"></div>"""
 
-html = f"""
+html = """
 <!doctype html>
 <html>
 <head>
