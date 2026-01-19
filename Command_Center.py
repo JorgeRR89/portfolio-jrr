@@ -1,6 +1,7 @@
 import base64
 from pathlib import Path
 import streamlit as st
+import streamlit.components.v1 as components
 
 # =========================
 # CONFIG
@@ -251,11 +252,10 @@ html = f"""
     </summary>
 
     <div class="drawer">
-      <!-- ✅ MISMA PESTAÑA -->
-      <a href="{about_link}" target="_self" rel="noopener">About me</a>
-      <a href="{projects_link}" target="_self" rel="noopener">Projects</a>
-      <a href="{lab_link}" target="_self" rel="noopener">Lab</a>
-      <a href="{contact_link}" target="_self" rel="noopener">Contact</a>
+      <a href="?go=about" target="_self" rel="noopener">About me</a>
+      <a href="?go=projects" target="_self" rel="noopener">Projects</a>
+      <a href="?go=lab" target="_self" rel="noopener">Lab</a>
+      <a href="?go=contact" target="_self" rel="noopener">Contact</a>
     </div>
   </details>
 
@@ -279,4 +279,5 @@ html = f"""
 </div>
 """
 
-st.markdown(html, unsafe_allow_html=True)
+# ✅ SIEMPRE renderiza HTML real (no lo muestra como texto)
+components.html(html, height=900, scrolling=True)
