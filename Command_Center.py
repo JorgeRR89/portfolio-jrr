@@ -221,30 +221,24 @@ html = r"""
 
   /* === CARET: del tamaño del texto === */
   .cursor{
-    display:inline-block;
-    width: 2px;
-    height: 1em;                 /* exactamente 1em (misma caja del font-size) */
-    margin-left: 10px;
+  display:inline-block;
 
-    /* baseline tuning (sin px) */
-    vertical-align: -0.12em;
+  height: 1.18em;              /* más alto (se ve del tamaño de la letra) */
+  margin-left: 10px;
+  vertical-align: -0.16em;     /* baja el caret al baseline correcto */
 
-    border-radius: 2px;
+  /* el caret real (no se ve como punto) */
+  border-left: 3px solid rgba(255,255,255,.92);
+  border-radius: 2px;
 
-    background: linear-gradient(
-      to bottom,
-      rgba(255,255,255,.28) 0%,
-      rgba(255,255,255,.95) 45%,
-      rgba(255,255,255,.45) 100%
-    );
+  /* glow antigravity */
+  filter: drop-shadow(0 0 10px rgba(255,255,255,.22))
+          drop-shadow(0 0 18px rgba(255,255,255,.10));
 
-    box-shadow:
-      0 0 8px rgba(255,255,255,.22),
-      0 0 18px rgba(255,255,255,.12);
+  opacity: 1;
+  animation: caretBlink 1.6s steps(1) infinite, caretFloat 1.6s ease-in-out infinite;
+}
 
-    opacity: 1;
-    animation: caretBlink 1.6s steps(1) infinite, caretFloat 1.6s ease-in-out infinite;
-  }
 
   .cursor.typing{
     opacity: 0 !important;
@@ -322,10 +316,9 @@ html = r"""
   }
 
   @media (max-width: 640px){
-    :root{ --pad-x: 18px; --pad-y: 16px; }
-    #typed{ font-size: clamp(40px, 10vw, 70px); }
-    .cursor{ width: 2px; margin-left: 8px; }
-  }
+  .cursor{ border-left-width: 2px; height: 1.12em; vertical-align: -0.14em; }
+}
+
 </style>
 </head>
 
