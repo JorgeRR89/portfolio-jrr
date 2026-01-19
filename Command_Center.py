@@ -181,6 +181,8 @@ html, body { margin:0; padding:0; background:#000; height:100%; }
   place-items:center;
   box-shadow:0 10px 25px rgba(0,0,0,.25);
   border-radius:0;  /* cuadrado como te gusta */
+  position: relative;
+  z-index: 10001; /* 👈 siempre clickeable para cerrar */
 }
 
 .burger span{
