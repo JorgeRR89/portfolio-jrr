@@ -401,50 +401,64 @@ html = r"""
 <script>
 (() => {
   // ===== Typing =====
-  const typedEl = document.getElementById('typed');
-  const caret = document.getElementById('caret');
-  const nav = document.getElementById('topnav');
-  const text = "welcome to my LAB";
+const typedEl = document.getElementById('typed');
+const caret = document.getElementById('caret');
+const nav = document.getElementById('topnav');
+const text = "welcome to my LAB";
 
-  const startDelay = 980;
-  const minDelay = 85;
-  const maxDelay = 150;
+// typing más lento
+const startDelay = 980;
+const minDelay = 85;
+const maxDelay = 150;
 
-  function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
-  function syncCaretSize(){
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+// 🔥 caret 1:1 con la altura REAL del texto (px)
+function syncCaretSize(){
   const r = typedEl.getBoundingClientRect();
-  // usa la altura real del texto visible
   caret.style.height = Math.max(18, Math.round(r.height)) + "px";
 }
 window.addEventListener("resize", syncCaretSize);
 
+async function typeText(){
+  await sleep(startDelay);
 
-  async function typeText(){
-    await sleep(startDelay);
+  // oculta cursor mientras escribe
+  caret.classList.add("typing");
+  caret.classList.remove("ready");
 
-    caret.classList.add("typing");
-    caret.classList.remove("ready");
+  typedEl.textContent = "";
+  syncCaretSize();
 
-    typedEl.textContent = "";
-    syncCaretSize(); // <-- hace el caret 1:1 con el texto
-    for (let i = 0; i < text.length; i++){
-      typedEl.textContent += text[i];
-      
-      const jitter = Math.floor(minDelay + Math.random() * (maxDelay - minDelay));
-      await sleep(jitter);
-    }
+  for (let i = 0; i < text.length; i++){
+    typedEl.textContent += text[i];
 
-    typedEl.classList.add("finalFocus");
-    await sleep(520);
-    typedEl.classList.add("glowPulse");
+    // actualiza tamaño del caret mientras crece el texto
+    syncCaretSize();
 
-    caret.classList.remove("typing");
-    caret.classList.add("ready");
-
-    await sleep(180);
-    nav.classList.add("show");
+    const jitter = Math.floor(minDelay + Math.random() * (maxDelay - minDelay));
+    await sleep(jitter);
   }
-  typeText();
+
+  // micro zoom + blur -> focus, luego glow pulse 1x
+  typedEl.classList.add("finalFocus");
+  await sleep(520);
+  typedEl.classList.add("glowPulse");
+
+  // última sincronización (por si cambió altura final)
+  syncCaretSize();
+
+  // reaparece cursor al final
+  caret.classList.remove("typing");
+  caret.classList.add("ready");
+
+  // mostrar menú con fade-slide
+  await sleep(180);
+  nav.classList.add("show");
+}
+
+typeText();
+
 
   // ===== Reactive field (breathing) =====
   const canvas = document.getElementById('react');
