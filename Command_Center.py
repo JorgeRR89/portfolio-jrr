@@ -223,26 +223,24 @@ html = r"""
   .typedWrap{
   position: relative;
   display: inline-block;
-  line-height: 1;          /* clave: define el line-box exacto */
+  line-height: 1; /* importantísimo */
 }
 
-/* caret absoluto, altura basada en el line-box */
+/* caret pegado al baseline del texto */
 .cursor{
   position: absolute;
   left: calc(100% + 14px);
-  top: 50%;
-  transform: translateY(-50%);
-
+  bottom: 0;                  /* pega al baseline */
   width: 0;
   border-left: 3px solid rgba(255,255,255,.92);
   border-radius: 2px;
 
-  /* glow */
   filter: drop-shadow(0 0 10px rgba(255,255,255,.22))
           drop-shadow(0 0 18px rgba(255,255,255,.10));
 
   opacity: 1;
   animation: caretBlink 1.6s steps(1) infinite;
+  transform-origin: bottom;
 }
 
 .cursor.typing{
@@ -260,10 +258,11 @@ html = r"""
 }
 
 @keyframes caretIn{
-  0%   { opacity: 0; transform: translateY(-50%) scaleY(0.7); }
-  60%  { opacity: 1; transform: translateY(-50%) scaleY(1.05); }
-  100% { opacity: 1; transform: translateY(-50%) scaleY(1); }
+  0%   { opacity: 0; transform: scaleY(0.7); }
+  60%  { opacity: 1; transform: scaleY(1.05); }
+  100% { opacity: 1; transform: scaleY(1); }
 }
+
 
 /* micro movimiento */
 @keyframes caretFloat{
@@ -415,10 +414,16 @@ function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
 // 🔥 caret 1:1 con la altura REAL del texto (px)
 function syncCaretSize(){
-  const r = typedEl.getBoundingClientRect();
-  caret.style.height = Math.max(18, Math.round(r.height)) + "px";
+  const cs = window.getComputedStyle(typedEl);
+  const fontSize = parseFloat(cs.fontSize) || 64;
+
+  // altura visual tipo cap-height (ajustable)
+  const caretH = Math.round(fontSize * 0.92);  // 0.88–0.96 según gusto
+
+  caret.style.height = caretH + "px";
 }
 window.addEventListener("resize", syncCaretSize);
+
 
 async function typeText(){
   await sleep(startDelay);
