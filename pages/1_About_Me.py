@@ -85,12 +85,43 @@ small, p, li { color: var(--fg2); }
 """
 st.markdown(theme, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+.topbar{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap: 12px;
+  padding: 6px 0 2px 0;
+}
+.navbtns{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+.navbtns a{
+  display:inline-block;
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.88) !important;
+  text-decoration:none;
+  font-size: 13px;
+}
+.navbtns a:hover{ background: rgba(255,255,255,.07); }
+</style>
+""", unsafe_allow_html=True)
+
 # --- Header ---
 st.markdown("""
-# About
+<div class="topbar">
+  <div>
+    <h1 style="margin:0;">About</h1>
+    <div class="small">I build data-driven systems and ship real-world solutions.</div>
+  </div>
+  <div class="navbtns">
+    <a href="./" target="_self">← Home</a>
+    <a href="./Projects" target="_self">Projects</a>
+    <a href="./Contact" target="_self">Contact</a>
+  </div>
+</div>
 
-### I build data-driven systems and ship real-world solutions.
-<div class="chips">
+<div class="chips" style="margin-top:10px;">
   <span class="chip">🧠 Data Science</span>
   <span class="chip">🤖 Machine Learning</span>
   <span class="chip">🛰️ Analytics & Automation</span>
@@ -99,6 +130,7 @@ st.markdown("""
 
 <div class="hr"></div>
 """, unsafe_allow_html=True)
+
 
 # --- KPIs ---
 st.markdown("""
