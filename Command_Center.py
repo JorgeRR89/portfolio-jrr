@@ -1,7 +1,7 @@
 import base64
 from pathlib import Path
+
 import streamlit as st
-import streamlit.components.v1 as components
 
 # =========================
 # CONFIG
@@ -14,34 +14,37 @@ st.set_page_config(
 )
 
 # =========================
-# ROUTING (query -> switch_page)
+# SIDEBAR NATIVO (NAV)
 # =========================
-# (más estable en Streamlit Cloud que st.query_params en algunos despliegues)
-qp = st.experimental_get_query_params()
-go = (qp.get("go", [None])[0] if isinstance(qp.get("go", None), list) else qp.get("go", None))
+with st.sidebar:
+    st.markdown("## Portfolio JRR")
+    nav = st.radio(
+        "Navigate",
+        ["Home", "About", "Projects", "Lab", "Contact"],
+        index=0,
+        label_visibility="collapsed",
+    )
 
-if go:
-    # limpia el query para que no se quede pegado
-    st.experimental_set_query_params()
-
-    if go == "about":
-        st.switch_page("pages/1_About_Me.py")
-    elif go == "projects":
-        st.switch_page("pages/2_Projects.py")
-    elif go == "lab":
-        st.switch_page("pages/4_Lab.py")
-    elif go == "contact":
-        st.switch_page("pages/3_Contact.py")
+if nav == "About":
+    st.switch_page("pages/1_About_Me.py")
+elif nav == "Projects":
+    st.switch_page("pages/2_Projects.py")
+elif nav == "Lab":
+    st.switch_page("pages/4_Lab.py")
+elif nav == "Contact":
+    st.switch_page("pages/3_Contact.py")
 
 # =========================
 # ASSETS
 # =========================
 ASSETS = Path(__file__).parent / "assets"
-VIDEO_PATH = ASSETS / "Data.mp4"
+VIDEO_PATH = ASSETS / "data.mp4"
 LOGO_PATH = ASSETS / "DS.png"
+
 
 def b64_file(path: Path) -> str:
     return base64.b64encode(path.read_bytes()).decode("utf-8")
+
 
 video_b64 = b64_file(VIDEO_PATH) if VIDEO_PATH.exists() else ""
 logo_b64 = b64_file(LOGO_PATH) if LOGO_PATH.exists() else ""
@@ -51,90 +54,99 @@ if not video_b64:
     st.stop()
 
 # =========================
-# GLOBAL CSS STREAMLIT
+# GLOBAL CSS (FULLSCREEN + HIDE CHROME)
 # =========================
 st.markdown(
     """
 <style>
-html, body {height:100%; margin:0;}
-header[data-testid="stHeader"] {display:none;}
-footer {visibility:hidden;}
+/* Quitar chrome Streamlit */
+header[data-testid="stHeader"] { display:none; }
+footer { visibility:hidden; }
+
+/* Sin padding/márgenes */
 .block-container { padding:0 !important; max-width:100% !important; }
 section.main > div { padding:0 !important; }
+
+/* Evitar scroll blanco extra */
+html, body { height:100%; margin:0; background:#000; overflow:hidden; }
 </style>
 """,
     unsafe_allow_html=True,
 )
 
 # =========================
-# HERO + MENU CSS
+# HOME HERO (VIDEO FULLSCREEN + RED LINES)
 # =========================
-css = """
-<style>
-* { box-sizing:border-box; }
-html, body { background:#000; overflow-y:auto; }
+logo_html = (
+    f"<img src='data:image/png;base64,{logo_b64}' alt='logo' />" if logo_b64 else ""
+)
 
-/* HERO */
-.hero {
-  position: relative;
-  width: calc(100vw - 64px);
+hero_html = f"""
+<style>
+/* HERO WRAPPER */
+.hero {{
+  position: fixed;
+  inset: 0;
+  width: 100vw;
   height: 100vh;
-  margin-left: 64px;
   overflow: hidden;
   background: #000;
-}
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+}}
 
 /* VIDEO */
-.hero video {
+.hero video {{
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   z-index: 0;
-}
+}}
 
-/* OVERLAY */
-.overlay-dark {
+/* DARK OVERLAY */
+.overlay-dark {{
   position:absolute;
   inset:0;
-  background:rgba(0,0,0,0.35);
+  background: rgba(0,0,0,0.35);
   z-index:1;
   pointer-events:none;
-}
+}}
 
-/* TOP BAR */
-.topbar {
+/* TOP BAR (LOGO + TITLE) */
+.topbar {{
   position:absolute;
   top:0; left:0; right:0;
-  z-index:5;
+  z-index: 5;
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  padding:22px 28px;
+  justify-content:flex-start;
+  padding: 22px 28px;
   color:#fff;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-}
+}}
 
-.brand {
+.brand {{
   display:flex;
   align-items:center;
-  gap:12px;
-  font-weight:800;
-  letter-spacing:1px;
-  text-transform:uppercase;
-}
+  gap: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  user-select:none;
+}}
 
-.brand img {
-  width:36px;
-  height:36px;
-  background:#fff;
-  padding:6px;
-  border-radius:10px;
-}
+.brand img {{
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  background: #fff;
+  padding: 6px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}}
 
-/* CENTER */
-.center {
+/* CENTER TEXT */
+.center {{
   position:absolute;
   inset:0;
   z-index:4;
@@ -142,122 +154,49 @@ html, body { background:#000; overflow-y:auto; }
   align-items:center;
   justify-content:center;
   text-align:center;
-  color:white;
-}
+  color:#fff;
+  padding: 0 24px;
+}}
 
-.center h1 {
-  font-size:clamp(2.4rem,5vw,4.4rem);
-  font-weight:900;
-  margin:0;
-  text-shadow:0 10px 30px rgba(0,0,0,0.6);
-}
+.center h1 {{
+  font-size: clamp(2.4rem, 5vw, 4.4rem);
+  font-weight: 900;
+  margin: 0;
+  text-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}}
 
-/* ACCENTS */
-.accents { position:absolute; inset:0; z-index:3; pointer-events:none; }
-.line { position:absolute; height:3px; background:#ff2a2a; opacity:.9; }
-.l1 { top:92px; right:130px; width:120px; }
-.l2 { top:122px; right:40px; width:240px; }
-.l3 { bottom:70px; left:40px; width:220px; opacity:.55; }
-.l4 { top:30%; left:55%; width:250px; transform:rotate(-55deg); opacity:.5; }
-
-/* MENU (details) */
-.menu {
+/* RED LINES */
+.accents {{
   position:absolute;
-  top:22px;
-  right:28px;
-  z-index:10000;
-}
+  inset:0;
+  z-index:3;
+  pointer-events:none;
+}}
 
-.menu summary { list-style:none; cursor:pointer; }
-.menu summary::-webkit-details-marker { display:none; }
+.line {{
+  position:absolute;
+  height: 3px;
+  background: #ff2a2a;
+  opacity: 0.9;
+}}
 
-/* BURGER (debe quedar arriba del drawer para poder cerrar) */
-.burger {
-  width:52px;
-  height:52px;
-  background:#ff2a2a;
-  display:grid;
-  place-items:center;
-  box-shadow:0 10px 25px rgba(0,0,0,.25);
+.l1 {{ top: 92px; right: 130px; width: 120px; }}
+.l2 {{ top: 122px; right: 40px; width: 240px; }}
+.l3 {{ bottom: 70px; left: 40px; width: 220px; opacity: 0.55; }}
+.l4 {{ top: 30%; left: 55%; width: 250px; transform: rotate(-55deg); opacity: 0.50; }}
 
-  position:relative;
-  z-index:10001;
-}
-
-.burger span {
-  display:block;
-  width:22px;
-  height:2px;
-  background:#fff;
-  margin:3px 0;
-}
-
-/* DRAWER */
-.drawer {
-  position:fixed;
-  top:0;
-  right:0;
-  width:min(380px,90vw);
-  height:100vh;
-  background:rgba(10,10,12,.92);
-  backdrop-filter:blur(10px);
-  border-left:1px solid rgba(255,255,255,.08);
-  padding:90px 28px 28px;
-  transform:translateX(110%);
-  transition:transform .3s ease;
-  z-index:9999;
-}
-
-.menu[open] .drawer { transform:translateX(0%); }
-
-.drawer a {
-  display:block;
-  padding:16px;
-  margin:10px 0;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:14px;
-  color:white;
-  text-decoration:none;
-  font-weight:800;
-  letter-spacing:.5px;
-}
-
-.drawer a:hover {
-  background:rgba(255,42,42,.18);
-  border-color:rgba(255,42,42,.7);
-}
+@media (max-width: 650px) {{
+  .l1, .l2, .l3, .l4 {{ display:none; }}
+  .topbar {{ padding: 16px 16px; }}
+}}
 </style>
-"""
 
-logo_html = f"<img src='data:image/png;base64,{logo_b64}'>" if logo_b64 else ""
-
-# ✅ query params para routing en python
-about_link = "?go=about"
-projects_link = "?go=projects"
-lab_link = "?go=lab"
-contact_link = "?go=contact"
-
-html = f"""
-{css}
 <div class="hero">
   <video autoplay muted loop playsinline>
     <source src="data:video/mp4;base64,{video_b64}" type="video/mp4">
   </video>
 
   <div class="overlay-dark"></div>
-
-  <details class="menu">
-    <summary class="burger" aria-label="Open menu">
-      <span></span><span></span><span></span>
-    </summary>
-
-    <div class="drawer">
-      <a href="?go=about" target="_self" rel="noopener">About me</a>
-      <a href="?go=projects" target="_self" rel="noopener">Projects</a>
-      <a href="?go=lab" target="_self" rel="noopener">Lab</a>
-      <a href="?go=contact" target="_self" rel="noopener">Contact</a>
-    </div>
-  </details>
 
   <div class="topbar">
     <div class="brand">
@@ -279,5 +218,4 @@ html = f"""
 </div>
 """
 
-# ✅ SIEMPRE renderiza HTML real (no lo muestra como texto)
-components.html(html, height=900, scrolling=True)
+st.components.v1.html(hero_html, height=1, scrolling=False)
