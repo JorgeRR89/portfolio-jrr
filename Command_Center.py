@@ -36,7 +36,6 @@ def pick_video() -> tuple[Path | None, str]:
 video_path, video_mime = pick_video()
 logo_b64 = b64_file(LOGO_PATH)
 
-# Limpia UI Streamlit
 st.markdown(
     """
 <style>
@@ -51,7 +50,6 @@ section.main > div { padding: 0 !important; }
 
 video_b64 = ""
 video_enabled = False
-
 if video_path:
     size_mb = video_path.stat().st_size / (1024 * 1024)
     if size_mb <= MAX_VIDEO_MB:
@@ -76,148 +74,141 @@ html = Template(r"""
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <style>
-  :root {
+  :root{
     --pad-x: 28px;
     --pad-y: 22px;
-    --fg: rgba(255,255,255,.92);
+    --fg: rgba(255,255,255,.94);
     --fg2: rgba(255,255,255,.76);
     --line: rgba(255,255,255,.12);
   }
 
-  html, body {
+  html, body{
     margin:0; padding:0; height:100%; background:#000;
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   }
 
-  .stage {
+  .stage{
     position:relative; width:100vw; height:100vh; overflow:hidden; background:#000;
   }
 
-  .bgvideo {
+  .bgvideo{
     position:absolute; inset:0; width:100%; height:100%;
     object-fit:cover;
-    filter: brightness(.55) contrast(1.05) saturate(1.05);
+    filter: brightness(.55) contrast(1.06) saturate(1.05);
     transform: scale(1.02);
     z-index: 1;
   }
 
-  .bgsolid {
+  .bgsolid{
     position:absolute; inset:0;
     background: radial-gradient(900px 500px at 50% 40%, rgba(255,255,255,.06), rgba(0,0,0,.95));
     z-index: 1;
   }
 
-  #react {
+  /* Reactive field */
+  #react{
     position:absolute; inset:0; width:100%; height:100%;
     z-index:2;
     mix-blend-mode: screen;
-    opacity: .95;
+    opacity: .92; /* base, JS lo modula */
+    filter: blur(.2px);
   }
 
-  .vignette {
-    position:absolute; inset:0; z-index:3;
-    pointer-events:none;
+  .vignette{
+    position:absolute; inset:0; z-index:3; pointer-events:none;
     background:
-      radial-gradient(1100px 650px at 50% 45%, rgba(0,0,0,0) 0%, rgba(0,0,0,.52) 72%, rgba(0,0,0,.78) 100%),
-      linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.72));
+      radial-gradient(1200px 720px at 50% 45%, rgba(0,0,0,0) 0%, rgba(0,0,0,.54) 72%, rgba(0,0,0,.82) 100%),
+      linear-gradient(to bottom, rgba(0,0,0,.30), rgba(0,0,0,.70));
   }
 
-  .nav {
-    position:absolute; top:0; left:0; right:0; z-index:5;
+  /* Nav (entra después del typing) */
+  .nav{
+    position:absolute; top:0; left:0; right:0; z-index:6;
     display:flex; align-items:center; justify-content:space-between;
     padding: var(--pad-y) var(--pad-x);
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    transition: opacity 700ms ease, transform 700ms ease;
+  }
+  .nav.show{
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
   }
 
-  .brand {
+  .brand{
     display:flex; align-items:center; gap:12px;
-    color: var(--fg);
+    color: rgba(255,255,255,.92);
     font-weight:700;
     letter-spacing:.3px;
     font-size:16px;
   }
 
-  .brand img {
+  .brand img{
     width: 34px; height: 34px;
     border-radius: 10px;
     object-fit: cover;
     box-shadow: 0 10px 28px rgba(0,0,0,.35);
   }
 
-  .menu {
+  .menu{
     display:flex; align-items:center; gap:10px;
   }
 
-  .menu a {
+  .menu a{
     text-decoration:none;
-    color: var(--fg2);
+    color: rgba(255,255,255,.74);
     font-size: 13px;
     padding: 9px 12px;
     border-radius: 999px;
     border: 1px solid transparent;
     transition: .18s ease;
   }
-  .menu a:hover {
-    color: var(--fg);
+  .menu a:hover{
+    color: rgba(255,255,255,.92);
     border-color: var(--line);
     background: rgba(255,255,255,.04);
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(10px);
   }
 
-  .hero {
-    position:absolute; inset:0; z-index:6;
+  /* Hero: texto directo (sin card) */
+  .hero{
+    position:absolute; inset:0; z-index:5;
     display:grid; place-items:center;
     padding: 0 18px;
     text-align:center;
   }
 
-  .terminal {
-    display:inline-block;
-    padding: 18px 22px;
-    border-radius: 18px;
-    border: 1px solid rgba(255,255,255,.10);
-    background: rgba(0,0,0,.28);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 25px 65px rgba(0,0,0,.45);
-    max-width: 980px;
-    animation: floaty 6.2s ease-in-out infinite;
-  }
-
-  .terminal .line {
-    display:flex;
-    gap: 10px;
-    justify-content:center;
-    align-items: baseline;
-  }
-
   #typed{
-    color: rgba(255,255,255,.94);
+    color: var(--fg);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-size: clamp(44px, 6.2vw, 96px);
-    font-weight: 750;
-    letter-spacing: -0.03em;
-    line-height: 1.03;
+    font-size: clamp(54px, 7.0vw, 112px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.02;
     white-space: pre-wrap;
     text-align: center;
-    text-shadow:
-      0 0 18px rgba(255,255,255,.10),
-      0 0 42px rgba(255,255,255,.08),
-      0 18px 60px rgba(0,0,0,.55);
-    filter: blur(10px);
-    opacity: 0;
-    transform: translateY(10px);
-    animation: reveal 900ms ease forwards;
-    animation-delay: 250ms;
-  }
 
-  #typed.pulse{
-    animation: reveal 900ms ease forwards, glowPulse 680ms ease-in-out 1;
+    text-shadow:
+      0 0 16px rgba(255,255,255,.10),
+      0 0 44px rgba(255,255,255,.08),
+      0 18px 65px rgba(0,0,0,.58);
+
+    /* Entrance soft */
+    opacity: 0;
+    filter: blur(14px);
+    transform: translateY(10px) scale(0.995);
+    animation: reveal 900ms ease forwards;
+    animation-delay: 220ms;
+    will-change: transform, filter, opacity;
   }
 
   .cursor{
     display:inline-block;
     width: 14px;
     height: 1.05em;
-    transform: translateY(8px);
+    transform: translateY(10px);
     background: rgba(255,255,255,.88);
     margin-left: 10px;
     border-radius: 3px;
@@ -225,64 +216,79 @@ html = Template(r"""
     box-shadow: 0 0 18px rgba(255,255,255,.18);
   }
 
+  /* Final micro zoom + blur -> focus */
+  #typed.finalFocus{
+    animation:
+      reveal 900ms ease forwards,
+      microFocus 520ms ease-in-out 1;
+  }
+
+  /* Optional: tiny glow pulse after focus */
+  #typed.glowPulse{
+    animation:
+      reveal 900ms ease forwards,
+      microFocus 520ms ease-in-out 1,
+      glowPulse 650ms ease-in-out 1;
+  }
+
   @keyframes blink{ 50%{ opacity:0; } }
 
   @keyframes reveal{
     to{
-      filter: blur(0px);
       opacity: 1;
-      transform: translateY(0);
+      filter: blur(0px);
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes microFocus{
+    0%{
+      filter: blur(1px);
+      transform: translateY(0) scale(1.000);
+    }
+    50%{
+      filter: blur(2.2px);
+      transform: translateY(0) scale(1.018);
+    }
+    100%{
+      filter: blur(0px);
+      transform: translateY(0) scale(1.000);
     }
   }
 
   @keyframes glowPulse{
     0%{
       text-shadow:
-        0 0 18px rgba(255,255,255,.10),
-        0 0 42px rgba(255,255,255,.08),
-        0 18px 60px rgba(0,0,0,.55);
-      transform: scale(1);
+        0 0 16px rgba(255,255,255,.10),
+        0 0 44px rgba(255,255,255,.08),
+        0 18px 65px rgba(0,0,0,.58);
     }
     50%{
       text-shadow:
         0 0 26px rgba(255,255,255,.18),
-        0 0 68px rgba(255,255,255,.14),
-        0 24px 70px rgba(0,0,0,.55);
-      transform: scale(1.01);
+        0 0 82px rgba(255,255,255,.14),
+        0 24px 78px rgba(0,0,0,.58);
     }
     100%{
       text-shadow:
-        0 0 18px rgba(255,255,255,.10),
-        0 0 42px rgba(255,255,255,.08),
-        0 18px 60px rgba(0,0,0,.55);
-      transform: scale(1);
+        0 0 16px rgba(255,255,255,.10),
+        0 0 44px rgba(255,255,255,.08),
+        0 18px 65px rgba(0,0,0,.58);
     }
   }
 
-  @keyframes floaty{
-    0%   { transform: translateY(0px); }
-    50%  { transform: translateY(-6px); }
-    100% { transform: translateY(0px); }
-  }
-
-  .subtitle {
-    margin-top: 14px;
-    color: rgba(255,255,255,.68);
-    font-size: 13px;
-  }
-
-  .foot {
+  .foot{
     position:absolute; left:0; right:0; bottom:0; z-index:7;
     padding: 18px var(--pad-x);
     color: rgba(255,255,255,.55);
     font-size: 12px;
     display:flex; justify-content:space-between; gap: 12px;
+    pointer-events:none;
   }
 
-  @media (max-width: 640px) {
-    :root { --pad-x: 18px; --pad-y: 16px; }
-    .terminal { padding: 16px 16px; border-radius: 16px; }
-    #typed{ font-size: clamp(34px, 9vw, 64px); }
+  @media (max-width: 640px){
+    :root{ --pad-x: 18px; --pad-y: 16px; }
+    #typed{ font-size: clamp(40px, 10vw, 70px); }
   }
 </style>
 </head>
@@ -293,7 +299,7 @@ html = Template(r"""
     <canvas id="react"></canvas>
     <div class="vignette"></div>
 
-    <div class="nav">
+    <div class="nav" id="topnav">
       <div class="brand">
         $brand_img
         <div>Portfolio JRR</div>
@@ -307,43 +313,53 @@ html = Template(r"""
     </div>
 
     <div class="hero">
-      <div class="terminal">
-        <div class="line">
-          <span id="typed"></span><span class="cursor"></span>
-        </div>
-        <div class="subtitle">Move your cursor — reactive field</div>
+      <div>
+        <span id="typed"></span><span class="cursor"></span>
       </div>
     </div>
 
     <div class="foot">
-      <div>antigravity-inspired</div>
+      <div>Move your cursor — reactive field</div>
       <div>© JorgeRR89</div>
     </div>
   </div>
 
 <script>
 (() => {
+  // ===== Typing =====
   const typedEl = document.getElementById('typed');
+  const nav = document.getElementById('topnav');
   const text = "welcome to my LAB";
 
-  const startDelay = 950;
-  const minDelay = 65;
-  const maxDelay = 115;
+  // slower typing
+  const startDelay = 980;
+  const minDelay = 85;
+  const maxDelay = 150;
 
   function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
   async function typeText(){
     await sleep(startDelay);
     typedEl.textContent = "";
+
     for (let i = 0; i < text.length; i++){
       typedEl.textContent += text[i];
       const jitter = Math.floor(minDelay + Math.random() * (maxDelay - minDelay));
       await sleep(jitter);
     }
-    typedEl.classList.add("pulse");
+
+    // micro zoom + blur -> focus, then tiny glow pulse
+    typedEl.classList.add("finalFocus");
+    await sleep(520);
+    typedEl.classList.add("glowPulse");
+
+    // show menu with fade-slide after typing finishes
+    await sleep(180);
+    nav.classList.add("show");
   }
   typeText();
 
+  // ===== Reactive field (breathing) =====
   const canvas = document.getElementById('react');
   const ctx = canvas.getContext('2d', { alpha: true });
 
@@ -363,7 +379,6 @@ html = Template(r"""
   resize();
 
   const pointer = { x: w*0.5, y: h*0.45 };
-
   function onMove(e) {
     const x = (e.touches ? e.touches[0].clientX : e.clientX);
     const y = (e.touches ? e.touches[0].clientY : e.clientY);
@@ -375,7 +390,7 @@ html = Template(r"""
   window.addEventListener('touchstart', onMove, { passive:true });
 
   const rand = (a,b)=> a + Math.random()*(b-a);
-  const N = Math.min(160, Math.floor((w*h)/11000));
+  const N = Math.min(170, Math.floor((w*h)/10500));
   const particles = [];
 
   function init() {
@@ -385,7 +400,7 @@ html = Template(r"""
         x: rand(0,w), y: rand(0,h),
         vx: rand(-0.25,0.25), vy: rand(-0.25,0.25),
         r: rand(0.9, 2.1),
-        a: rand(0.12, 0.52),
+        a: rand(0.12, 0.55),
         phase: rand(0, Math.PI*2)
       });
     }
@@ -404,6 +419,11 @@ html = Template(r"""
   function frame() {
     t += 0.016;
 
+    // breathing: modula opacidad y “glow” sutil del canvas
+    const breathe = 0.90 + 0.10 * Math.sin(t * 0.85);
+    canvas.style.opacity = String(breathe);
+    canvas.style.filter = `blur(${0.15 + 0.25*(1-breathe)}px)`;
+
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = 'rgba(0,0,0,0.14)';
     ctx.fillRect(0,0,w,h);
@@ -414,7 +434,7 @@ html = Template(r"""
     ctx.fillStyle = 'rgba(255,255,255,0.85)';
 
     const px = pointer.x, py = pointer.y;
-    const forceRadius = Math.max(140, Math.min(280, Math.sqrt(w*w+h*h)*0.15));
+    const forceRadius = Math.max(140, Math.min(290, Math.sqrt(w*w+h*h)*0.16));
 
     for (const p of particles) {
       p.vx += Math.cos(t + p.phase) * 0.002;
@@ -425,8 +445,8 @@ html = Template(r"""
 
       if (dist < forceRadius) {
         const k = (1 - dist/forceRadius);
-        const repel = 0.05 * k;
-        const swirl = 0.02 * k;
+        const repel = 0.052 * k;
+        const swirl = 0.020 * k;
         p.vx += (dx/dist) * repel + (-dy/dist) * swirl;
         p.vy += (dy/dist) * repel + ( dx/dist) * swirl;
       }
@@ -442,7 +462,7 @@ html = Template(r"""
       if (p.y > h+20) p.y = -20;
     }
 
-    const maxLink = 110;
+    const maxLink = 112;
     for (let i=0;i<particles.length;i++) {
       const a = particles[i];
       for (let j=i+1;j<particles.length;j++) {
@@ -451,7 +471,7 @@ html = Template(r"""
         const d2 = dx*dx + dy*dy;
         if (d2 < maxLink*maxLink) {
           const d = Math.sqrt(d2);
-          const alpha = (1 - d/maxLink) * 0.22;
+          const alpha = (1 - d/maxLink) * (0.18 + 0.06*Math.sin(t*0.7));
           drawLine(a.x,a.y,b.x,b.y,alpha);
         }
       }
