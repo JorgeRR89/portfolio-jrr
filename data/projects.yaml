@@ -2,67 +2,103 @@ projects:
   - title: "NFL Props Lab — Monte Carlo Strategy Engine"
     tagline: "Simulations + market-reading to generate coherent prop strategies."
     category: "Simulation"
-    tags: ["Monte Carlo", "Sports analytics", "Market signals"]
-    year: "2025–2026"
     status: "Active"
+    year: "2025–2026"
+    spotlight: true
+
+    impact_type: "Decision support"   # Social Impact / Industrial Impact / Education / Decision support
+    outcomes:
+      - "10,000+ iterations per game"
+      - "2 game scripts + market alignment"
+      - "Outputs: projections, probabilities, top props, parlays"
+
     stack: ["Python", "pandas", "numpy"]
-    impact: "Decision framework that reduces noise and improves consistency in prop selection."
+    tags: ["Monte Carlo", "Market signals", "Sports analytics"]
+
+    problem: "Prop selection is noisy and market-driven; needs a coherent decision framework."
+    approach: "Monte Carlo simulation + two game scripts + market signal reading + correlation logic."
+    results: "Improved consistency and reduced conflicting picks by enforcing script coherence."
+    details: "Reusable weekly workflow: data → simulation → tables → market reading → final strategy."
+
     links:
       github: ""
       demo: ""
       report: ""
-    highlights:
-      - "10,000+ iterations per game with multiple game scripts."
-      - "Outputs: projections, probabilities, top props, correlated parlays."
-    details: "A reusable workflow for weekly matchup analysis, integrating context, market behavior, and simulation outputs."
-  
+
   - title: "E-commerce Profitability Dashboard"
     tagline: "Identify profitable SKUs and optimize inventory & marketing spend."
     category: "Analytics"
-    tags: ["Power BI", "SQL", "E-commerce"]
-    year: "2023–2025"
     status: "Deployed"
+    year: "2023–2025"
+    spotlight: false
+
+    impact_type: "Industrial Impact"
+    outcomes:
+      - "Reduced manual analysis time ~60%"
+      - "SKU prioritization by margin/velocity/stock"
+      - "Automated extraction + transformation"
+
     stack: ["SQL", "Power BI", "Python"]
-    impact: "Improved prioritization of SKUs and reduced manual analysis time."
+    tags: ["E-commerce", "Dashboards", "Automation"]
+
+    problem: "Hard to identify which SKUs drive profit and where to allocate spend."
+    approach: "Data pipelines + profitability logic + interactive Power BI dashboards."
+    results: "Faster decision cycles; clearer prioritization of profitable products."
+    details: "Dashboards and pipelines that turn marketplace data into clear decisions."
+
     links:
       github: ""
       demo: ""
       report: ""
-    highlights:
-      - "Automated data extraction + transformation."
-      - "Actionable segmentation by margin, velocity, and stock."
-    details: "Dashboards and pipelines that turn marketplace data into clear decisions."
 
   - title: "Applied ML — Text Sentiment Classifier"
     tagline: "NLP pipeline for sentiment prediction with explainable evaluation."
     category: "Machine Learning"
-    tags: ["NLP", "Classification", "Model evaluation"]
-    year: "2025"
     status: "Completed"
+    year: "2025"
+    spotlight: false
+
+    impact_type: "Social Impact"
+    outcomes:
+      - "Model comparison with clear metrics"
+      - "Reproducible preprocessing + evaluation"
+      - "Template usable for production-style reporting"
+
     stack: ["Python", "scikit-learn"]
-    impact: "Reusable template for supervised text classification and reporting."
+    tags: ["NLP", "Classification", "Model evaluation"]
+
+    problem: "Need reliable sentiment classification with transparent evaluation."
+    approach: "Clean pipeline: preprocessing → features → model comparison → metrics/report."
+    results: "Reusable framework for supervised text classification and reporting."
+    details: "Built as part of DS training; structured to be readable and reproducible."
+
     links:
       github: ""
       demo: ""
       report: ""
-    highlights:
-      - "Clean preprocessing + vectorization."
-      - "Clear metrics and model comparison."
-    details: "Built as part of a structured DS curriculum; designed to be production-readable and reproducible."
 
   - title: "Industrial Engineering — Pipeline Operations Toolkit"
     tagline: "Engineering deliverables + risk structure for complex field operations."
     category: "Oil & Gas"
-    tags: ["Engineering", "Risk", "Operations"]
-    year: "2015–2025"
     status: "Case study"
-    stack: ["Engineering methods", "Documentation", "Operational planning"]
-    impact: "Structured decision support for high-stakes operations under constraints."
+    year: "2015–2025"
+    spotlight: false
+
+    impact_type: "Industrial Impact"
+    outcomes:
+      - "Risk-first planning under constraints"
+      - "Structured deliverables for operations"
+      - "Decision support for high-stakes execution"
+
+    stack: ["Engineering methods", "Operational planning", "Documentation"]
+    tags: ["Risk", "Operations", "Systems thinking"]
+
+    problem: "High-stakes operations require reliability, safety, and clear execution logic."
+    approach: "Risk structure + constraints mapping + deliverables to guide execution."
+    results: "Improved clarity and planning for field execution under uncertainty."
+    details: "Case-study style project highlighting applied systems thinking."
+
     links:
       github: ""
       demo: ""
       report: ""
-    highlights:
-      - "Risk-first approach with clear assumptions."
-      - "Operational planning aligned to real constraints."
-    details: "A case-study style project that demonstrates applied systems thinking in industrial environments."
