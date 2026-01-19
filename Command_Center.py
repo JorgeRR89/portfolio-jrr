@@ -67,7 +67,6 @@ if video_enabled:
 else:
     video_tag = """<div class="bgsolid"></div>"""
 
-# HTML base (sin f-string ni Template). Usamos placeholders únicos y luego .replace()
 html = r"""
 <!doctype html>
 <html>
@@ -173,7 +172,7 @@ html = r"""
     backdrop-filter: blur(10px);
   }
 
-  /* Hero: texto directo (sin card) */
+  /* Hero */
   .hero{
     position:absolute; inset:0; z-index:5;
     display:grid; place-items:center;
@@ -181,13 +180,21 @@ html = r"""
     text-align:center;
   }
 
+  /* Wrapper para amarrar baseline y tamaño del caret */
+  .headline{
+    display:inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    line-height: 1;              /* clave para caret del tamaño real */
+  }
+
   #typed{
     color: var(--fg);
     font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial;
     font-size: clamp(54px, 7.0vw, 112px);
-    font-weight: 300;             /* delgada tipo antigravity */
+    font-weight: 300;
     letter-spacing: -0.04em;
-    line-height: 1.02;
+    line-height: 1;
     white-space: pre-wrap;
     text-align: center;
 
@@ -204,68 +211,39 @@ html = r"""
     will-change: transform, filter, opacity, text-shadow;
   }
 
-  /* Final micro zoom + blur -> focus */
   #typed.finalFocus{
-    animation:
-      reveal 900ms ease forwards,
-      microFocus 520ms ease-in-out 1;
+    animation: reveal 900ms ease forwards, microFocus 520ms ease-in-out 1;
   }
 
-  /* tiny glow pulse after focus */
   #typed.glowPulse{
-    animation:
-      reveal 900ms ease forwards,
-      microFocus 520ms ease-in-out 1,
-      glowPulse 650ms ease-in-out 1;
+    animation: reveal 900ms ease forwards, microFocus 520ms ease-in-out 1, glowPulse 650ms ease-in-out 1;
   }
 
-  /* Cursor tipo IDE: barra delgada con gradiente, blink lento
-     - desaparece mientras escribe
-     - reaparece al final con micro fade */
+  /* === CARET: del tamaño del texto === */
   .cursor{
-  display: inline-block;
+    display:inline-block;
+    width: 2px;
+    height: 1em;                 /* exactamente 1em (misma caja del font-size) */
+    margin-left: 10px;
 
-  width: 2px;
-  height: 1.05em;                 /* un poco mayor que 1em */
-  vertical-align: -0.08em;        /* se clava al baseline real */
+    /* baseline tuning (sin px) */
+    vertical-align: -0.12em;
 
-  margin-left: 8px;
-  border-radius: 2px;
+    border-radius: 2px;
 
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,.35) 0%,
-    rgba(255,255,255,.95) 45%,
-    rgba(255,255,255,.55) 100%
-  );
-
-  box-shadow:
-    0 0 8px rgba(255,255,255,.22),
-    0 0 18px rgba(255,255,255,.12);
-
-  opacity: 1;
-
-  animation:
-    caretBlink 1.35s steps(1) infinite,
-    caretFloat 1.35s ease-in-out infinite;
-}
-
-
-  box-shadow:
-    0 0 8px rgba(255,255,255,.22),
-    0 0 18px rgba(255,255,255,.12);
-
-  opacity: 1;
-  animation: caretBlink 1.35s steps(1) infinite;
-}
-
+    background: linear-gradient(
+      to bottom,
+      rgba(255,255,255,.28) 0%,
+      rgba(255,255,255,.95) 45%,
+      rgba(255,255,255,.45) 100%
+    );
 
     box-shadow:
       0 0 8px rgba(255,255,255,.22),
       0 0 18px rgba(255,255,255,.12);
 
     opacity: 1;
-    animation: caretBlink 1.35s steps(1) infinite;
+    animation: caretBlink 1.6s steps(1) infinite, caretFloat 1.6s ease-in-out infinite;
   }
 
   .cursor.typing{
@@ -274,11 +252,10 @@ html = r"""
   }
 
   .cursor.ready{
-    animation: caretBlink 1.35s steps(1) infinite, 
-    caretBlink 1.35s steps(1) infinite,
-    caretFloat 1.35s ease-in-out infinite,
-    caretIn 260ms cubic-bezier(.22,1.2,.36,1) 1,
-    caretIn 240ms ease-out 1;
+    animation:
+      caretBlink 1.6s steps(1) infinite,
+      caretFloat 1.6s ease-in-out infinite,
+      caretIn 260ms cubic-bezier(.22,1.2,.36,1) 1;
   }
 
   @keyframes caretBlink{
@@ -286,12 +263,19 @@ html = r"""
     50%, 100% { opacity: 0; }
   }
 
- @keyframes caretIn{
-  0%   { opacity: 0; transform: translateY(0.3em) scaleY(0.6); }
-  60%  { opacity: 1; transform: translateY(-0.05em) scaleY(1.05); }
-  100% { opacity: 1; transform: translateY(0) scaleY(1); }
-}
+  /* micro movimiento (muy sutil) */
+  @keyframes caretFloat{
+    0%   { transform: translateY(0); }
+    50%  { transform: translateY(-0.06em); }
+    100% { transform: translateY(0); }
+  }
 
+  /* easing al reaparecer */
+  @keyframes caretIn{
+    0%   { opacity: 0; transform: translateY(0.20em) scaleY(0.7); }
+    60%  { opacity: 1; transform: translateY(-0.02em) scaleY(1.05); }
+    100% { opacity: 1; transform: translateY(0) scaleY(1); }
+  }
 
   @keyframes reveal{
     to{
@@ -327,24 +311,6 @@ html = r"""
         0 18px 65px rgba(0,0,0,.58);
     }
   }
-@keyframes caretBlink{
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
-}
-
-/* micro movimiento arriba/abajo mientras parpadea */
-@keyframes caretFloat{
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(-0.08em); }
-  100% { transform: translateY(0); }
-}
-
-/* easing vertical al reaparecer */
-@keyframes caretIn{
-  0%   { opacity: 0; transform: translateY(0.18em) scaleY(0.7); }
-  60%  { opacity: 1; transform: translateY(-0.02em) scaleY(1.05); }
-  100% { opacity: 1; transform: translateY(0.08em) scaleY(1); }
-}
 
   .foot{
     position:absolute; left:0; right:0; bottom:0; z-index:7;
@@ -358,6 +324,7 @@ html = r"""
   @media (max-width: 640px){
     :root{ --pad-x: 18px; --pad-y: 16px; }
     #typed{ font-size: clamp(40px, 10vw, 70px); }
+    .cursor{ width: 2px; margin-left: 8px; }
   }
 </style>
 </head>
@@ -382,7 +349,7 @@ html = r"""
     </div>
 
     <div class="hero">
-      <div>
+      <div class="headline">
         <span id="typed"></span><span class="cursor" id="caret"></span>
       </div>
     </div>
@@ -401,7 +368,6 @@ html = r"""
   const nav = document.getElementById('topnav');
   const text = "welcome to my LAB";
 
-  // typing más lento
   const startDelay = 980;
   const minDelay = 85;
   const maxDelay = 150;
@@ -411,7 +377,6 @@ html = r"""
   async function typeText(){
     await sleep(startDelay);
 
-    // oculta cursor mientras escribe
     caret.classList.add("typing");
     caret.classList.remove("ready");
 
@@ -423,16 +388,13 @@ html = r"""
       await sleep(jitter);
     }
 
-    // micro zoom + blur -> focus, luego glow pulse 1x
     typedEl.classList.add("finalFocus");
     await sleep(520);
     typedEl.classList.add("glowPulse");
 
-    // reaparece cursor al final
     caret.classList.remove("typing");
     caret.classList.add("ready");
 
-    // mostrar menú con fade-slide
     await sleep(180);
     nav.classList.add("show");
   }
@@ -498,7 +460,6 @@ html = r"""
   function frame() {
     t += 0.016;
 
-    // breathing: modula opacidad y glow sutil del canvas
     const breathe = 0.90 + 0.10 * Math.sin(t * 0.85);
     canvas.style.opacity = String(breathe);
     canvas.style.filter = `blur(${0.15 + 0.25*(1-breathe)}px)`;
@@ -572,7 +533,6 @@ html = r"""
 </html>
 """
 
-# Inyecta video y logo sin depender de f-strings ni Template
 html = html.replace("__VIDEO_TAG__", video_tag).replace("__BRAND_IMG__", brand_img)
 
 st.components.v1.html(html, height=920, scrolling=False)
