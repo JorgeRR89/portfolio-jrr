@@ -92,7 +92,7 @@ small, p, li { color: var(--fg2); }
 """
 st.markdown(theme, unsafe_allow_html=True)
 
-# --- Content ---
+# --- Header ---
 st.markdown(
     """
 # About
@@ -105,13 +105,12 @@ st.markdown(
   <span class="chip">⚙️ Engineering mindset</span>
 </div>
 
-
 <div class="hr"></div>
 """,
     unsafe_allow_html=True,
 )
 
-# KPIs (edit to your truth)
+# --- KPIs (edit to your truth) ---
 st.markdown(
     """
 <div class="kpi">
@@ -125,6 +124,7 @@ st.markdown(
 
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
+# --- Main two columns ---
 col1, col2 = st.columns([1.35, 1], gap="large")
 
 with col1:
@@ -164,6 +164,35 @@ with col1:
   </ul>
 </div>
 
+<div style="height:12px;"></div>
+
+<div class="card">
+  <h3>My Lab Philosophy</h3>
+
+  <p>
+    I treat my work as a laboratory — a space to experiment, simulate, design, and test systems
+    before they exist in the real world.
+  </p>
+
+  <p>
+    I’m not interested in building models in isolation.
+    I’m interested in building decision engines, operational tools, and intelligent systems
+    that can survive imperfect data, real constraints, and human use.
+  </p>
+
+  <p>My lab focuses on three principles:</p>
+
+  <ul>
+    <li><b>Systems over scripts.</b> I design architectures, not one-off analyses.</li>
+    <li><b>Impact over novelty.</b> Technology must change something real to matter.</li>
+    <li><b>Clarity over complexity.</b> Powerful systems should still be understandable.</li>
+  </ul>
+
+  <p>
+    This space exists to explore applied machine learning, automation, simulation,
+    and data-driven engineering — especially where they intersect with social and real-world impact.
+  </p>
+</div>
 """,
         unsafe_allow_html=True,
     )
@@ -187,9 +216,9 @@ with col2:
 
   <h3>Now</h3>
   <ul>
-    <li><!-- TODO --> Building a portfolio that feels like a product.</li>
-    <li><!-- TODO --> Sharpening ML + storytelling for interviews.</li>
-    <li><!-- TODO --> Shipping projects end-to-end (data → insight → interface).</li>
+    <li>Building a portfolio that feels like a product.</li>
+    <li>Sharpening ML + storytelling for interviews.</li>
+    <li>Shipping projects end-to-end (data → insight → interface).</li>
   </ul>
 </div>
 """,
@@ -198,7 +227,7 @@ with col2:
 
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
-# Timeline / Experience (edit)
+# --- Timeline / Experience (edit) ---
 st.markdown("### Timeline", unsafe_allow_html=True)
 st.markdown(
     """
@@ -216,11 +245,11 @@ st.markdown(
 <div style="height:12px;"></div>
 
 <div class="card">
-  <h3><!-- TODO: role/title --> Technical Instructor — Electricity / Automation</h3>
+  <h3>Technical Instructor — Electricity / Automation</h3>
   <small><!-- TODO: dates --></small>
   <ul>
-    <li><!-- TODO --> Taught hands-on classes on installations, PLCs, Arduino, and control systems.</li>
-    <li><!-- TODO --> Designed competency-based evaluations and interactive learning materials.</li>
+    <li>Taught hands-on classes on installations, PLCs, Arduino, and control systems.</li>
+    <li>Designed competency-based evaluations and interactive learning materials.</li>
   </ul>
 </div>
 """,
@@ -229,7 +258,7 @@ st.markdown(
 
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
-# CTAs
+# --- CTAs ---
 st.markdown(
     """
 ### Want the projects?
@@ -241,4 +270,3 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
-
