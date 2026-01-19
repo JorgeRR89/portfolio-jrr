@@ -207,16 +207,51 @@ html = r"""
 
   .cursor{
   display:inline-block;
-  width: 2px;                      /* barra delgada */
+  width: 2px;               /* barra delgada */
   height: 1.05em;
   transform: translateY(8px);
-  background: rgba(255,255,255,.92);
   margin-left: 8px;
   border-radius: 2px;
-  animation: blink 900ms steps(1) infinite;
-  box-shadow: 
-    0 0 8px rgba(255,255,255,.25),
-    0 0 18px rgba(255,255,255,.15);
+
+  /* gradiente vertical sutil */
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,.35) 0%,
+    rgba(255,255,255,.95) 45%,
+    rgba(255,255,255,.55) 100%
+  );
+
+  /* glow fino */
+  box-shadow:
+    0 0 8px rgba(255,255,255,.22),
+    0 0 18px rgba(255,255,255,.12);
+
+  /* por defecto visible */
+  opacity: 1;
+
+  /* blink más lento */
+  animation: caretBlink 1.35s steps(1) infinite;
+}
+
+/* oculto durante typing */
+.cursor.typing{
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+/* reaparece al final con un micro fade */
+.cursor.ready{
+  animation: caretBlink 1.35s steps(1) infinite, caretIn 240ms ease-out 1;
+}
+
+@keyframes caretBlink{
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@keyframes caretIn{
+  from { opacity: 0; transform: translateY(8px) scaleY(0.85); }
+  to   { opacity: 1; transform: translateY(8px) scaleY(1); }
 }
 
 
@@ -309,7 +344,8 @@ html = r"""
 
     <div class="hero">
       <div>
-        <span id="typed"></span><span class="cursor"></span>
+     <span id="typed"></span><span class="cursor" id="caret"></span>
+
       </div>
     </div>
 
@@ -352,7 +388,37 @@ html = r"""
     await sleep(180);
     nav.classList.add("show");
   }
-  typeText();
+  const caret = document.getElementById('caret');
+
+  async function typeText(){
+  await sleep(startDelay);
+
+  // oculta cursor mientras escribe
+  caret.classList.add("typing");
+  caret.classList.remove("ready");
+
+  typedEl.textContent = "";
+
+  for (let i = 0; i < text.length; i++){
+    typedEl.textContent += text[i];
+    const jitter = Math.floor(minDelay + Math.random() * (maxDelay - minDelay));
+    await sleep(jitter);
+  }
+
+  // micro focus + glow pulse
+  typedEl.classList.add("finalFocus");
+  await sleep(520);
+  typedEl.classList.add("glowPulse");
+
+  // reaparece cursor al final
+  caret.classList.remove("typing");
+  caret.classList.add("ready");
+
+  // mostrar menú después del typing
+  await sleep(180);
+  nav.classList.add("show");
+}
+
 
   // ===== Reactive field (breathing) =====
   const canvas = document.getElementById('react');
