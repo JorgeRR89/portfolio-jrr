@@ -204,25 +204,29 @@ html = f"""
     font-size: clamp(14px, 1.5vw, 18px);
   }}
 
-  #typed {{
-    color: var(--fg);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-size: clamp(16px, 1.8vw, 22px);
-    line-height: 1.45;
-    white-space: pre-wrap;
-    text-align: left;
-  }}
+#typed {{
+  color: var(--fg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: clamp(42px, 6vw, 92px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  white-space: pre-wrap;
+  text-align: center;
+}}
+
 
   .cursor {{
-    display:inline-block;
-    width: 10px;
-    height: 1.2em;
-    transform: translateY(2px);
-    background: rgba(255,255,255,.85);
-    margin-left: 2px;
-    border-radius: 2px;
-    animation: blink 1s steps(1) infinite;
-  }}
+  display:inline-block;
+  width: 14px;
+  height: 1.1em;
+  transform: translateY(6px);
+  background: rgba(255,255,255,.85);
+  margin-left: 6px;
+  border-radius: 3px;
+  animation: blink 1s steps(1) infinite;
+}}
+
 
   @keyframes blink {{
     50% {{ opacity: 0; }}
@@ -290,10 +294,7 @@ html = f"""
   const typedEl = document.getElementById('typed');
 
   const lines = [
-    "python -m portfolio.run",
-    "\\nLoading modules: [projects, lab, contact] ...",
-    "\\nInitializing reactive field...",
-    "\\n\\nprint(\\"Welcome to my lab\\")"
+    "Welcome to my LAB"
   ];
 
   // timing
