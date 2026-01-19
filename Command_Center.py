@@ -1,5 +1,6 @@
 import base64
 from pathlib import Path
+from string import Template
 
 import streamlit as st
 
@@ -57,13 +58,9 @@ if video_path:
     if size_mb <= MAX_VIDEO_MB:
         video_b64 = b64_file(video_path)
         video_enabled = bool(video_b64)
-    else:
-        # No reventar el sitio
-        video_enabled = False
 
 brand_img = f"<img alt='logo' src='data:image/png;base64,{logo_b64}' />" if logo_b64 else ""
 
-video_tag = ""
 if video_enabled:
     video_tag = f"""
     <video class="bgvideo" autoplay muted loop playsinline>
@@ -71,92 +68,91 @@ if video_enabled:
     </video>
     """
 else:
-    # Fondo negro elegante si video está apagado
     video_tag = """<div class="bgsolid"></div>"""
 
-html = """
+html = Template(r"""
 <!doctype html>
 <html>
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <style>
-  :root {{
+  :root {
     --pad-x: 28px;
     --pad-y: 22px;
     --fg: rgba(255,255,255,.92);
     --fg2: rgba(255,255,255,.76);
     --line: rgba(255,255,255,.12);
-  }}
+  }
 
-  html, body {{
+  html, body {
     margin:0; padding:0; height:100%; background:#000;
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-  }}
+  }
 
-  .stage {{
+  .stage {
     position:relative; width:100vw; height:100vh; overflow:hidden; background:#000;
-  }}
+  }
 
   /* Video background (si está habilitado) */
-  .bgvideo {{
+  .bgvideo {
     position:absolute; inset:0; width:100%; height:100%;
     object-fit:cover;
     filter: brightness(.55) contrast(1.05) saturate(1.05);
     transform: scale(1.02);
     z-index: 1;
-  }}
+  }
 
   /* Fallback background */
-  .bgsolid {{
+  .bgsolid {
     position:absolute; inset:0;
     background: radial-gradient(900px 500px at 50% 40%, rgba(255,255,255,.06), rgba(0,0,0,.95));
     z-index: 1;
-  }}
+  }
 
   /* Canvas reactive layer */
-  #react {{
+  #react {
     position:absolute; inset:0; width:100%; height:100%;
     z-index:2;
     mix-blend-mode: screen;
     opacity: .95;
-  }}
+  }
 
-  .vignette {{
+  .vignette {
     position:absolute; inset:0; z-index:3;
     pointer-events:none;
     background:
       radial-gradient(1100px 650px at 50% 45%, rgba(0,0,0,0) 0%, rgba(0,0,0,.52) 72%, rgba(0,0,0,.78) 100%),
       linear-gradient(to bottom, rgba(0,0,0,.35), rgba(0,0,0,.72));
-  }}
+  }
 
   /* Top nav */
-  .nav {{
+  .nav {
     position:absolute; top:0; left:0; right:0; z-index:5;
     display:flex; align-items:center; justify-content:space-between;
     padding: var(--pad-y) var(--pad-x);
-  }}
+  }
 
-  .brand {{
+  .brand {
     display:flex; align-items:center; gap:12px;
     color: var(--fg);
     font-weight:700;
     letter-spacing:.3px;
     font-size:16px;
-  }}
+  }
 
-  .brand img {{
+  .brand img {
     width: 34px; height: 34px;
     border-radius: 10px;
     object-fit: cover;
     box-shadow: 0 10px 28px rgba(0,0,0,.35);
-  }}
+  }
 
-  .menu {{
+  .menu {
     display:flex; align-items:center; gap:10px;
-  }}
+  }
 
-  .menu a {{
+  .menu a {
     text-decoration:none;
     color: var(--fg2);
     font-size: 13px;
@@ -164,23 +160,23 @@ html = """
     border-radius: 999px;
     border: 1px solid transparent;
     transition: .18s ease;
-  }}
-  .menu a:hover {{
+  }
+  .menu a:hover {
     color: var(--fg);
     border-color: var(--line);
     background: rgba(255,255,255,.04);
     backdrop-filter: blur(8px);
-  }}
+  }
 
-  /* Center terminal typing */
-  .hero {{
+  /* Center */
+  .hero {
     position:absolute; inset:0; z-index:6;
     display:grid; place-items:center;
     padding: 0 18px;
     text-align:center;
-  }}
+  }
 
-  .terminal {{
+  .terminal {
     display:inline-block;
     padding: 18px 22px;
     border-radius: 18px;
@@ -189,116 +185,102 @@ html = """
     backdrop-filter: blur(12px);
     box-shadow: 0 25px 65px rgba(0,0,0,.45);
     max-width: 980px;
-  }}
 
-  .terminal .line {{
+    /* subtle breathing motion */
+    animation: floaty 6.2s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .terminal .line {
     display:flex;
     gap: 10px;
     justify-content:center;
     align-items: baseline;
-  }}
-
-  .prompt {{
-    color: rgba(255,255,255,.65);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    font-size: clamp(14px, 1.5vw, 18px);
-  }}
-
-/* Center terminal typing — premium */
-#typed{
-  color: rgba(255,255,255,.94);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: clamp(44px, 6.2vw, 96px);
-  font-weight: 750;
-  letter-spacing: -0.03em;
-  line-height: 1.03;
-  white-space: pre-wrap;
-  text-align: center;
-
-  /* premium: glow + entrance */
-  text-shadow:
-    0 0 18px rgba(255,255,255,.10),
-    0 0 42px rgba(255,255,255,.08),
-    0 18px 60px rgba(0,0,0,.55);
-
-  filter: blur(10px);
-  opacity: 0;
-  transform: translateY(10px);
-  animation: reveal 900ms ease forwards;
-  animation-delay: 250ms;
-  will-change: transform, filter, opacity;
-}
-
-/* subtle breathing motion */
-.terminal{
-  animation: floaty 6.2s ease-in-out infinite;
-  will-change: transform;
-}
-
-.cursor{
-  display:inline-block;
-  width: 14px;
-  height: 1.05em;
-  transform: translateY(8px);
-  background: rgba(255,255,255,.88);
-  margin-left: 10px;
-  border-radius: 3px;
-  animation: blink 900ms steps(1) infinite;
-  box-shadow: 0 0 18px rgba(255,255,255,.18);
-}
-
-@keyframes blink{ 50%{ opacity:0; } }
-
-@keyframes reveal{
-  to{
-    filter: blur(0px);
-    opacity: 1;
-    transform: translateY(0);
   }
-}
 
-@keyframes floaty{
-  0%   { transform: translateY(0px); }
-  50%  { transform: translateY(-6px); }
-  100% { transform: translateY(0px); }
-}
+  /* Premium typing */
+  #typed{
+    color: rgba(255,255,255,.94);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: clamp(44px, 6.2vw, 96px);
+    font-weight: 750;
+    letter-spacing: -0.03em;
+    line-height: 1.03;
+    white-space: pre-wrap;
+    text-align: center;
 
+    text-shadow:
+      0 0 18px rgba(255,255,255,.10),
+      0 0 42px rgba(255,255,255,.08),
+      0 18px 60px rgba(0,0,0,.55);
 
+    filter: blur(10px);
+    opacity: 0;
+    transform: translateY(10px);
+    animation: reveal 900ms ease forwards;
+    animation-delay: 250ms;
+    will-change: transform, filter, opacity;
+  }
 
-  @keyframes blink {{
-    50% {{ opacity: 0; }}
-  }}
+  .cursor{
+    display:inline-block;
+    width: 14px;
+    height: 1.05em;
+    transform: translateY(8px);
+    background: rgba(255,255,255,.88);
+    margin-left: 10px;
+    border-radius: 3px;
+    animation: blink 900ms steps(1) infinite;
+    box-shadow: 0 0 18px rgba(255,255,255,.18);
+  }
 
-  .subtitle {{
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  @keyframes reveal{
+    to{
+      filter: blur(0px);
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes floaty{
+    0%   { transform: translateY(0px); }
+    50%  { transform: translateY(-6px); }
+    100% { transform: translateY(0px); }
+  }
+
+  .subtitle {
     margin-top: 14px;
     color: rgba(255,255,255,.68);
     font-size: 13px;
-  }}
+  }
 
-  .foot {{
+  .foot {
     position:absolute; left:0; right:0; bottom:0; z-index:7;
     padding: 18px var(--pad-x);
     color: rgba(255,255,255,.55);
     font-size: 12px;
     display:flex; justify-content:space-between; gap: 12px;
-  }}
+  }
 
-  @media (max-width: 640px) {{
-    :root {{ --pad-x: 18px; --pad-y: 16px; }}
-    .terminal {{ padding: 16px 16px; border-radius: 16px; }}
-  }}
+  @media (max-width: 640px) {
+    :root { --pad-x: 18px; --pad-y: 16px; }
+    .terminal { padding: 16px 16px; border-radius: 16px; }
+    #typed{ font-size: clamp(34px, 9vw, 64px); }
+  }
 </style>
 </head>
 
 <body>
   <div class="stage">
-    {video_tag}
+    $video_tag
     <canvas id="react"></canvas>
     <div class="vignette"></div>
 
     <div class="nav">
       <div class="brand">
-        {brand_img}
+        $brand_img
         <div>Portfolio JRR</div>
       </div>
       <div class="menu">
@@ -313,7 +295,6 @@ html = """
       <div class="terminal">
         <div class="line">
           <span id="typed"></span><span class="cursor"></span>
-
         </div>
         <div class="subtitle">Move your cursor — reactive field</div>
       </div>
@@ -326,64 +307,35 @@ html = """
   </div>
 
 <script>
-(() => {{
-  // ===== 1) Typing effect (cursor -> escribe solo) =====
+(() => {
+  // ===== 1) Typing effect (ONLY "welcome to my LAB") =====
   const typedEl = document.getElementById('typed');
+  const text = "welcome to my LAB";
 
-  // ===== 1) Typing effect (premium) =====
-const typedEl = document.getElementById('typed');
-const text = "welcome to my LAB";
+  const startDelay = 650;
+  const minDelay = 22;
+  const maxDelay = 48;
 
-// timings
-const startDelay = 650;   // cursor solo antes de escribir
-const minDelay = 22;      // speed range
-const maxDelay = 48;
+  function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
-function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
-
-async function typeText(){
-  await sleep(startDelay);
-  typedEl.textContent = ""; // ensure clean
-
-  for (let i = 0; i < text.length; i++){
-    typedEl.textContent += text[i];
-    const jitter = Math.floor(minDelay + Math.random() * (maxDelay - minDelay));
-    await sleep(jitter);
-  }
-  // cursor queda parpadeando por CSS (no hacemos nada más)
-}
-
-typeText();
-
-
-  // timing
-  const startDelay = 650;     // cursor solo antes de escribir
-  const typeMin = 18;         // velocidad
-  const typeMax = 38;
-
-  function sleep(ms) {{ return new Promise(r => setTimeout(r, ms)); }}
-
-  async function typeAll() {{
+  async function typeText(){
     await sleep(startDelay);
-    for (const chunk of lines) {{
-      for (let i=0; i<chunk.length; i++) {{
-        typedEl.textContent += chunk[i];
-        const jitter = Math.floor(typeMin + Math.random() * (typeMax - typeMin));
-        await sleep(jitter);
-      }}
-      await sleep(260);
-    }}
-  }}
-  typeAll();
-
+    typedEl.textContent = "";
+    for (let i = 0; i < text.length; i++){
+      typedEl.textContent += text[i];
+      const jitter = Math.floor(minDelay + Math.random() * (maxDelay - minDelay));
+      await sleep(jitter);
+    }
+  }
+  typeText();
 
   // ===== 2) Reactive field (antigravity-ish) =====
   const canvas = document.getElementById('react');
-  const ctx = canvas.getContext('2d', {{ alpha: true }});
+  const ctx = canvas.getContext('2d', { alpha: true });
 
   let w = 0, h = 0, dpr = Math.max(1, window.devicePixelRatio || 1);
 
-  function resize() {{
+  function resize() {
     w = Math.floor(window.innerWidth);
     h = Math.floor(window.innerHeight);
     dpr = Math.max(1, window.devicePixelRatio || 1);
@@ -392,50 +344,50 @@ typeText();
     canvas.style.width = w + 'px';
     canvas.style.height = h + 'px';
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  }}
+  }
   window.addEventListener('resize', resize);
   resize();
 
-  const pointer = {{ x: w*0.5, y: h*0.45 }};
+  const pointer = { x: w*0.5, y: h*0.45 };
 
-  function onMove(e) {{
+  function onMove(e) {
     const x = (e.touches ? e.touches[0].clientX : e.clientX);
     const y = (e.touches ? e.touches[0].clientY : e.clientY);
     pointer.x = x;
     pointer.y = y;
-  }}
-  window.addEventListener('mousemove', onMove, {{ passive:true }});
-  window.addEventListener('touchmove', onMove, {{ passive:true }});
-  window.addEventListener('touchstart', onMove, {{ passive:true }});
+  }
+  window.addEventListener('mousemove', onMove, { passive:true });
+  window.addEventListener('touchmove', onMove, { passive:true });
+  window.addEventListener('touchstart', onMove, { passive:true });
 
   const rand = (a,b)=> a + Math.random()*(b-a);
   const N = Math.min(160, Math.floor((w*h)/11000));
   const particles = [];
 
-  function init() {{
+  function init() {
     particles.length = 0;
-    for (let i=0;i<N;i++) {{
-      particles.push({{
+    for (let i=0;i<N;i++) {
+      particles.push({
         x: rand(0,w), y: rand(0,h),
         vx: rand(-0.25,0.25), vy: rand(-0.25,0.25),
         r: rand(0.9, 2.1),
         a: rand(0.12, 0.52),
         phase: rand(0, Math.PI*2)
-      }});
-    }}
-  }}
+      });
+    }
+  }
   init();
 
-  function drawLine(x1,y1,x2,y2,alpha) {{
+  function drawLine(x1,y1,x2,y2,alpha) {
     ctx.globalAlpha = alpha;
     ctx.beginPath();
     ctx.moveTo(x1,y1);
     ctx.lineTo(x2,y2);
     ctx.stroke();
-  }}
+  }
 
   let t = 0;
-  function frame() {{
+  function frame() {
     t += 0.016;
 
     ctx.globalCompositeOperation = 'source-over';
@@ -450,20 +402,20 @@ typeText();
     const px = pointer.x, py = pointer.y;
     const forceRadius = Math.max(140, Math.min(280, Math.sqrt(w*w+h*h)*0.15));
 
-    for (const p of particles) {{
+    for (const p of particles) {
       p.vx += Math.cos(t + p.phase) * 0.002;
       p.vy += Math.sin(t + p.phase) * 0.002;
 
       const dx = p.x - px, dy = p.y - py;
       const dist = Math.sqrt(dx*dx + dy*dy) + 0.001;
 
-      if (dist < forceRadius) {{
+      if (dist < forceRadius) {
         const k = (1 - dist/forceRadius);
         const repel = 0.05 * k;
         const swirl = 0.02 * k;
         p.vx += (dx/dist) * repel + (-dy/dist) * swirl;
         p.vy += (dy/dist) * repel + ( dx/dist) * swirl;
-      }}
+      }
 
       p.vx *= 0.985;
       p.vy *= 0.985;
@@ -474,37 +426,40 @@ typeText();
       if (p.x > w+20) p.x = -20;
       if (p.y < -20) p.y = h+20;
       if (p.y > h+20) p.y = -20;
-    }}
+    }
 
     const maxLink = 110;
-    for (let i=0;i<particles.length;i++) {{
+    for (let i=0;i<particles.length;i++) {
       const a = particles[i];
-      for (let j=i+1;j<particles.length;j++) {{
+      for (let j=i+1;j<particles.length;j++) {
         const b = particles[j];
         const dx = a.x-b.x, dy = a.y-b.y;
         const d2 = dx*dx + dy*dy;
-        if (d2 < maxLink*maxLink) {{
+        if (d2 < maxLink*maxLink) {
           const d = Math.sqrt(d2);
           const alpha = (1 - d/maxLink) * 0.22;
           drawLine(a.x,a.y,b.x,b.y,alpha);
-        }}
-      }}
-    }}
+        }
+      }
+    }
 
-    for (const p of particles) {{
+    for (const p of particles) {
       ctx.globalAlpha = p.a;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
       ctx.fill();
-    }}
+    }
 
     requestAnimationFrame(frame);
-  }}
+  }
   frame();
-}})();
+})();
 </script>
 </body>
 </html>
-"""
+""").substitute(
+    video_tag=video_tag,
+    brand_img=brand_img,
+)
 
 st.components.v1.html(html, height=920, scrolling=False)
