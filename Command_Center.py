@@ -17,7 +17,7 @@ VIDEO_WEBM = ASSETS / "Data.webm"
 VIDEO_MP4 = ASSETS / "Data.mp4"
 LOGO_PATH = ASSETS / "DS.png"
 
-MAX_VIDEO_MB = 7.0  # si pesa más, desactivamos video para que NO se caiga
+MAX_VIDEO_MB = 10.0  # si pesa más, desactivamos video para que NO se caiga
 
 
 def b64_file(path: Path) -> str:
