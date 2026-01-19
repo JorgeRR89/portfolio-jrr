@@ -204,28 +204,65 @@ html = f"""
     font-size: clamp(14px, 1.5vw, 18px);
   }}
 
-#typed {{
-  color: var(--fg);
+/* Center terminal typing — premium */
+#typed{
+  color: rgba(255,255,255,.94);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: clamp(42px, 6vw, 92px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
+  font-size: clamp(44px, 6.2vw, 96px);
+  font-weight: 750;
+  letter-spacing: -0.03em;
+  line-height: 1.03;
   white-space: pre-wrap;
   text-align: center;
-}}
 
+  /* premium: glow + entrance */
+  text-shadow:
+    0 0 18px rgba(255,255,255,.10),
+    0 0 42px rgba(255,255,255,.08),
+    0 18px 60px rgba(0,0,0,.55);
 
-  .cursor {{
+  filter: blur(10px);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: reveal 900ms ease forwards;
+  animation-delay: 250ms;
+  will-change: transform, filter, opacity;
+}
+
+/* subtle breathing motion */
+.terminal{
+  animation: floaty 6.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+.cursor{
   display:inline-block;
   width: 14px;
-  height: 1.1em;
-  transform: translateY(6px);
-  background: rgba(255,255,255,.85);
-  margin-left: 6px;
+  height: 1.05em;
+  transform: translateY(8px);
+  background: rgba(255,255,255,.88);
+  margin-left: 10px;
   border-radius: 3px;
-  animation: blink 1s steps(1) infinite;
-}}
+  animation: blink 900ms steps(1) infinite;
+  box-shadow: 0 0 18px rgba(255,255,255,.18);
+}
+
+@keyframes blink{ 50%{ opacity:0; } }
+
+@keyframes reveal{
+  to{
+    filter: blur(0px);
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floaty{
+  0%   { transform: translateY(0px); }
+  50%  { transform: translateY(-6px); }
+  100% { transform: translateY(0px); }
+}
+
 
 
   @keyframes blink {{
@@ -275,8 +312,8 @@ html = f"""
     <div class="hero">
       <div class="terminal">
         <div class="line">
-          <span class="prompt">jrr@lab:~$</span>
           <span id="typed"></span><span class="cursor"></span>
+
         </div>
         <div class="subtitle">Move your cursor — reactive field</div>
       </div>
@@ -293,9 +330,31 @@ html = f"""
   // ===== 1) Typing effect (cursor -> escribe solo) =====
   const typedEl = document.getElementById('typed');
 
-  const lines = [
-    "Welcome to my LAB"
-  ];
+  // ===== 1) Typing effect (premium) =====
+const typedEl = document.getElementById('typed');
+const text = "welcome to my LAB";
+
+// timings
+const startDelay = 650;   // cursor solo antes de escribir
+const minDelay = 22;      // speed range
+const maxDelay = 48;
+
+function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+async function typeText(){
+  await sleep(startDelay);
+  typedEl.textContent = ""; // ensure clean
+
+  for (let i = 0; i < text.length; i++){
+    typedEl.textContent += text[i];
+    const jitter = Math.floor(minDelay + Math.random() * (maxDelay - minDelay));
+    await sleep(jitter);
+  }
+  // cursor queda parpadeando por CSS (no hacemos nada más)
+}
+
+typeText();
+
 
   // timing
   const startDelay = 650;     // cursor solo antes de escribir
