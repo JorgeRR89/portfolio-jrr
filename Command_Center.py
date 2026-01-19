@@ -220,23 +220,55 @@ html = r"""
   }
 
   /* === CARET: del tamaño del texto === */
-  .cursor{
-  display:inline-block;
+  .typedWrap{
+  position: relative;
+  display: inline-block;
+  line-height: 1;          /* clave: define el line-box exacto */
+}
 
-  height: 1.18em;              /* más alto (se ve del tamaño de la letra) */
-  margin-left: 10px;
-  vertical-align: -0.16em;     /* baja el caret al baseline correcto */
+/* caret absoluto, altura basada en el line-box */
+.cursor{
+  position: absolute;
+  left: calc(100% + 14px); /* separación del texto */
+  top: 50%;
+  transform: translateY(-55%);  /* centra respecto al texto */
 
-  /* el caret real (no se ve como punto) */
+  width: 0;
+  height: 1.12em;          /* ahora sí: un poco más que 1em */
   border-left: 3px solid rgba(255,255,255,.92);
   border-radius: 2px;
 
-  /* glow antigravity */
   filter: drop-shadow(0 0 10px rgba(255,255,255,.22))
           drop-shadow(0 0 18px rgba(255,255,255,.10));
 
   opacity: 1;
   animation: caretBlink 1.6s steps(1) infinite, caretFloat 1.6s ease-in-out infinite;
+}
+
+.cursor.typing{
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+.cursor.ready{
+  animation:
+    caretBlink 1.6s steps(1) infinite,
+    caretFloat 1.6s ease-in-out infinite,
+    caretIn 260ms cubic-bezier(.22,1.2,.36,1) 1;
+}
+
+/* micro movimiento */
+@keyframes caretFloat{
+  0%   { transform: translateY(-55%); }
+  50%  { transform: translateY(-62%); }
+  100% { transform: translateY(-55%); }
+}
+
+/* entrada */
+@keyframes caretIn{
+  0%   { opacity: 0; transform: translateY(-35%) scaleY(0.7); }
+  60%  { opacity: 1; transform: translateY(-60%) scaleY(1.05); }
+  100% { opacity: 1; transform: translateY(-55%) scaleY(1); }
 }
 
 
@@ -343,7 +375,11 @@ html = r"""
 
     <div class="hero">
       <div class="headline">
-        <span id="typed"></span><span class="cursor" id="caret"></span>
+        <span class="typedWrap">
+  <span id="typed"></span>
+  <span class="cursor" id="caret"></span>
+</span>
+
       </div>
     </div>
 
