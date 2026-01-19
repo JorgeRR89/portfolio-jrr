@@ -226,8 +226,8 @@ html = r"""
   display:inline-block;
   width: 2px;
 
-  height: 1em;                 /* MISMO tamaño que la letra */
-  vertical-align: baseline;   /* se alinea como caret real */
+  height: 1em;                 /* mismo tamaño que la letra */
+  vertical-align: baseline;
   transform: translateY(0.08em);
 
   margin-left: 8px;
@@ -239,6 +239,18 @@ html = r"""
     rgba(255,255,255,.95) 45%,
     rgba(255,255,255,.55) 100%
   );
+
+  box-shadow:
+    0 0 8px rgba(255,255,255,.22),
+    0 0 18px rgba(255,255,255,.12);
+
+  opacity: 1;
+
+  /* blink + tiny bobbing */
+  animation: caretBlink 1.35s steps(1) infinite,
+             caretFloat 1.35s ease-in-out infinite;
+}
+
 
   box-shadow:
     0 0 8px rgba(255,255,255,.22),
@@ -263,7 +275,11 @@ html = r"""
   }
 
   .cursor.ready{
-    animation: caretBlink 1.35s steps(1) infinite, caretIn 240ms ease-out 1;
+    animation: caretBlink 1.35s steps(1) infinite, 
+    caretBlink 1.35s steps(1) infinite,
+    caretFloat 1.35s ease-in-out infinite,
+    caretIn 260ms cubic-bezier(.22,1.2,.36,1) 1,
+    caretIn 240ms ease-out 1;
   }
 
   @keyframes caretBlink{
@@ -311,6 +327,24 @@ html = r"""
         0 18px 65px rgba(0,0,0,.58);
     }
   }
+@keyframes caretBlink{
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* micro movimiento arriba/abajo mientras parpadea */
+@keyframes caretFloat{
+  0%   { transform: translateY(0.08em); }
+  50%  { transform: translateY(0.02em); }
+  100% { transform: translateY(0.08em); }
+}
+
+/* easing vertical al reaparecer */
+@keyframes caretIn{
+  0%   { opacity: 0; transform: translateY(0.18em) scaleY(0.7); }
+  60%  { opacity: 1; transform: translateY(-0.02em) scaleY(1.05); }
+  100% { opacity: 1; transform: translateY(0.08em) scaleY(1); }
+}
 
   .foot{
     position:absolute; left:0; right:0; bottom:0; z-index:7;
