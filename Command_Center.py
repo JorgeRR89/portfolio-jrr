@@ -223,19 +223,31 @@ html = r"""
      - desaparece mientras escribe
      - reaparece al final con micro fade */
   .cursor{
-    display:inline-block;
-    width: 2px;
-    height: 1.05em;
-    transform: translateY(10px);
-    margin-left: 8px;
-    border-radius: 2px;
+  display:inline-block;
+  width: 2px;
 
-    background: linear-gradient(
-      to bottom,
-      rgba(255,255,255,.35) 0%,
-      rgba(255,255,255,.95) 45%,
-      rgba(255,255,255,.55) 100%
-    );
+  height: 1em;                 /* MISMO tamaño que la letra */
+  vertical-align: baseline;   /* se alinea como caret real */
+  transform: translateY(0.08em);
+
+  margin-left: 8px;
+  border-radius: 2px;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(255,255,255,.35) 0%,
+    rgba(255,255,255,.95) 45%,
+    rgba(255,255,255,.55) 100%
+  );
+
+  box-shadow:
+    0 0 8px rgba(255,255,255,.22),
+    0 0 18px rgba(255,255,255,.12);
+
+  opacity: 1;
+  animation: caretBlink 1.35s steps(1) infinite;
+}
+
 
     box-shadow:
       0 0 8px rgba(255,255,255,.22),
@@ -259,10 +271,11 @@ html = r"""
     50%, 100% { opacity: 0; }
   }
 
-  @keyframes caretIn{
-    from { opacity: 0; transform: translateY(10px) scaleY(0.85); }
-    to   { opacity: 1; transform: translateY(10px) scaleY(1); }
-  }
+ @keyframes caretIn{
+  from { opacity: 0; transform: translateY(0.08em) scaleY(0.85); }
+  to   { opacity: 1; transform: translateY(0.08em) scaleY(1); }
+}
+
 
   @keyframes reveal{
     to{
