@@ -146,7 +146,7 @@ projects = load_projects(DATA)
 
 # helper: internal lab link
 def lab_link(project_id: str) -> str:
-    return f"./Lab?project={project_id}"
+    return f"./4_Lab?project={project_id}"
 
 # =========================
 # Top bar with nav
