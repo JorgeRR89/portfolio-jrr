@@ -3,9 +3,14 @@ import streamlit as st
 
 from src.loaders import load_projects
 
+# =========================
+# Page config
+# =========================
 st.set_page_config(page_title="Projects • Portfolio JRR", page_icon="🧪", layout="wide")
 
-# ---- Minimal UI cleanup ----
+# =========================
+# Minimal UI cleanup
+# =========================
 st.markdown(
     """
 <style>
@@ -17,7 +22,9 @@ footer {visibility:hidden;}
     unsafe_allow_html=True,
 )
 
-# ---- Theme (matches About) ----
+# =========================
+# Theme
+# =========================
 st.markdown(
     """
 <style>
@@ -58,6 +65,7 @@ h1,h2,h3{ letter-spacing: -0.03em; }
   border-radius: 18px;
   padding: 16px 16px;
 }
+
 .meta{ color: rgba(255,255,255,.68); font-size: 12px; margin-top: 4px; }
 .small{ color: rgba(255,255,255,.72); }
 
@@ -129,17 +137,26 @@ h1,h2,h3{ letter-spacing: -0.03em; }
     unsafe_allow_html=True,
 )
 
+# =========================
+# Load projects
+# =========================
 ROOT = Path(__file__).parents[1]
 DATA = ROOT / "data" / "projects.yaml"
 projects = load_projects(DATA)
 
-# ---- Top bar with nav ----
+# helper: internal lab link
+def lab_link(project_id: str) -> str:
+    return f"./Lab?project={project_id}"
+
+# =========================
+# Top bar with nav
+# =========================
 st.markdown(
     """
 <div class="topbar">
   <div>
     <h1 style="margin:0;">Projects</h1>
-    <div class="small">Recruiter-friendly highlights: outcomes, stack, and impact.</div>
+    <div class="small">Recruiter-friendly highlights: industry, type, impact, skills, tools — plus interactive Lab demos.</div>
   </div>
   <div class="navbtns">
     <a href="./" target="_self">← Home</a>
@@ -152,45 +169,54 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# ---- Controls (Resume Mode added) ----
-c1, c2, c3, c4, c5 = st.columns([1.45, 0.85, 0.85, 0.85, 0.9], gap="large")
-query = c1.text_input("Search", placeholder="Title, tags, stack, outcomes…")
+# =========================
+# Controls (Resume Mode)
+# =========================
+c1, c2, c3, c4, c5, c6 = st.columns([1.35, 1.05, 1.0, 0.85, 0.9, 0.9], gap="large")
+query = c1.text_input("Search", placeholder="Title, skills, tools, outcomes…")
 
-cat_all = ["All"] + sorted({p["category"] for p in projects if p.get("category")})
-category = c2.selectbox("Category", cat_all, index=0)
+industry_all = ["All"] + sorted({p.get("industry", "") for p in projects if p.get("industry")})
+industry = c2.selectbox("Industry", industry_all, index=0)
 
-status_all = ["All"] + sorted({p["status"] for p in projects if p.get("status")})
-status = c3.selectbox("Status", status_all, index=0)
+type_all = ["All"] + sorted({p.get("type", "") for p in projects if p.get("type")})
+ptype = c3.selectbox("Type", type_all, index=0)
 
-impact_all = ["All"] + sorted({p["impact_type"] for p in projects if p.get("impact_type")})
-impact_type = c4.selectbox("Impact", impact_all, index=0)
+status_all = ["All"] + sorted({p.get("status", "") for p in projects if p.get("status")})
+status = c4.selectbox("Status", status_all, index=0)
 
-resume_mode = c5.toggle("Resume Mode", value=True)
+impact_all = ["All"] + sorted({p.get("impact_type", "") for p in projects if p.get("impact_type")})
+impact_type = c5.selectbox("Impact", impact_all, index=0)
+
+resume_mode = c6.toggle("Resume Mode", value=True)
 
 st.markdown(
-    f"<div class='modehint'>{'Resume Mode ON → fast scan view (minimal details).' if resume_mode else 'Resume Mode OFF → full recruiter view (problem → approach → results).'}</div>",
+    f"<div class='modehint'>{'Resume Mode ON → fast scan view.' if resume_mode else 'Resume Mode OFF → full recruiter view (problem → approach → results).'} </div>",
     unsafe_allow_html=True,
 )
 
 def match(p: dict) -> bool:
-    if category != "All" and p.get("category") != category:
+    if industry != "All" and p.get("industry") != industry:
+        return False
+    if ptype != "All" and p.get("type") != ptype:
         return False
     if status != "All" and p.get("status") != status:
         return False
     if impact_type != "All" and p.get("impact_type") != impact_type:
         return False
+
     if query.strip():
         q = query.lower().strip()
         hay = " ".join(
             [
                 p.get("title", ""),
                 p.get("tagline", ""),
-                p.get("category", ""),
+                p.get("industry", ""),
+                p.get("type", ""),
                 p.get("status", ""),
                 p.get("year", ""),
                 p.get("impact_type", ""),
-                " ".join(p.get("tags", [])),
-                " ".join(p.get("stack", [])),
+                " ".join(p.get("skills", [])),
+                " ".join(p.get("tools", [])),
                 " ".join(p.get("outcomes", [])),
                 p.get("problem", ""),
                 p.get("approach", ""),
@@ -203,15 +229,16 @@ def match(p: dict) -> bool:
 
 filtered = [p for p in projects if match(p)]
 st.caption(f"Showing {len(filtered)} / {len(projects)} projects")
-
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
-# ---- Spotlight (hide heavy kv in Resume Mode) ----
+# =========================
+# Spotlight
+# =========================
 spot = next((p for p in filtered if p.get("spotlight")), None)
 if spot:
-    meta = f"{spot.get('category','')} • {spot.get('status','')} • {spot.get('year','')}".strip(" •")
+    meta = f"{spot.get('industry','')} • {spot.get('type','')} • {spot.get('status','')} • {spot.get('year','')}".strip(" •")
     impact = spot.get("impact_type", "")
-    stack = spot.get("stack", [])
+    tools = spot.get("tools", [])
     outcomes = spot.get("outcomes", [])
     links = spot.get("links", {}) or {}
 
@@ -224,7 +251,8 @@ if spot:
 
   <div class="pills">
     {f"<span class='pill'>Impact: {impact}</span>" if impact else ""}
-    {f"<span class='pill'>Stack: {', '.join(stack[:5])}</span>" if stack else ""}
+    {f"<span class='pill'>Tools: {', '.join(tools[:5])}</span>" if tools else ""}
+    {f"<span class='pill'>Skills: {', '.join(spot.get('skills', [])[:3])}</span>" if spot.get("skills") else ""}
   </div>
 
   {"<div class='meta' style='margin-top:10px;'><b>Key outcomes</b><br>" + "<br>".join([f"• {x}" for x in outcomes[:5]]) + "</div>" if outcomes else ""}
@@ -233,10 +261,15 @@ if spot:
         unsafe_allow_html=True,
     )
 
-    # Links (spotlight)
+    # Links (spotlight): Open in Lab + GitHub/Colab/Demo/Report
     btns = []
+    if spot.get("id"):
+        btns.append(("Open in Lab", lab_link(spot["id"])))
+
     if links.get("github"):
         btns.append(("GitHub", links["github"]))
+    if links.get("colab"):
+        btns.append(("Colab", links["colab"]))
     if links.get("demo"):
         btns.append(("Demo", links["demo"]))
     if links.get("report"):
@@ -245,7 +278,8 @@ if spot:
     if btns:
         st.markdown("<div class='links'>", unsafe_allow_html=True)
         for label, url in btns:
-            st.markdown(f"<a href='{url}' target='_blank'>{label} ↗</a>", unsafe_allow_html=True)
+            target = "_self" if label == "Open in Lab" else "_blank"
+            st.markdown(f"<a href='{url}' target='{target}'>{label} ↗</a>", unsafe_allow_html=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
     # Full recruiter view only if Resume Mode OFF
@@ -264,7 +298,9 @@ if spot:
 
     st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
-# ---- Cards (avoid duplicating spotlight) ----
+# =========================
+# Cards (avoid duplicating spotlight)
+# =========================
 cards = [p for p in filtered if p is not spot]
 
 if not cards and not spot:
@@ -273,10 +309,10 @@ else:
     cols = st.columns(2, gap="large")
     for i, p in enumerate(cards):
         with cols[i % 2]:
-            meta = f"{p.get('category','')} • {p.get('status','')} • {p.get('year','')}".strip(" •")
+            meta = f"{p.get('industry','')} • {p.get('type','')} • {p.get('status','')} • {p.get('year','')}".strip(" •")
             impact = p.get("impact_type", "")
-            stack = p.get("stack", [])
-            tags = p.get("tags", [])
+            tools = p.get("tools", [])
+            skills = p.get("skills", [])
             outcomes = p.get("outcomes", [])
             links = p.get("links", {}) or {}
 
@@ -289,17 +325,39 @@ else:
 
   <div class="pills">
     {f"<span class='pill'>Impact: {impact}</span>" if impact else ""}
-    {f"<span class='pill'>Stack: {', '.join(stack[:4])}</span>" if stack else ""}
-    {f"<span class='pill'>Tags: {', '.join(tags[:3])}</span>" if tags else ""}
+    {f"<span class='pill'>Tools: {', '.join(tools[:5])}</span>" if tools else ""}
+    {f"<span class='pill'>Skills: {', '.join(skills[:3])}</span>" if skills else ""}
   </div>
 
-  {"<div class='meta' style='margin-top:10px;'><b>Key outcomes</b><br>" + "<br>".join([f"• {x}" for x in outcomes[:3]]) + "</div>" if outcomes else ""}
+  {"<div class='meta' style='margin-top:10px;'>" + "• " + outcomes[0] + "</div>" if (outcomes and resume_mode) else ""}
+  {"<div class='meta' style='margin-top:10px;'><b>Key outcomes</b><br>" + "<br>".join([f"• {x}" for x in outcomes[:3]]) + "</div>" if (outcomes and (not resume_mode)) else ""}
 </div>
 """,
                 unsafe_allow_html=True,
             )
 
-            # ---- Expand only when Resume Mode is OFF ----
+            # Links
+            btns = []
+            if p.get("id"):
+                btns.append(("Open in Lab", lab_link(p["id"])))
+
+            if links.get("github"):
+                btns.append(("GitHub", links["github"]))
+            if links.get("colab"):
+                btns.append(("Colab", links["colab"]))
+            if links.get("demo"):
+                btns.append(("Demo", links["demo"]))
+            if links.get("report"):
+                btns.append(("Report", links["report"]))
+
+            if btns:
+                st.markdown("<div class='links'>", unsafe_allow_html=True)
+                for label, url in btns:
+                    target = "_self" if label == "Open in Lab" else "_blank"
+                    st.markdown(f"<a href='{url}' target='{target}'>{label} ↗</a>", unsafe_allow_html=True)
+                st.markdown("</div>", unsafe_allow_html=True)
+
+            # Expand only when Resume Mode OFF
             if not resume_mode:
                 with st.expander("Recruiter view (problem → approach → results)", expanded=False):
                     if p.get("problem"):
@@ -315,36 +373,9 @@ else:
                         st.markdown("**Notes**")
                         st.write(p["details"])
 
-                    btns = []
-                    if links.get("github"):
-                        btns.append(("GitHub", links["github"]))
-                    if links.get("demo"):
-                        btns.append(("Demo", links["demo"]))
-                    if links.get("report"):
-                        btns.append(("Report", links["report"]))
-
-                    if btns:
-                        st.markdown("<div class='links'>", unsafe_allow_html=True)
-                        for label, url in btns:
-                            st.markdown(f"<a href='{url}' target='_blank'>{label} ↗</a>", unsafe_allow_html=True)
-                        st.markdown("</div>", unsafe_allow_html=True)
-
-            # ---- In Resume Mode: show only links (small) without expander ----
-            if resume_mode:
-                btns = []
-                if links.get("github"):
-                    btns.append(("GitHub", links["github"]))
-                if links.get("demo"):
-                    btns.append(("Demo", links["demo"]))
-                if links.get("report"):
-                    btns.append(("Report", links["report"]))
-                if btns:
-                    st.markdown("<div class='links'>", unsafe_allow_html=True)
-                    for label, url in btns:
-                        st.markdown(f"<a href='{url}' target='_blank'>{label} ↗</a>", unsafe_allow_html=True)
-                    st.markdown("</div>", unsafe_allow_html=True)
-
-# ---- Bottom navigation ----
+# =========================
+# Bottom navigation
+# =========================
 st.markdown(
     """
 <div class="hr"></div>
