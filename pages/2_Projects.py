@@ -138,18 +138,54 @@ h1,h2,h3{ letter-spacing: -0.03em; }
 )
 
 # =========================
+# Helpers
+# =========================
+def slugify(s: str) -> str:
+    s = (s or "").strip().lower()
+    keep = []
+    for ch in s:
+        keep.append(ch if ch.isalnum() else "-")
+    out = "".join(keep)
+    while "--" in out:
+        out = out.replace("--", "-")
+    return out.strip("-")
+
+def project_pid(p: dict) -> str:
+    # Prefer explicit id, else stable slug from title
+    pid = p.get("id")
+    if pid:
+        return str(pid)
+    return slugify(p.get("title", "project"))
+
+def lab_link(pid: str) -> str:
+    # Your Lab page is 4_Lab.py -> Streamlit path is ./4_Lab
+    return f"./4_Lab?project={pid}"
+
+def safe_list(x):
+    return x if isinstance(x, list) else ([] if x is None else [str(x)])
+
+# =========================
 # Load projects
 # =========================
 ROOT = Path(__file__).parents[1]
 DATA = ROOT / "data" / "projects.yaml"
 projects = load_projects(DATA)
 
-# helper: internal lab link
-def lab_link(project_id: str) -> str:
-    return f"./4_Lab?project={project_id}"
+# Normalize for UI safety
+norm = []
+for p in projects:
+    p = dict(p or {})
+    p["skills"] = safe_list(p.get("skills"))
+    p["tools"] = safe_list(p.get("tools"))
+    p["outcomes"] = safe_list(p.get("outcomes"))
+    p["links"] = p.get("links") or {}
+    p["pid"] = project_pid(p)
+    norm.append(p)
+
+projects = norm
 
 # =========================
-# Top bar with nav
+# Top bar
 # =========================
 st.markdown(
     """
@@ -170,7 +206,7 @@ st.markdown(
 )
 
 # =========================
-# Controls (Resume Mode)
+# Filters
 # =========================
 c1, c2, c3, c4, c5, c6 = st.columns([1.35, 1.05, 1.0, 0.85, 0.9, 0.9], gap="large")
 query = c1.text_input("Search", placeholder="Title, skills, tools, outcomes…")
@@ -239,6 +275,7 @@ if spot:
     meta = f"{spot.get('industry','')} • {spot.get('type','')} • {spot.get('status','')} • {spot.get('year','')}".strip(" •")
     impact = spot.get("impact_type", "")
     tools = spot.get("tools", [])
+    skills = spot.get("skills", [])
     outcomes = spot.get("outcomes", [])
     links = spot.get("links", {}) or {}
 
@@ -252,7 +289,7 @@ if spot:
   <div class="pills">
     {f"<span class='pill'>Impact: {impact}</span>" if impact else ""}
     {f"<span class='pill'>Tools: {', '.join(tools[:5])}</span>" if tools else ""}
-    {f"<span class='pill'>Skills: {', '.join(spot.get('skills', [])[:3])}</span>" if spot.get("skills") else ""}
+    {f"<span class='pill'>Skills: {', '.join(skills[:3])}</span>" if skills else ""}
   </div>
 
   {"<div class='meta' style='margin-top:10px;'><b>Key outcomes</b><br>" + "<br>".join([f"• {x}" for x in outcomes[:5]]) + "</div>" if outcomes else ""}
@@ -261,10 +298,9 @@ if spot:
         unsafe_allow_html=True,
     )
 
-    # Links (spotlight): Open in Lab + GitHub/Colab/Demo/Report
+    # Links (single HTML block so styling always applies)
     btns = []
-    if spot.get("id"):
-        btns.append(("Open in Lab", lab_link(spot["id"])))
+    btns.append(("Open in Lab", lab_link(spot["pid"])))
 
     if links.get("github"):
         btns.append(("GitHub", links["github"]))
@@ -275,14 +311,13 @@ if spot:
     if links.get("report"):
         btns.append(("Report", links["report"]))
 
-    if btns:
-        st.markdown("<div class='links'>", unsafe_allow_html=True)
-        for label, url in btns:
-            target = "_self" if label == "Open in Lab" else "_blank"
-            st.markdown(f"<a href='{url}' target='{target}'>{label} ↗</a>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+    html_btns = ["<div class='links'>"]
+    for label, url in btns:
+        target = "_self" if label == "Open in Lab" else "_blank"
+        html_btns.append(f"<a href='{url}' target='{target}'>{label} ↗</a>")
+    html_btns.append("</div>")
+    st.markdown("".join(html_btns), unsafe_allow_html=True)
 
-    # Full recruiter view only if Resume Mode OFF
     if not resume_mode:
         st.markdown(
             f"""
@@ -299,7 +334,7 @@ if spot:
     st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
 # =========================
-# Cards (avoid duplicating spotlight)
+# Cards
 # =========================
 cards = [p for p in filtered if p is not spot]
 
@@ -336,10 +371,8 @@ else:
                 unsafe_allow_html=True,
             )
 
-            # Links
             btns = []
-            if p.get("id"):
-                btns.append(("Open in Lab", lab_link(p["id"])))
+            btns.append(("Open in Lab", lab_link(p["pid"])))
 
             if links.get("github"):
                 btns.append(("GitHub", links["github"]))
@@ -350,14 +383,13 @@ else:
             if links.get("report"):
                 btns.append(("Report", links["report"]))
 
-            if btns:
-                st.markdown("<div class='links'>", unsafe_allow_html=True)
-                for label, url in btns:
-                    target = "_self" if label == "Open in Lab" else "_blank"
-                    st.markdown(f"<a href='{url}' target='{target}'>{label} ↗</a>", unsafe_allow_html=True)
-                st.markdown("</div>", unsafe_allow_html=True)
+            html_btns = ["<div class='links'>"]
+            for label, url in btns:
+                target = "_self" if label == "Open in Lab" else "_blank"
+                html_btns.append(f"<a href='{url}' target='{target}'>{label} ↗</a>")
+            html_btns.append("</div>")
+            st.markdown("".join(html_btns), unsafe_allow_html=True)
 
-            # Expand only when Resume Mode OFF
             if not resume_mode:
                 with st.expander("Recruiter view (problem → approach → results)", expanded=False):
                     if p.get("problem"):
