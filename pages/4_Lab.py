@@ -457,7 +457,7 @@ st.markdown(
   <div class="navbtns">
     <a href="./" target="_self">← Home</a>
     <a href="./About_Me" target="_self">About</a>
-    <a href="./2_Projects" target="_self">Projects</a>
+    <a href="./Projects" target="_self">Projects</a>
     <a href="./Contact" target="_self">Contact</a>
   </div>
 </div>
