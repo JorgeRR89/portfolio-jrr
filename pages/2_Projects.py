@@ -150,19 +150,22 @@ def slugify(s: str) -> str:
         out = out.replace("--", "-")
     return out.strip("-")
 
+
 def project_pid(p: dict) -> str:
-    # Prefer explicit id, else stable slug from title
     pid = p.get("id")
     if pid:
-        return str(pid)
+        return str(pid).strip()
     return slugify(p.get("title", "project"))
 
+
 def lab_link(pid: str) -> str:
-    # Your Lab page is 4_Lab.py -> Streamlit path is ./4_Lab
+    # IMPORTANT: absolute path avoids hash/# navigation issues on Streamlit Cloud
     return f"/Lab?project={pid}"
+
 
 def safe_list(x):
     return x if isinstance(x, list) else ([] if x is None else [str(x)])
+
 
 # =========================
 # Load projects
@@ -195,9 +198,9 @@ st.markdown(
     <div class="small">Recruiter-friendly highlights: industry, type, impact, skills, tools — plus interactive Lab demos.</div>
   </div>
   <div class="navbtns">
-    <a href="./" target="_self">← Home</a>
-    <a href="./About_Me" target="_self">About</a>
-    <a href="./Contact" target="_self">Contact</a>
+    <a href="/" target="_self">← Home</a>
+    <a href="/About_Me" target="_self">About</a>
+    <a href="/Contact" target="_self">Contact</a>
   </div>
 </div>
 <div class="hr"></div>
@@ -263,6 +266,7 @@ def match(p: dict) -> bool:
         return q in hay
     return True
 
+
 filtered = [p for p in projects if match(p)]
 st.caption(f"Showing {len(filtered)} / {len(projects)} projects")
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
@@ -298,9 +302,7 @@ if spot:
         unsafe_allow_html=True,
     )
 
-    # Links (single HTML block so styling always applies)
-    btns = []
-    btns.append(("Open in Lab", lab_link(spot["pid"])))
+    btns = [("Open in Lab", lab_link(spot["pid"]))]
 
     if links.get("github"):
         btns.append(("GitHub", links["github"]))
@@ -371,8 +373,7 @@ else:
                 unsafe_allow_html=True,
             )
 
-            btns = []
-            btns.append(("Open in Lab", lab_link(p["pid"])))
+            btns = [("Open in Lab", lab_link(p["pid"]))]
 
             if links.get("github"):
                 btns.append(("GitHub", links["github"]))
@@ -412,10 +413,11 @@ st.markdown(
     """
 <div class="hr"></div>
 <div class="navbtns">
-  <a href="./" target="_self">← Back to Home</a>
-  <a href="./About_Me" target="_self">About</a>
-  <a href="./Contact" target="_self">Contact</a>
+  <a href="/" target="_self">← Back to Home</a>
+  <a href="/About_Me" target="_self">About</a>
+  <a href="/Contact" target="_self">Contact</a>
 </div>
 """,
     unsafe_allow_html=True,
 )
+
