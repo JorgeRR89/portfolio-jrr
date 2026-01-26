@@ -358,7 +358,7 @@ def build_quick_model(df: pd.DataFrame, target: str):
 
 
 def _normalize_query_value(v):
-    """Streamlit can return query params as list-like in some versions."""
+    # Streamlit versions sometimes return list-like query values
     if v is None:
         return None
     if isinstance(v, (list, tuple)):
@@ -367,7 +367,7 @@ def _normalize_query_value(v):
 
 
 def _as_projects_list(obj):
-    """Accept list or dict with key 'projects'."""
+    # load_projects may return list OR dict {"projects":[...]}
     if isinstance(obj, list):
         return obj
     if isinstance(obj, dict) and isinstance(obj.get("projects"), list):
@@ -386,7 +386,7 @@ def _find_project(projects_list, pid):
 
 
 # =========================
-# Load YAML + read query param
+# Load YAML + query params
 # =========================
 ROOT = Path(__file__).parents[1]
 YAML_PATH = ROOT / "data" / "projects.yaml"
@@ -394,14 +394,28 @@ YAML_PATH = ROOT / "data" / "projects.yaml"
 raw = load_projects(YAML_PATH)
 projects = _as_projects_list(raw)
 
-project_q = _normalize_query_value(st.query_params.get("project"))
+# Backward-compatible query params
+try:
+    qp = st.query_params
+    project_q = _normalize_query_value(qp.get("project"))
+except Exception:
+    qp = st.experimental_get_query_params()
+    project_q = _normalize_query_value(qp.get("project"))
+
 selected = _find_project(projects, project_q)
 
-has_demo = False
 demo_asset = None
+has_demo = False
 if selected:
     demo_asset = (selected.get("lab", {}) or {}).get("demo_asset")
     has_demo = bool(demo_asset)
+
+# IMPORTANT: clear state when switching project (prevents "mix" feeling)
+current_pid = selected.get("id") if selected else None
+if st.session_state.get("_pid") != current_pid:
+    st.session_state["_pid"] = current_pid
+    st.session_state["lab_log"] = []
+    _log_append(f"[system] project changed → reset state ({current_pid})")
 
 
 # =========================
@@ -486,14 +500,12 @@ with st.sidebar:
     st.markdown("### System")
     st.caption("Load a dataset, explore, then run auto insights & experiments.")
 
-    # Default to project demo only if it exists
     default_idx = 0 if (selected and has_demo) else 1
-
     options = ["Project demo (if available)", "Demo dataset (recommended)", "Upload CSV"]
     src = st.radio("Data source", options, index=default_idx)
 
     if src == "Project demo (if available)" and not (selected and has_demo):
-        st.warning("No project demo available for this project. Switch to Demo dataset or Upload CSV.")
+        st.warning("No project demo available for this project.")
 
     uploaded = None
     if src == "Upload CSV":
@@ -580,7 +592,6 @@ with colB:
     st.markdown("### Quick filters")
 
     view = df.copy()
-
     cats = _cat_cols(df)
     nums = _numeric_cols(df)
 
