@@ -261,9 +261,8 @@ def auto_insights(df: pd.DataFrame):
     else:
         insights.append("• No missing data detected.")
 
-    # best "target-like" column for correlations/trends
     preferred = None
-    for c in ["demand", "demand_units", "profit"]:
+    for c in ["num_orders", "orders", "demand", "demand_units", "profit"]:
         if c in df.columns:
             preferred = c
             break
@@ -358,17 +357,25 @@ def build_quick_model(df: pd.DataFrame, target: str):
     return metrics
 
 
-# =========================
-# Load YAML + read query param
-# =========================
-ROOT = Path(__file__).parents[1]
-YAML_PATH = ROOT / "data" / "projects.yaml"
-projects = load_projects(YAML_PATH)
+def _normalize_query_value(v):
+    """Streamlit can return query params as list-like in some versions."""
+    if v is None:
+        return None
+    if isinstance(v, (list, tuple)):
+        return str(v[0]) if len(v) else None
+    return str(v)
 
-project_q = st.query_params.get("project")
+
+def _as_projects_list(obj):
+    """Accept list or dict with key 'projects'."""
+    if isinstance(obj, list):
+        return obj
+    if isinstance(obj, dict) and isinstance(obj.get("projects"), list):
+        return obj["projects"]
+    return []
 
 
-def _find_project(projects_list: list[dict], pid: str | None):
+def _find_project(projects_list, pid):
     if not pid:
         return None
     pid = str(pid).strip()
@@ -378,7 +385,24 @@ def _find_project(projects_list: list[dict], pid: str | None):
     return None
 
 
+# =========================
+# Load YAML + read query param
+# =========================
+ROOT = Path(__file__).parents[1]
+YAML_PATH = ROOT / "data" / "projects.yaml"
+
+raw = load_projects(YAML_PATH)
+projects = _as_projects_list(raw)
+
+project_q = _normalize_query_value(st.query_params.get("project"))
 selected = _find_project(projects, project_q)
+
+has_demo = False
+demo_asset = None
+if selected:
+    demo_asset = (selected.get("lab", {}) or {}).get("demo_asset")
+    has_demo = bool(demo_asset)
+
 
 # =========================
 # Top bar
@@ -391,16 +415,17 @@ st.markdown(
     <div class="pill">🧪 Data Console • Project Demos • Auto Insights • Experiments</div>
   </div>
   <div class="navbtns">
-    <a href="/" target="_self">← Home</a>
-    <a href="/About_Me" target="_self">About</a>
-    <a href="/Projects" target="_self">Projects</a>
-    <a href="/Contact" target="_self">Contact</a>
+    <a href="./" target="_self">← Home</a>
+    <a href="./About_Me" target="_self">About</a>
+    <a href="./Projects" target="_self">Projects</a>
+    <a href="./Contact" target="_self">Contact</a>
   </div>
 </div>
 <div class="hr"></div>
 """,
     unsafe_allow_html=True,
 )
+
 
 # =========================
 # Project card
@@ -417,6 +442,7 @@ if selected:
         pills.append(f"<span class='pill2'>Type: {selected['type']}</span>")
     if selected.get("impact_type"):
         pills.append(f"<span class='pill2'>Impact: {selected['impact_type']}</span>")
+
     tools = selected.get("tools", []) if isinstance(selected.get("tools"), list) else []
     skills = selected.get("skills", []) if isinstance(selected.get("skills"), list) else []
     if tools:
@@ -454,17 +480,20 @@ else:
 
 
 # =========================
-# Sidebar: data source (THIS is where Project demo appears)
+# Sidebar: data source
 # =========================
 with st.sidebar:
     st.markdown("### System")
     st.caption("Load a dataset, explore, then run auto insights & experiments.")
 
-    src = st.radio(
-        "Data source",
-        ["Project demo (if available)", "Demo dataset (recommended)", "Upload CSV"],
-        index=0,
-    )
+    # Default to project demo only if it exists
+    default_idx = 0 if (selected and has_demo) else 1
+
+    options = ["Project demo (if available)", "Demo dataset (recommended)", "Upload CSV"]
+    src = st.radio("Data source", options, index=default_idx)
+
+    if src == "Project demo (if available)" and not (selected and has_demo):
+        st.warning("No project demo available for this project. Switch to Demo dataset or Upload CSV.")
 
     uploaded = None
     if src == "Upload CSV":
@@ -485,20 +514,16 @@ with st.sidebar:
 # =========================
 df = None
 
-if src == "Project demo (if available)" and selected:
-    demo_asset = (selected.get("lab", {}) or {}).get("demo_asset")
-    if demo_asset:
-        path = ROOT / demo_asset
-        if path.exists():
-            try:
-                df = pd.read_csv(path)
-                _log_append(f"<span class='badge-ok'>[data]</span> loaded demo_asset: {demo_asset} ({len(df):,} rows)")
-            except Exception as e:
-                _log_append(f"<span class='badge-err'>[error]</span> failed to read demo_asset: {e}")
-        else:
-            _log_append(f"<span class='badge-warn'>[warn]</span> demo_asset not found: {demo_asset}")
+if src == "Project demo (if available)" and selected and has_demo:
+    path = ROOT / str(demo_asset)
+    if path.exists():
+        try:
+            df = pd.read_csv(path)
+            _log_append(f"<span class='badge-ok'>[data]</span> loaded demo_asset: {demo_asset} ({len(df):,} rows)")
+        except Exception as e:
+            _log_append(f"<span class='badge-err'>[error]</span> failed to read demo_asset: {e}")
     else:
-        _log_append("<span class='badge-warn'>[warn]</span> project has no lab.demo_asset")
+        _log_append(f"<span class='badge-warn'>[warn]</span> demo_asset not found: {demo_asset}")
 
 if df is None:
     if src == "Upload CSV":
@@ -624,7 +649,7 @@ st.markdown("## 🧪 Experiments")
 
 targets = ["(none)"] + list(df.columns)
 default_target = "(none)"
-for cand in ["demand", "demand_units", "target", "profitable"]:
+for cand in ["num_orders", "orders", "demand", "demand_units", "target", "profitable"]:
     if cand in df.columns:
         default_target = cand
         break
