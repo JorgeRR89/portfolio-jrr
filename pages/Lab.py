@@ -1,17 +1,18 @@
-# pages/Lab.py
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-import html as _html
-import io
+from io import StringIO
+import textwrap
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
+import yaml
 
-from src.loaders import load_projects
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error
 
 
 # =========================
@@ -21,100 +22,86 @@ st.set_page_config(page_title="Lab • Portfolio JRR", page_icon="🧪", layout=
 
 
 # =========================
-# Minimalist premium styles
+# Premium minimal styles
 # =========================
 st.markdown(
     """
 <style>
 header[data-testid="stHeader"] {display:none;}
 footer {visibility:hidden;}
-.block-container { padding-top: 1.2rem; padding-bottom: 3rem; max-width: 1180px; }
-a { text-decoration: none; }
+.block-container { padding-top: 1.6rem; padding-bottom: 3.2rem; max-width: 1100px; }
 
 :root{
   --fg: rgba(255,255,255,.92);
   --fg2: rgba(255,255,255,.70);
-  --fg3: rgba(255,255,255,.56);
   --line: rgba(255,255,255,.10);
-  --line2: rgba(255,255,255,.14);
-
-  --glass: rgba(255,255,255,.045);
-  --glass2: rgba(255,255,255,.06);
-
-  --ok: rgba(120,255,180,.95);
-  --warn: rgba(255,210,120,.95);
-  --err: rgba(255,120,140,.95);
+  --card: rgba(255,255,255,.04);
+  --card2: rgba(255,255,255,.06);
+  --shadow: rgba(0,0,0,.35);
+  --accent: rgba(255, 80, 90, .95);
 }
 
 html, body, [data-testid="stAppViewContainer"]{
   background:
-    radial-gradient(1100px 680px at 50% 0%, rgba(255,255,255,.06), rgba(0,0,0,.98)) !important;
+    radial-gradient(900px 520px at 50% 0%, rgba(255,255,255,.06), rgba(0,0,0,.98)) !important;
   color: var(--fg) !important;
 }
 
-h1,h2,h3{ letter-spacing: -0.04em; }
+h1,h2,h3{ letter-spacing:-0.03em; }
 p, li, small { color: var(--fg2); }
+a { text-decoration: none !important; }
 
-.hr{ height:1px; background: var(--line); margin: 16px 0 18px 0; }
+.hr{ height:1px; background: var(--line); margin: 16px 0 22px 0; }
 
 .topbar{
   display:flex; align-items:flex-start; justify-content:space-between;
   gap: 12px;
-  padding: 6px 0 6px 0;
+  padding: 8px 0 8px 0;
 }
-
-.brandline{
-  display:flex; flex-direction:column; gap:6px;
-}
-.brandline h1{
-  margin:0;
-  font-size: 34px;
-  line-height: 1.05;
-}
-.subbadge{
-  display:inline-flex; align-items:center; gap:10px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,.03);
-  color: rgba(255,255,255,.82);
-  font-size: 12px;
-}
-
 .navbtns{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
 .navbtns a{
   display:inline-block;
   padding: 9px 12px;
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: rgba(255,255,255,.035);
+  background: rgba(255,255,255,.04);
   color: rgba(255,255,255,.88) !important;
   font-size: 13px;
-  transition: transform .12s ease, background .12s ease, border-color .12s ease;
 }
-.navbtns a:hover{
-  background: rgba(255,255,255,.075);
-  border-color: var(--line2);
-  transform: translateY(-1px);
+.navbtns a:hover{ background: rgba(255,255,255,.08); }
+
+.hero{
+  border: 1px solid rgba(255,255,255,.12);
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.22));
+  border-radius: 22px;
+  padding: 20px 20px;
+  box-shadow: 0 20px 60px var(--shadow);
+}
+.subtitle{
+  color: rgba(255,255,255,.70);
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.micro{
+  margin-top: 10px;
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,.25);
+  font-size: 12px;
+  color: rgba(255,255,255,.78);
 }
 
 .card{
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, var(--glass2), rgba(0,0,0,.20));
+  background: linear-gradient(180deg, var(--card), rgba(0,0,0,.18));
   border-radius: 18px;
   padding: 16px 16px;
-  box-shadow: 0 10px 28px rgba(0,0,0,.35);
-}
-
-.card h2{
-  margin: 0 0 2px 0;
-  font-size: 22px;
-}
-.card .tagline{
-  margin: 6px 0 0 0;
-  color: var(--fg2);
-  font-size: 14px;
-  line-height: 1.35;
+  box-shadow: 0 18px 50px var(--shadow);
 }
 
 .pills{ display:flex; gap:8px; flex-wrap:wrap; margin-top: 10px; }
@@ -122,127 +109,92 @@ p, li, small { color: var(--fg2); }
   padding: 6px 9px;
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: rgba(0,0,0,.16);
+  background: rgba(0,0,0,.18);
   color: rgba(255,255,255,.78);
   font-size: 12px;
 }
 
-.links{
-  margin-top: 10px;
-}
-.links a{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,.04);
-  color: rgba(255,255,255,.90) !important;
-  margin-right: 8px;
-  margin-top: 8px;
-  font-size: 13px;
-  transition: transform .12s ease, background .12s ease, border-color .12s ease;
-}
-.links a:hover{
-  background: rgba(255,255,255,.08);
-  border-color: var(--line2);
-  transform: translateY(-1px);
-}
-
-.captionmono{
-  color: var(--fg3);
-  font-size: 12px;
-  margin-top: 8px;
-}
-
-.sectiontitle{
-  font-size: 16px;
-  color: rgba(255,255,255,.90);
-  margin: 0 0 10px 0;
-}
-
-.kv3{
+.kpi{
   display:grid;
-  grid-template-columns: repeat(3, minmax(0,1fr));
-  gap: 12px;
-  margin-top: 10px;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: 10px;
 }
-@media (max-width: 980px){
-  .kv3{ grid-template-columns: 1fr; }
-}
-.kv3 .box{
+.kpi .k{
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 12px 12px;
   background: rgba(255,255,255,.03);
 }
-.kv3 .box b{
-  display:block;
-  color: rgba(255,255,255,.90);
-  margin-bottom: 6px;
-  font-size: 13px;
+.kpi .k b{ font-size: 16px; color: rgba(255,255,255,.92); }
+.kpi .k span{ display:block; margin-top: 2px; font-size: 12px; color: rgba(255,255,255,.68); }
+@media (max-width: 920px){
+  .kpi{ grid-template-columns: 1fr 1fr; }
 }
-.kv3 .box div{
-  color: var(--fg2);
-  font-size: 13px;
-  line-height: 1.45;
+@media (max-width: 640px){
+  .kpi{ grid-template-columns: 1fr; }
 }
 
-.ctaHint{
-  color: var(--fg3);
-  font-size: 12px;
-  margin-top: 6px;
-}
-
-/* Console */
-.console{
-  border: 1px solid var(--line);
+.dsbox{
+  border: 1px solid rgba(255,255,255,.10);
   border-radius: 16px;
   background: rgba(0,0,0,.35);
   padding: 14px 14px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 12px;
-  color: rgba(255,255,255,.82);
-  overflow: auto;
-  max-height: 220px;
-}
-.badge-ok{ color: var(--ok); }
-.badge-warn{ color: var(--warn); }
-.badge-err{ color: var(--err); }
-
-/* DataScience-ish pre box (info/head) */
-.dsbox{
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: rgba(0,0,0,.28);
-  padding: 12px 12px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
   font-size: 12px;
   color: rgba(255,255,255,.84);
-  overflow: auto;
-  max-height: 220px;
+  overflow:auto;
+  max-height: 310px;
+}
+.dslabel{
+  font-size: 12px;
+  color: rgba(255,255,255,.62);
+  margin-bottom: 8px;
 }
 
-/* Make Streamlit primary button look more premium */
-div.stButton > button[kind="primary"]{
+.resultok{
+  border: 1px solid rgba(120,255,180,.25);
+  background: linear-gradient(180deg, rgba(120,255,180,.08), rgba(0,0,0,.20));
+}
+.resultwarn{
+  border: 1px solid rgba(255,210,120,.25);
+  background: linear-gradient(180deg, rgba(255,210,120,.08), rgba(0,0,0,.20));
+}
+
+.smallhint{ color: rgba(255,255,255,.60); font-size: 12px; }
+
+.links a{
+  display:inline-block;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.04);
+  color: rgba(255,255,255,.88) !important;
+  text-decoration:none;
+  margin-right: 8px;
+  margin-top: 10px;
+  font-size: 13px;
+}
+.links a:hover{ background: rgba(255,255,255,.07); }
+
+/* Make primary button feel premium */
+div[data-testid="stButton"] button[kind="primary"]{
+  background: var(--accent) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
   border-radius: 14px !important;
-  border: 1px solid rgba(255,255,255,.16) !important;
-  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)) !important;
-  color: rgba(255,255,255,.92) !important;
   padding: 10px 14px !important;
-  font-weight: 700 !important;
+  box-shadow: 0 14px 40px rgba(0,0,0,.35) !important;
 }
-div.stButton > button[kind="primary"]:hover{
-  border-color: rgba(255,255,255,.24) !important;
-  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06)) !important;
-  transform: translateY(-1px);
+div[data-testid="stButton"] button[kind="primary"]:hover{
+  filter: brightness(1.02);
 }
 
-/* Slightly reduce plot padding */
-div[data-testid="stPlotlyChart"], div[data-testid="stImage"], div[data-testid="stPyplot"]{
-  margin-top: 0.2rem;
+/* Secondary buttons */
+div[data-testid="stButton"] button[kind="secondary"]{
+  border-radius: 999px !important;
+  border: 1px solid var(--line) !important;
+  background: rgba(255,255,255,.04) !important;
 }
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -250,106 +202,144 @@ div[data-testid="stPlotlyChart"], div[data-testid="stImage"], div[data-testid="s
 
 
 # =========================
-# Helpers
+# YAML loading (direct, robust)
 # =========================
-def _safe_list(x: Any) -> List[str]:
-    return x if isinstance(x, list) else []
+def load_yaml_dict(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
+    return data if isinstance(data, dict) else {}
 
 
-def _log_append(msg: str):
-    st.session_state.setdefault("lab_log", [])
-    st.session_state["lab_log"].append(msg)
-    st.session_state["lab_log"] = st.session_state["lab_log"][-140:]
+def load_projects_raw(path: Path) -> list[dict]:
+    data = load_yaml_dict(path)
+    projects = data.get("projects", [])
+    return projects if isinstance(projects, list) else []
 
 
-def _render_log():
-    lines = st.session_state.get("lab_log", [])
-    if not lines:
-        lines = ["[system] ready."]
-
-    safe_lines = []
-    for line in lines:
-        escaped = _html.escape(str(line))
-        escaped = escaped.replace("&lt;span class=&#x27;badge-ok&#x27;&gt;", "<span class='badge-ok'>")
-        escaped = escaped.replace("&lt;span class=&#x27;badge-warn&#x27;&gt;", "<span class='badge-warn'>")
-        escaped = escaped.replace("&lt;span class=&#x27;badge-err&#x27;&gt;", "<span class='badge-err'>")
-        escaped = escaped.replace("&lt;/span&gt;", "</span>")
-        safe_lines.append(escaped)
-
-    st.markdown("<div class='console'>" + "<br/>".join(safe_lines) + "</div>", unsafe_allow_html=True)
-
-
-def _find_project(projects_list: List[Dict[str, Any]], pid: Optional[str]):
+def find_project(projects: list[dict], pid: str | None) -> dict | None:
     if not pid:
         return None
     pid = str(pid).strip()
-    for p in projects_list:
+    for p in projects:
         if str(p.get("id", "")).strip() == pid:
             return p
     return None
 
 
-def _capture_df_info(df: pd.DataFrame) -> str:
-    buf = io.StringIO()
+# =========================
+# Time-series demo helpers
+# =========================
+def infer_datetime_col(df: pd.DataFrame) -> str | None:
+    # Prefer common names
+    candidates = ["datetime", "date", "timestamp", "time"]
+    cols = [c for c in df.columns]
+    for name in candidates:
+        for c in cols:
+            if name in str(c).lower():
+                try:
+                    pd.to_datetime(df[c], errors="raise")
+                    return c
+                except Exception:
+                    pass
+    # fallback: try any col
+    for c in cols:
+        try:
+            pd.to_datetime(df[c], errors="raise")
+            return c
+        except Exception:
+            continue
+    return None
+
+
+def infer_target_col(df: pd.DataFrame) -> str | None:
+    # Your typical taxi dataset uses num_orders
+    preferred = ["num_orders", "demand", "demand_units", "target"]
+    for c in preferred:
+        if c in df.columns:
+            return c
+    # fallback: first numeric column
+    num_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
+    return num_cols[0] if num_cols else None
+
+
+def make_features(ts: pd.Series, max_lag: int = 24, roll: int = 24) -> pd.DataFrame:
+    """
+    ts: hourly series
+    returns dataframe with calendar + lag + rolling features + target y
+    """
+    df = pd.DataFrame({"y": ts})
+    idx = df.index
+
+    df["year"] = idx.year
+    df["month"] = idx.month
+    df["day"] = idx.day
+    df["hour"] = idx.hour
+    df["dayofweek"] = idx.dayofweek
+
+    for lag in range(1, max_lag + 1):
+        df[f"lag_{lag}"] = df["y"].shift(lag)
+
+    df[f"rolling_mean_{roll}"] = df["y"].shift(1).rolling(roll).mean()
+    df = df.dropna()
+    return df
+
+
+def time_split(df: pd.DataFrame, train_frac: float = 0.9):
+    cut = int(len(df) * train_frac)
+    train = df.iloc[:cut]
+    test = df.iloc[cut:]
+    return train, test
+
+
+def rmse(y_true, y_pred) -> float:
+    return float(np.sqrt(mean_squared_error(y_true, y_pred)))
+
+
+def to_info_text(df: pd.DataFrame) -> str:
+    buf = StringIO()
     df.info(buf=buf)
     return buf.getvalue()
 
 
-def _expected_answer_text(p: Dict[str, Any], df: pd.DataFrame) -> str:
-    """
-    Recruiter-friendly 2–3 lines, grounded in YAML if present.
-    If YAML has problem/approach/results, use them; else provide a safe default.
-    """
-    problem = (p.get("problem") or "").strip()
-    approach = (p.get("approach") or "").strip()
-    results = (p.get("results") or "").strip()
-
-    # fallback (minimal + DS tone)
-    if not (problem or approach or results):
-        rows, cols = df.shape
-        return (
-            "Built a reproducible forecasting workflow to turn noisy ride demand into a usable planning signal. "
-            f"Loaded a clean modeling table ({rows:,} rows × {cols} cols), then validated performance with time-aware evaluation. "
-            "Outcome: a simple, operational view to forecast short-horizon demand and support staffing/capacity decisions."
-        )
-
-    # keep it short + scannable
-    parts = []
-    if problem:
-        parts.append(f"**Problem:** {problem}")
-    if approach:
-        parts.append(f"**How:** {approach}")
-    if results:
-        parts.append(f"**Result:** {results}")
-    return "\n".join(parts)
+def small_series_plot(ts: pd.Series, title: str = "Hourly demand (sample view)"):
+    fig = plt.figure(figsize=(7.2, 2.4), dpi=140)
+    ax = fig.add_subplot(111)
+    ax.plot(ts.index, ts.values)
+    ax.set_title(title, fontsize=10)
+    ax.tick_params(axis="x", labelrotation=0)
+    ax.grid(True, alpha=0.25)
+    fig.tight_layout()
+    return fig
 
 
 # =========================
-# Load YAML + query param
+# Paths + query param
 # =========================
 ROOT = Path(__file__).parents[1]
 YAML_PATH = ROOT / "data" / "projects.yaml"
-projects = load_projects(YAML_PATH)
+projects = load_projects_raw(YAML_PATH)
 
-pid = st.query_params.get("project")
-selected = _find_project(projects, pid)
+project_q = st.query_params.get("project")
+selected = find_project(projects, project_q)
 
 
 # =========================
-# Topbar (always)
+# Top bar (navigation)
 # =========================
 st.markdown(
     """
 <div class="topbar">
-  <div class="brandline">
-    <h1>Lab</h1>
-    <div class="subbadge">From chaos to simplicity • recruiter-friendly proof</div>
+  <div style="max-width: 720px;">
+    <h1 style="margin:0;">Lab</h1>
+    <div class="subtitle">Recruiter-friendly demos: small proof, clear outcome, optional deep dive.</div>
   </div>
   <div class="navbtns">
-    <a href="/" target="_self">Home</a>
-    <a href="/About_Me" target="_self">About</a>
-    <a href="/Projects" target="_self">Projects</a>
-    <a href="/Contact" target="_self">Contact</a>
+    <a href="./" target="_self">← Home</a>
+    <a href="./About_Me" target="_self">About</a>
+    <a href="./Projects" target="_self">Projects</a>
+    <a href="./Contact" target="_self">Contact</a>
   </div>
 </div>
 <div class="hr"></div>
@@ -359,66 +349,74 @@ st.markdown(
 
 
 # =========================
-# If no project selected
+# If no project selected: keep it simple
 # =========================
 if not selected:
-    if pid:
-        st.warning(f"Project not found for project={pid}. Open from Projects → Open in Lab.")
-    else:
-        st.info("Open a project from **Projects → Open in Lab** to see its interactive demo.")
-    st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
-    with st.expander("Output (optional)", expanded=False):
-        _render_log()
+    st.markdown(
+        """
+<div class="hero">
+  <h2 style="margin:0;">From chaos to simplicity.</h2>
+  <div class="subtitle">
+    Open this Lab from <b>Projects → Open in Lab</b> to load a project demo dataset and run a minimal proof-of-work.
+  </div>
+  <div class="micro">Tip: the URL should look like <code>?project=taxi_demand</code></div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
     st.stop()
 
 
 # =========================
-# Project card
+# Project hero
 # =========================
-title = selected.get("title", "Project")
+title = selected.get("title", "Project Lab")
 tagline = selected.get("tagline", "")
-
 industry = selected.get("industry", "")
 ptype = selected.get("type", "")
-impact = selected.get("impact_type", "")
-tools = _safe_list(selected.get("tools"))
-skills = _safe_list(selected.get("skills"))
-links = selected.get("links", {}) if isinstance(selected.get("links", {}), dict) else {}
-lab = selected.get("lab", {}) if isinstance(selected.get("lab", {}), dict) else {}
+impact_type = selected.get("impact_type", "")
+year = selected.get("year", "")
+status = selected.get("status", "")
+links = selected.get("links", {}) or {}
+tools = selected.get("tools", []) if isinstance(selected.get("tools"), list) else []
+skills = selected.get("skills", []) if isinstance(selected.get("skills"), list) else []
 
-chaos_txt = lab.get("chaos", "") or ""
-simp_txt = lab.get("simplification", "") or ""
-res_txt = lab.get("result", "") or ""
+st.markdown(
+    f"""
+<div class="hero">
+  <div style="display:flex; justify-content:space-between; gap: 14px; flex-wrap:wrap;">
+    <div style="min-width: 280px; flex: 1;">
+      <h2 style="margin:0;">{title}</h2>
+      <div class="subtitle">{tagline}</div>
+      <div class="micro">From chaos to simplicity</div>
+    </div>
+    <div style="min-width: 280px;">
+      <div class="pills">
+        {f"<span class='pill'>Industry: {industry}</span>" if industry else ""}
+        {f"<span class='pill'>Type: {ptype}</span>" if ptype else ""}
+        {f"<span class='pill'>Impact: {impact_type}</span>" if impact_type else ""}
+        {f"<span class='pill'>Status: {status}</span>" if status else ""}
+        {f"<span class='pill'>Year: {year}</span>" if year else ""}
+        {f"<span class='pill'>Tools: {', '.join(tools[:6])}</span>" if tools else ""}
+        {f"<span class='pill'>Skills: {', '.join(skills[:4])}</span>" if skills else ""}
+      </div>
+    </div>
+  </div>
+</div>
+""",
+    unsafe_allow_html=True,
+)
 
-demo_asset = lab.get("demo_asset", "") or ""
-
-st.markdown("<div class='card'>", unsafe_allow_html=True)
-st.markdown(f"<h2>{_html.escape(title)}</h2>", unsafe_allow_html=True)
-if tagline:
-    st.markdown(f"<div class='tagline'>{_html.escape(tagline)}</div>", unsafe_allow_html=True)
-
-pills = []
-if industry:
-    pills.append(f"<span class='pill'>Industry: {_html.escape(industry)}</span>")
-if ptype:
-    pills.append(f"<span class='pill'>Type: {_html.escape(ptype)}</span>")
-if impact:
-    pills.append(f"<span class='pill'>Impact: {_html.escape(impact)}</span>")
-if tools:
-    pills.append(f"<span class='pill'>Tools: {_html.escape(', '.join(tools[:6]))}</span>")
-if skills:
-    pills.append(f"<span class='pill'>Skills: {_html.escape(', '.join(skills[:4]))}</span>")
-
-if pills:
-    st.markdown("<div class='pills'>" + "".join(pills) + "</div>", unsafe_allow_html=True)
-
+# Links row
 btns = []
 if links.get("github"):
     btns.append(("GitHub", links["github"]))
-if links.get("colab"):
-    btns.append(("Colab", links["colab"]))
 if links.get("report"):
     btns.append(("Report", links["report"]))
+if links.get("demo"):
+    btns.append(("Demo", links["demo"]))
+if links.get("colab"):
+    btns.append(("Colab", links["colab"]))
 
 if btns:
     html_btns = ["<div class='links'>"]
@@ -427,135 +425,308 @@ if btns:
     html_btns.append("</div>")
     st.markdown("".join(html_btns), unsafe_allow_html=True)
 
-if demo_asset:
-    st.markdown(f"<div class='captionmono'>Demo dataset: <code>{_html.escape(demo_asset)}</code></div>", unsafe_allow_html=True)
-else:
-    st.markdown("<div class='captionmono'>Demo dataset: (not configured yet)</div>", unsafe_allow_html=True)
-
-st.markdown("</div>", unsafe_allow_html=True)
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
-_log_append(f"<span class='badge-ok'>[project]</span> loaded: {selected.get('id','')}")
+
+# =========================
+# Load demo asset
+# =========================
+lab_cfg = selected.get("lab", {}) or {}
+demo_asset = lab_cfg.get("demo_asset", "")
+demo_path = (ROOT / demo_asset) if demo_asset else None
+
+if not demo_asset or demo_path is None or not demo_path.exists():
+    st.markdown(
+        f"""
+<div class="card resultwarn">
+  <h3 style="margin-top:0;">Dataset not found</h3>
+  <div class="subtitle">
+    This project doesn’t have a valid <code>lab.demo_asset</code> path in <code>data/projects.yaml</code>.
+  </div>
+  <div class="subtitle"><b>Expected:</b> <code>lab: demo_asset: "data/lab/taxi_demo.csv"</code></div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+    st.stop()
+
+# Load CSV (cached-ish via session)
+@st.cache_data(show_spinner=False)
+def _load_csv(path: str) -> pd.DataFrame:
+    return pd.read_csv(path)
+
+df_raw = _load_csv(str(demo_path))
 
 
 # =========================
-# From chaos to simplicity (always visible)
+# Minimal KPIs (always)
 # =========================
-st.markdown("<div class='card'>", unsafe_allow_html=True)
-st.markdown("<div class='sectiontitle'>From chaos to simplicity</div>", unsafe_allow_html=True)
-
-c1 = chaos_txt if chaos_txt else "Messy demand: seasonality, spikes, noise, and operational constraints."
-c2 = simp_txt if simp_txt else "Feature engineering + model baselines + time-aware evaluation."
-c3 = res_txt if res_txt else "A stable short-horizon forecast signal for planning decisions."
+n_rows, n_cols = df_raw.shape
+n_missing = int(df_raw.isna().sum().sum())
+n_num = sum(pd.api.types.is_numeric_dtype(df_raw[c]) for c in df_raw.columns)
 
 st.markdown(
     f"""
-<div class="kv3">
-  <div class="box"><b>The chaos</b><div>{_html.escape(c1)}</div></div>
-  <div class="box"><b>The simplification</b><div>{_html.escape(c2)}</div></div>
-  <div class="box"><b>The result</b><div>{_html.escape(c3)}</div></div>
+<div class="kpi">
+  <div class="k"><b>{n_rows:,}</b><span>rows</span></div>
+  <div class="k"><b>{n_cols}</b><span>columns</span></div>
+  <div class="k"><b>{n_num}</b><span>numeric</span></div>
+  <div class="k"><b>{n_missing:,}</b><span>missing cells</span></div>
 </div>
 """,
     unsafe_allow_html=True,
 )
-st.markdown("</div>", unsafe_allow_html=True)
+
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
 
 # =========================
-# Keep it simple (main CTA)
+# Keep it simple (single action)
 # =========================
-st.markdown("<div class='sectiontitle'>▶️ Keep it simple</div>", unsafe_allow_html=True)
-keep = st.button("Keep it simple", type="primary")
+st.markdown("## ▶️ Keep it simple")
+st.markdown("<div class='smallhint'>One click. Small proof. Clear outcome. Optional deep dive.</div>", unsafe_allow_html=True)
 
-if keep:
-    st.session_state["kis_ran"] = True
-    _log_append("<span class='badge-ok'>[run]</span> keep it simple clicked.")
+# Button row
+cA, cB = st.columns([1, 3], gap="large")
+with cA:
+    run = st.button("Keep it simple", type="primary", use_container_width=True)
 
-ran = bool(st.session_state.get("kis_ran", False))
+with cB:
+    st.markdown(
+        "<div class='smallhint'>This runs a minimal time-series pipeline: resample hourly → feature engineering (lags/rolling/calendar) → train → evaluate (RMSE).</div>",
+        unsafe_allow_html=True,
+    )
 
-if not ran:
-    st.markdown("<div class='ctaHint'>One click → load demo → show a tiny DS proof (head + info + small chart).</div>", unsafe_allow_html=True)
-    st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
-else:
-    # =========================
-    # Load demo dataset (project-specific)
-    # =========================
-    df = None
-    if demo_asset:
-        demo_path = ROOT / demo_asset
-        if demo_path.exists():
-            try:
-                df = pd.read_csv(demo_path)
-                _log_append(f"<span class='badge-ok'>[data]</span> loaded demo: {demo_asset} ({len(df):,} rows)")
-            except Exception as e:
-                _log_append(f"<span class='badge-err'>[error]</span> failed reading demo_asset: {e}")
-        else:
-            _log_append(f"<span class='badge-warn'>[warn]</span> demo_asset not found: {demo_asset}")
+# Persist outputs so page doesn't feel empty after rerun
+st.session_state.setdefault("lab_ran", False)
+st.session_state.setdefault("lab_payload", {})
+
+if run:
+    st.session_state["lab_ran"] = True
+
+    # --- Prepare data as a time series
+    df = df_raw.copy()
+    dt_col = infer_datetime_col(df)
+    y_col = infer_target_col(df)
+
+    payload = {"ok": False}
+
+    if not dt_col or not y_col:
+        payload["error"] = "Could not infer datetime column or target column."
+        st.session_state["lab_payload"] = payload
     else:
-        _log_append("<span class='badge-warn'>[warn]</span> no demo_asset configured in projects.yaml")
+        df[dt_col] = pd.to_datetime(df[dt_col], errors="coerce")
+        df = df.dropna(subset=[dt_col])
+        df = df.sort_values(dt_col)
 
-    if df is None:
-        st.error("Demo dataset could not be loaded. Check `lab.demo_asset` path in projects.yaml.")
+        # Build hourly series
+        ts = (
+            df.set_index(dt_col)[y_col]
+            .resample("H")
+            .sum()
+            .astype(float)
+        )
+
+        # Feature engineering
+        feat = make_features(ts, max_lag=24, roll=24)
+        train, test = time_split(feat, train_frac=0.9)
+
+        X_train = train.drop(columns=["y"])
+        y_train = train["y"]
+        X_test = test.drop(columns=["y"])
+        y_test = test["y"]
+
+        # Baseline: Linear Regression
+        lr = LinearRegression()
+        lr.fit(X_train, y_train)
+        pred_lr = lr.predict(X_test)
+        rmse_lr = rmse(y_test, pred_lr)
+
+        # Stronger: Random Forest (kept small for fast demo)
+        rf = RandomForestRegressor(
+            n_estimators=120,
+            random_state=42,
+            n_jobs=-1,
+            max_depth=None,
+            min_samples_leaf=2,
+        )
+        rf.fit(X_train, y_train)
+        pred_rf = rf.predict(X_test)
+        rmse_rf = rmse(y_test, pred_rf)
+
+        best_name, best_rmse = ("Random Forest", rmse_rf) if rmse_rf <= rmse_lr else ("Linear Regression", rmse_lr)
+
+        payload.update(
+            {
+                "ok": True,
+                "dt_col": dt_col,
+                "y_col": y_col,
+                "ts": ts,
+                "rmse_lr": float(rmse_lr),
+                "rmse_rf": float(rmse_rf),
+                "best_name": best_name,
+                "best_rmse": float(best_rmse),
+                "head5": df_raw.head(5),
+                "info": to_info_text(df_raw),
+            }
+        )
+        st.session_state["lab_payload"] = payload
+
+
+# =========================
+# Render outputs (only after run)
+# =========================
+if st.session_state["lab_ran"]:
+    payload = st.session_state.get("lab_payload", {})
+    if not payload.get("ok"):
+        st.markdown(
+            f"""
+<div class="card resultwarn">
+  <h3 style="margin-top:0;">Could not run the demo</h3>
+  <div class="subtitle">{payload.get("error","Unknown error")}</div>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
     else:
-        # =========================
-        # Minimal Proof of Work (head + info + small chart)
-        # =========================
+        # Proof of work: head + info
+        st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
+        st.markdown("### Proof of work (minimal)")
+
+        col1, col2 = st.columns([1, 1], gap="large")
+        with col1:
+            st.markdown("<div class='card'>", unsafe_allow_html=True)
+            st.markdown("<div class='dslabel'>df.head(5)</div>", unsafe_allow_html=True)
+            st.dataframe(payload["head5"], use_container_width=True, height=220)
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        with col2:
+            st.markdown("<div class='card'>", unsafe_allow_html=True)
+            st.markdown("<div class='dslabel'>df.info()</div>", unsafe_allow_html=True)
+            st.markdown(f"<div class='dsbox'>{payload['info'].replace(chr(10), '<br/>')}</div>", unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        # Small visual
+        st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
+        st.markdown("### Tiny visual (example)")
+        ts = payload["ts"]
+        fig = small_series_plot(ts.tail(min(len(ts), 24 * 21)), title=f"Hourly {payload['y_col']} (last ~3 weeks)")
         st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("<div class='sectiontitle'>Proof of work</div>", unsafe_allow_html=True)
-
-        # 1) df.head(5)
-        st.markdown("<div class='captionmono'>df.head(5)</div>", unsafe_allow_html=True)
-        st.dataframe(df.head(5), use_container_width=True, height=150)
-
-        # 2) df.info() captured output (looks like terminal)
-        st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
-        st.markdown("<div class='captionmono'>df.info()</div>", unsafe_allow_html=True)
-        info_txt = _capture_df_info(df)
-        st.markdown(f"<div class='dsbox'>{_html.escape(info_txt).replace('\\n','<br/>')}</div>", unsafe_allow_html=True)
-
-        # 3) tiny chart (just visual)
-        num_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
-        if num_cols:
-            y = num_cols[0]
-            st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
-            st.markdown("<div class='captionmono'>tiny visual (example)</div>", unsafe_allow_html=True)
-
-            fig = plt.figure(figsize=(5.8, 2.0))  # smaller
-            ax = fig.add_subplot(111)
-            vals = df[y].values[:200]
-            ax.plot(vals)
-            ax.set_title(f"{y}", fontsize=10)
-            ax.tick_params(axis="both", labelsize=8)
-            ax.set_xlabel("")
-            ax.set_ylabel("")
-            fig.tight_layout(pad=0.6)
-            st.pyplot(fig, clear_figure=True)
-
+        st.pyplot(fig, clear_figure=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
-        # =========================
-        # Expected answer (recruiter response)
-        # =========================
+        # Result: recruiter-friendly expected outcome
+        st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
+        st.markdown("### Result (expected outcome)")
+
+        st.markdown(
+            f"""
+<div class="card resultok">
+  <h3 style="margin-top:0;">✅ What did the model solve?</h3>
+  <div class="subtitle">
+    The pipeline converted raw time data into an hourly forecasting system and learned short-term demand patterns
+    (seasonality + recent history) using simple lag/rolling features.
+  </div>
+  <div class="subtitle" style="margin-top:10px;">
+    <b>Best model (demo):</b> {payload["best_name"]} &nbsp;•&nbsp; <b>RMSE:</b> {payload["best_rmse"]:.2f}
+    <br/>
+    <span style="color:rgba(255,255,255,.65); font-size:12px;">
+      Baseline LR RMSE: {payload["rmse_lr"]:.2f} &nbsp;|&nbsp; Random Forest RMSE: {payload["rmse_rf"]:.2f}
+    </span>
+  </div>
+  <div class="subtitle" style="margin-top:12px;">
+    <b>Operational meaning:</b> this turns historical orders into a planning signal to anticipate peaks and support staffing decisions.
+  </div>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
+
+        # System summary (business + systems)
         st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("<div class='sectiontitle'>What this model solved</div>", unsafe_allow_html=True)
-        st.write(_expected_answer_text(selected, df))
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown(
+            """
+<div class="card">
+  <h3 style="margin-top:0;">🧠 What this system does</h3>
+  <ul>
+    <li>Structures raw timestamps into an hourly time-series</li>
+    <li>Captures trend + seasonality + short-term dependency via calendar, lag and rolling features</li>
+    <li>Produces short-horizon forecasts usable for operational planning</li>
+    <li>Evaluates on future (holdout) data using RMSE</li>
+  </ul>
+  <h3 style="margin-top:12px;">🎯 Business impact</h3>
+  <ul>
+    <li>Anticipate peak hours</li>
+    <li>Reduce idle capacity</li>
+    <li>Support airport operations</li>
+    <li>Enable near real-time planning systems</li>
+  </ul>
+</div>
+""",
+            unsafe_allow_html=True,
+        )
 
-    st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
-    with st.expander("How I built it (optional)", expanded=False):
-        shown = False
-        for key, label in [("problem", "Problem"), ("approach", "Approach"), ("results", "Results"), ("details", "Notes")]:
-            val = (selected.get(key) or "").strip()
-            if val:
-                st.markdown(f"**{label}**")
-                st.write(val)
-                shown = True
-        if not shown:
-            st.caption("Add problem/approach/results/details in projects.yaml to enrich this section.")
+# =========================
+# How I built it (optional)
+# =========================
+st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
+
+with st.expander("How I built it (optional)"):
+    st.markdown(
+        """
+### Problem framing
+Operations need reliable short-horizon demand forecasts to plan staffing efficiently, especially around airport peaks.
+
+### Data preparation
+- Parse timestamps and enforce chronological order  
+- Convert events into an hourly time-series (resampling)  
+- Validate missing values, duplicates and data types  
+
+### Exploratory analysis
+- Trend over time (growth/decline)  
+- Seasonality by hour of day and day of week  
+- Volatility and demand spikes  
+
+### Feature engineering (why this approach)
+Time-series forecasting often improves by encoding *recent history* and *calendar structure*:
+- **Calendar features** (hour, day-of-week, month) capture recurring patterns  
+- **Lag features** capture autocorrelation (recent demand influences next hour)  
+- **Rolling mean** stabilizes short-term noise and provides a local baseline  
+
+This is a strong, interpretable baseline before moving to heavier models.
+
+### Modeling strategy
+- Start with a simple regression baseline (Linear Regression)  
+- Compare against a non-linear model (Random Forest) for richer interactions  
+- Use a time-based holdout split (future data as test) to avoid leakage  
+
+### Evaluation
+Primary metric: **RMSE** on the holdout set  
+- Lower RMSE = better average error in hourly order predictions  
+- Time-based split ensures the evaluation mimics production usage
+
+### Outcome → operational decision
+The output is a forecasting signal used to plan:
+- driver availability  
+- capacity allocation during peak hours  
+- operational response to demand spikes
+"""
+    )
 
 
-with st.expander("Output (optional)", expanded=False):
-    _render_log()
+# =========================
+# Bottom navigation
+# =========================
+st.markdown(
+    """
+<div class="hr"></div>
+<div class="navbtns">
+  <a href="./" target="_self">← Back to Home</a>
+  <a href="./About_Me" target="_self">About</a>
+  <a href="./Projects" target="_self">Projects</a>
+  <a href="./Contact" target="_self">Contact</a>
+</div>
+""",
+    unsafe_allow_html=True,
+)
