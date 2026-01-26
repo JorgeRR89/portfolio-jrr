@@ -40,5 +40,19 @@ projects:
       report: ""
 
     lab:
-      mode: "time_series"
-      demo_asset: "data/lab/taxi_demo.csv"
+      lab:
+  mode: "time_series"
+  demo_asset: "data/lab/taxi_demo.csv"
+
+  techniques:
+    - "Created lag/rolling window features to capture short-term demand momentum"
+    - "Added calendar features (hour, day-of-week) to model seasonality"
+    - "Compared baseline vs ML model to keep interpretability"
+
+  evaluation:
+    - "Time-based split to avoid leakage"
+    - "MAE/RMSE for overall error"
+    - "Error slices by hour/day to identify where the model fails"
+
+  reasoning: "I chose this approach because operations needs a forecast that is stable and explainable. Feature engineering + baselines gives robustness; time-aware evaluation prevents misleading performance."
+
