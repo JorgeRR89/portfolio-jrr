@@ -159,7 +159,7 @@ def project_pid(p: dict) -> str:
 
 def lab_link(pid: str) -> str:
     # Your Lab page is 4_Lab.py -> Streamlit path is ./4_Lab
-    return f"./Lab?project={pid}"
+    return f"/Lab?project={pid}"
 
 def safe_list(x):
     return x if isinstance(x, list) else ([] if x is None else [str(x)])
