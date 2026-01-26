@@ -15,10 +15,29 @@ def load_yaml(path: Path) -> Dict[str, Any]:
 
 
 def _as_list(x: Any) -> List[str]:
-    return x if isinstance(x, list) else []
+    if isinstance(x, list):
+        return [str(v).strip() for v in x if str(v).strip()]
+    if x is None:
+        return []
+    s = str(x).strip()
+    return [s] if s else []
+
+
+def _as_dict(x: Any) -> Dict[str, Any]:
+    return x if isinstance(x, dict) else {}
 
 
 def load_projects(path: Path) -> List[Dict[str, Any]]:
+    """
+    Reads data/projects.yaml.
+    Expected structure:
+      projects:
+        - id: "taxi_demand"
+          title: ...
+          lab:
+            demo_asset: "data/lab/taxi_demo.csv"
+    Returns a LIST of project dicts ready for UI.
+    """
     data = load_yaml(path)
     projects = data.get("projects", [])
     if not isinstance(projects, list):
@@ -29,29 +48,54 @@ def load_projects(path: Path) -> List[Dict[str, Any]]:
         if not isinstance(p, dict):
             continue
 
+        # Backward-compatible aliases (in case older YAML used different keys)
+        tags = _as_list(p.get("tags"))
+        stack = _as_list(p.get("stack"))
+        skills = _as_list(p.get("skills")) or tags
+        tools = _as_list(p.get("tools")) or stack
+
+        # category fallback to industry (older schema)
+        category = str(p.get("category", "")).strip()
+        industry = str(p.get("industry", "")).strip() or category
+
+        # type can exist; otherwise leave empty
+        ptype = str(p.get("type", "")).strip()
+
+        links = _as_dict(p.get("links"))
+        lab = _as_dict(p.get("lab"))
+
         cleaned.append(
             {
+                # Critical identifiers
+                "id": str(p.get("id", "")).strip(),
                 "title": str(p.get("title", "")).strip(),
                 "tagline": str(p.get("tagline", "")).strip(),
-                "category": str(p.get("category", "General")).strip(),
-                "status": str(p.get("status", "In progress")).strip(),
-                "year": str(p.get("year", "")).strip(),
                 "spotlight": bool(p.get("spotlight", False)),
 
+                # Metadata
+                "industry": industry,
+                "type": ptype,
                 "impact_type": str(p.get("impact_type", "")).strip(),
-                "outcomes": _as_list(p.get("outcomes", [])),
+                "status": str(p.get("status", "In progress")).strip(),
+                "year": str(p.get("year", "")).strip(),
 
-                "tags": _as_list(p.get("tags", [])),
-                "stack": _as_list(p.get("stack", [])),
+                # Skills / tools / outcomes
+                "skills": skills,
+                "tools": tools,
+                "outcomes": _as_list(p.get("outcomes")),
 
+                # Long-form recruiter view
                 "problem": str(p.get("problem", "")).strip(),
                 "approach": str(p.get("approach", "")).strip(),
                 "results": str(p.get("results", "")).strip(),
                 "details": str(p.get("details", "")).strip(),
 
-                "links": p.get("links", {}) if isinstance(p.get("links", {}), dict) else {},
+                # Links + Lab config
+                "links": links,
+                "lab": lab,
             }
         )
 
-    cleaned = [p for p in cleaned if p["title"]]
+    # Keep only valid entries (title is required; id is strongly recommended)
+    cleaned = [p for p in cleaned if p.get("title")]
     return cleaned
