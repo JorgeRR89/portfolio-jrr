@@ -1,5 +1,4 @@
 from pathlib import Path
-import io
 import html as _html
 
 import numpy as np
@@ -31,7 +30,7 @@ st.set_page_config(page_title="Lab • Portfolio JRR", page_icon="🧪", layout=
 
 
 # =========================
-# Styles (console / lab)
+# Styles
 # =========================
 st.markdown(
     """
@@ -46,7 +45,6 @@ a { text-decoration: none; }
   --fg2: rgba(255,255,255,.72);
   --line: rgba(255,255,255,.10);
   --card: rgba(255,255,255,.04);
-  --card2: rgba(0,0,0,.22);
   --ok: rgba(120,255,180,.95);
   --warn: rgba(255,210,120,.95);
   --err: rgba(255,120,140,.95);
@@ -159,51 +157,7 @@ small, p, li { color: var(--fg2); }
 
 
 # =========================
-# Helpers: project id match
-# =========================
-def slugify(s: str) -> str:
-    s = (s or "").strip().lower()
-    keep = []
-    for ch in s:
-        keep.append(ch if ch.isalnum() else "-")
-    out = "".join(keep)
-    while "--" in out:
-        out = out.replace("--", "-")
-    return out.strip("-")
-
-
-def project_pid(p: dict) -> str:
-    pid = p.get("id")
-    if pid:
-        return str(pid)
-    return slugify(p.get("title", "project"))
-
-
-def find_project(projects: list[dict], q: str | None) -> dict | None:
-    if not q:
-        return None
-    q = str(q).strip().lower()
-
-    # 1) match direct id
-    for p in projects:
-        if str(p.get("id", "")).strip().lower() == q and p.get("id"):
-            return p
-
-    # 2) match slug(title)
-    for p in projects:
-        if slugify(p.get("title", "")) == q:
-            return p
-
-    # 3) contains match title (fallback)
-    for p in projects:
-        if q and q in str(p.get("title", "")).lower():
-            return p
-
-    return None
-
-
-# =========================
-# Helpers: columns
+# Helpers
 # =========================
 def _numeric_cols(df: pd.DataFrame):
     return [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
@@ -243,19 +197,10 @@ def _demo_dataset(seed: int = 7, n: int = 900) -> pd.DataFrame:
         - 2.6 * lead_time
         + rng.normal(0, 9, size=n)
     )
-
     demand = np.clip(demand, 5, None)
 
     cost = np.clip(rng.normal(26, 7, size=n), 6, None)
     profit = (price - cost) * demand - 0.15 * marketing
-
-    risk_score = (
-        0.35 * (lead_time / (lead_time.max() + 1e-9))
-        + 0.25 * (price / (price.max() + 1e-9))
-        + 0.40 * (rng.random(n))
-    )
-    risk_score = (risk_score * 100).round(2)
-
     profitable = (profit > np.percentile(profit, 55)).astype(int)
 
     df = pd.DataFrame(
@@ -268,24 +213,18 @@ def _demo_dataset(seed: int = 7, n: int = 900) -> pd.DataFrame:
             "lead_time_days": lead_time.round(2),
             "demand_units": demand.round(0),
             "profit": profit.round(2),
-            "risk_score": risk_score,
             "profitable": profitable,
         }
     )
-
     miss_idx = rng.choice(np.arange(n), size=int(n * 0.03), replace=False)
     df.loc[miss_idx, "lead_time_days"] = np.nan
-
     return df
 
 
-# =========================
-# Output log (safe)
-# =========================
 def _log_append(msg: str):
     st.session_state.setdefault("lab_log", [])
     st.session_state["lab_log"].append(msg)
-    st.session_state["lab_log"] = st.session_state["lab_log"][-140:]
+    st.session_state["lab_log"] = st.session_state["lab_log"][-160:]
 
 
 def _render_log():
@@ -305,13 +244,8 @@ def _render_log():
     st.markdown("<div class='console'>" + "<br/>".join(safe_lines) + "</div>", unsafe_allow_html=True)
 
 
-# =========================
-# Auto insights
-# =========================
 def auto_insights(df: pd.DataFrame):
-    insights = []
-    tables = {}
-    figs = []
+    insights, tables, figs = [], {}, []
 
     nums = _numeric_cols(df)
     cats = _cat_cols(df)
@@ -327,55 +261,48 @@ def auto_insights(df: pd.DataFrame):
     else:
         insights.append("• No missing data detected.")
 
-    profit_col = None
-    if "profit" in df.columns:
-        profit_col = "profit"
-    elif "demand" in df.columns:
-        profit_col = "demand"
-    elif nums:
-        profit_col = nums[0]
+    # best "target-like" column for correlations/trends
+    preferred = None
+    for c in ["demand", "demand_units", "profit"]:
+        if c in df.columns:
+            preferred = c
+            break
+    if preferred is None and nums:
+        preferred = nums[0]
 
-    if profit_col and len(nums) >= 2 and profit_col in df.columns:
-        corr = df[nums].corr(numeric_only=True)[profit_col].drop(index=profit_col).sort_values(ascending=False)
+    if preferred and preferred in df.columns and len(nums) >= 2:
+        corr = df[nums].corr(numeric_only=True)[preferred].drop(index=preferred, errors="ignore").sort_values(ascending=False)
         if len(corr) > 0:
             top = corr.iloc[0]
             low = corr.iloc[-1]
-            insights.append(f"• Strongest positive driver of {profit_col}: {top.name} (ρ={top:.2f})")
-            insights.append(f"• Strongest negative driver of {profit_col}: {low.name} (ρ={low:.2f})")
-            tables["correlation_with_" + profit_col] = corr.reset_index().rename(columns={"index": "feature", profit_col: "correlation"})
+            insights.append(f"• Strongest positive driver of {preferred}: {top.name} (ρ={top:.2f})")
+            insights.append(f"• Strongest negative driver of {preferred}: {low.name} (ρ={low:.2f})")
+            tables[f"correlation_with_{preferred}"] = corr.reset_index().rename(columns={"index": "feature", preferred: "correlation"})
 
             fig = plt.figure()
             ax = fig.add_subplot(111)
             topn = corr.head(8)
             ax.bar(topn.index, topn.values)
-            ax.set_title(f"Top correlations with {profit_col}")
+            ax.set_title(f"Top correlations with {preferred}")
             ax.tick_params(axis="x", rotation=25)
             figs.append(fig)
 
-    if profit_col and cats and profit_col in df.columns:
+    if preferred and preferred in df.columns and cats:
         gcol = cats[0]
-        g = df.groupby(gcol)[profit_col].mean().sort_values(ascending=False)
-        if len(g) >= 2:
-            insights.append(f"• Best {gcol}: {g.index[0]} (avg {profit_col}: {g.iloc[0]:,.2f})")
-            insights.append(f"• Worst {gcol}: {g.index[-1]} (avg {profit_col}: {g.iloc[-1]:,.2f})")
-        tables[f"mean_{profit_col}_by_{gcol}"] = g.reset_index().rename(columns={profit_col: f"mean_{profit_col}"})
+        g = df.groupby(gcol)[preferred].mean().sort_values(ascending=False)
+        tables[f"mean_{preferred}_by_{gcol}"] = g.reset_index().rename(columns={preferred: f"mean_{preferred}"})
 
-    if profit_col and time_col and profit_col in df.columns:
+    if preferred and preferred in df.columns and time_col:
         try:
             tmp = df.copy()
             tmp[time_col] = pd.to_datetime(tmp[time_col], errors="coerce")
             tmp = tmp.dropna(subset=[time_col])
             if not tmp.empty:
-                # monthly mean
-                t = tmp.groupby(tmp[time_col].dt.to_period("M"))[profit_col].mean()
-                if len(t) >= 2:
-                    delta = t.iloc[-1] - t.iloc[0]
-                    insights.append(f"• {profit_col} trend: {'upward' if delta>0 else 'downward'} ({delta:,.1f})")
-
+                t = tmp.groupby(tmp[time_col].dt.to_period("M"))[preferred].mean()
                 fig = plt.figure()
                 ax = fig.add_subplot(111)
                 ax.plot(t.index.astype(str), t.values, marker="o")
-                ax.set_title(f"{profit_col} trend (monthly)")
+                ax.set_title(f"{preferred} trend (monthly)")
                 ax.tick_params(axis="x", rotation=25)
                 figs.append(fig)
         except Exception:
@@ -384,9 +311,6 @@ def auto_insights(df: pd.DataFrame):
     return insights, tables, figs
 
 
-# =========================
-# Quick model
-# =========================
 def build_quick_model(df: pd.DataFrame, target: str):
     X = df.drop(columns=[target])
     y = df[target]
@@ -435,14 +359,26 @@ def build_quick_model(df: pd.DataFrame, target: str):
 
 
 # =========================
-# Load YAML + project from URL
+# Load YAML + read query param
 # =========================
 ROOT = Path(__file__).parents[1]
 YAML_PATH = ROOT / "data" / "projects.yaml"
 projects = load_projects(YAML_PATH)
 
-q = st.query_params.get("project")
-selected = find_project(projects, q)
+project_q = st.query_params.get("project")
+
+
+def _find_project(projects_list: list[dict], pid: str | None):
+    if not pid:
+        return None
+    pid = str(pid).strip()
+    for p in projects_list:
+        if str(p.get("id", "")).strip() == pid:
+            return p
+    return None
+
+
+selected = _find_project(projects, project_q)
 
 # =========================
 # Top bar
@@ -455,10 +391,10 @@ st.markdown(
     <div class="pill">🧪 Data Console • Project Demos • Auto Insights • Experiments</div>
   </div>
   <div class="navbtns">
-    <a href="./" target="_self">← Home</a>
-    <a href="./About_Me" target="_self">About</a>
+    <a href="/" target="_self">← Home</a>
+    <a href="/About_Me" target="_self">About</a>
     <a href="/Projects" target="_self">Projects</a>
-    <a href="./Contact" target="_self">Contact</a>
+    <a href="/Contact" target="_self">Contact</a>
   </div>
 </div>
 <div class="hr"></div>
@@ -467,32 +403,30 @@ st.markdown(
 )
 
 # =========================
-# Project header (if present)
+# Project card
 # =========================
 if selected:
-    pid = project_pid(selected)
-    industry = selected.get("industry", "")
-    ptype = selected.get("type", "")
-    impact = selected.get("impact_type", "")
-    tools = selected.get("tools", []) if isinstance(selected.get("tools"), list) else []
-    skills = selected.get("skills", []) if isinstance(selected.get("skills"), list) else []
-    links = selected.get("links", {}) or {}
-
     st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.markdown(f"### {selected.get('title','Project')}")
     st.caption(selected.get("tagline", ""))
 
-    st.markdown(
-        "<div class='pills'>"
-        + (f"<span class='pill2'>Industry: {industry}</span>" if industry else "")
-        + (f"<span class='pill2'>Type: {ptype}</span>" if ptype else "")
-        + (f"<span class='pill2'>Impact: {impact}</span>" if impact else "")
-        + (f"<span class='pill2'>Tools: {', '.join(tools[:6])}</span>" if tools else "")
-        + (f"<span class='pill2'>Skills: {', '.join(skills[:4])}</span>" if skills else "")
-        + "</div>",
-        unsafe_allow_html=True,
-    )
+    pills = []
+    if selected.get("industry"):
+        pills.append(f"<span class='pill2'>Industry: {selected['industry']}</span>")
+    if selected.get("type"):
+        pills.append(f"<span class='pill2'>Type: {selected['type']}</span>")
+    if selected.get("impact_type"):
+        pills.append(f"<span class='pill2'>Impact: {selected['impact_type']}</span>")
+    tools = selected.get("tools", []) if isinstance(selected.get("tools"), list) else []
+    skills = selected.get("skills", []) if isinstance(selected.get("skills"), list) else []
+    if tools:
+        pills.append(f"<span class='pill2'>Tools: {', '.join(tools[:6])}</span>")
+    if skills:
+        pills.append(f"<span class='pill2'>Skills: {', '.join(skills[:4])}</span>")
 
+    st.markdown("<div class='pills'>" + "".join(pills) + "</div>", unsafe_allow_html=True)
+
+    links = selected.get("links", {}) or {}
     btns = []
     if links.get("github"):
         btns.append(("GitHub", links["github"]))
@@ -512,23 +446,25 @@ if selected:
 
     st.markdown("</div>", unsafe_allow_html=True)
     st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
-
-    _log_append(f"<span class='badge-ok'>[project]</span> loaded: {selected.get('title','')}")
+    _log_append(f"<span class='badge-ok'>[project]</span> loaded: {selected.get('id','')}")
 else:
-    if q:
-        _log_append(f"<span class='badge-warn'>[warn]</span> project not found for query: {q}")
-    st.caption("Tip: open Lab from a project card → **Open in Lab**.")
+    if project_q:
+        _log_append(f"<span class='badge-warn'>[warn]</span> project not found: {project_q}")
+    st.caption("Tip: Open from Projects → Open in Lab.")
 
 
 # =========================
-# Sidebar: data source
+# Sidebar: data source (THIS is where Project demo appears)
 # =========================
 with st.sidebar:
     st.markdown("### System")
     st.caption("Load a dataset, explore, then run auto insights & experiments.")
 
-    options = ["Project demo (if available)", "Demo dataset (recommended)", "Upload CSV"]
-    src = st.radio("Data source", options, index=0)
+    src = st.radio(
+        "Data source",
+        ["Project demo (if available)", "Demo dataset (recommended)", "Upload CSV"],
+        index=0,
+    )
 
     uploaded = None
     if src == "Upload CSV":
@@ -545,28 +481,24 @@ with st.sidebar:
 
 
 # =========================
-# Load data (Project demo -> taxi_demo.csv)
+# Load data
 # =========================
 df = None
 
 if src == "Project demo (if available)" and selected:
-    lab = selected.get("lab", {}) or {}
-    demo_asset = lab.get("demo_asset")
+    demo_asset = (selected.get("lab", {}) or {}).get("demo_asset")
     if demo_asset:
-        path = (ROOT / demo_asset).resolve()
+        path = ROOT / demo_asset
         if path.exists():
             try:
                 df = pd.read_csv(path)
-                _log_append(f"<span class='badge-ok'>[data]</span> loaded project demo: {demo_asset} ({len(df):,} rows)")
+                _log_append(f"<span class='badge-ok'>[data]</span> loaded demo_asset: {demo_asset} ({len(df):,} rows)")
             except Exception as e:
                 _log_append(f"<span class='badge-err'>[error]</span> failed to read demo_asset: {e}")
-                df = None
         else:
             _log_append(f"<span class='badge-warn'>[warn]</span> demo_asset not found: {demo_asset}")
-            df = None
     else:
         _log_append("<span class='badge-warn'>[warn]</span> project has no lab.demo_asset")
-        df = None
 
 if df is None:
     if src == "Upload CSV":
@@ -586,12 +518,11 @@ if df is None:
 
 
 # =========================
-# Status KPIs
+# KPIs
 # =========================
 n_rows, n_cols = df.shape
 n_missing = int(df.isna().sum().sum())
 n_num = len(_numeric_cols(df))
-n_cat = len(_cat_cols(df))
 
 st.markdown(
     f"""
@@ -606,8 +537,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+
 # =========================
-# Data Explorer
+# Data explorer
 # =========================
 st.markdown("## Data Explorer")
 
@@ -621,14 +553,16 @@ with colA:
 with colB:
     st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.markdown("### Quick filters")
+
+    view = df.copy()
+
     cats = _cat_cols(df)
     nums = _numeric_cols(df)
 
-    view = df.copy()
     if cats:
         c = st.selectbox("Filter by categorical column", ["(none)"] + cats, index=0)
         if c != "(none)":
-            vals = sorted([v for v in view[c].dropna().unique()])[:150]
+            vals = sorted([v for v in view[c].dropna().unique()])[:200]
             pick = st.multiselect("Pick values", vals, default=vals[: min(3, len(vals))])
             if pick:
                 view = view[view[c].isin(pick)]
@@ -647,8 +581,9 @@ with colB:
 
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
+
 # =========================
-# Auto Insights
+# Auto insights
 # =========================
 st.markdown("## ⚡ Auto Insights")
 
@@ -681,6 +616,7 @@ else:
 
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
+
 # =========================
 # Experiments
 # =========================
@@ -688,7 +624,7 @@ st.markdown("## 🧪 Experiments")
 
 targets = ["(none)"] + list(df.columns)
 default_target = "(none)"
-for cand in ["profitable", "target", "demand", "demand_units"]:
+for cand in ["demand", "demand_units", "target", "profitable"]:
     if cand in df.columns:
         default_target = cand
         break
@@ -720,6 +656,7 @@ if run_model:
             _log_append(f"<span class='badge-err'>[error]</span> model failed: {e}")
 
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
+
 
 # =========================
 # Output log
