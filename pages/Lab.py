@@ -4,6 +4,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 import html as _html
+import io
 
 import pandas as pd
 import numpy as np
@@ -20,7 +21,7 @@ st.set_page_config(page_title="Lab • Portfolio JRR", page_icon="🧪", layout=
 
 
 # =========================
-# Minimalist styles
+# Minimalist premium styles
 # =========================
 st.markdown(
     """
@@ -33,56 +34,87 @@ a { text-decoration: none; }
 :root{
   --fg: rgba(255,255,255,.92);
   --fg2: rgba(255,255,255,.70);
+  --fg3: rgba(255,255,255,.56);
   --line: rgba(255,255,255,.10);
-  --card: rgba(255,255,255,.04);
-  --card2: rgba(0,0,0,.18);
+  --line2: rgba(255,255,255,.14);
+
+  --glass: rgba(255,255,255,.045);
+  --glass2: rgba(255,255,255,.06);
+
   --ok: rgba(120,255,180,.95);
   --warn: rgba(255,210,120,.95);
   --err: rgba(255,120,140,.95);
 }
 
 html, body, [data-testid="stAppViewContainer"]{
-  background: radial-gradient(1000px 620px at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,.98)) !important;
+  background:
+    radial-gradient(1100px 680px at 50% 0%, rgba(255,255,255,.06), rgba(0,0,0,.98)) !important;
   color: var(--fg) !important;
 }
 
-h1,h2,h3{ letter-spacing: -0.03em; }
-small, p, li { color: var(--fg2); }
+h1,h2,h3{ letter-spacing: -0.04em; }
+p, li, small { color: var(--fg2); }
 
-.hr{ height:1px; background: var(--line); margin: 14px 0 18px 0; }
+.hr{ height:1px; background: var(--line); margin: 16px 0 18px 0; }
 
 .topbar{
   display:flex; align-items:flex-start; justify-content:space-between;
   gap: 12px;
   padding: 6px 0 6px 0;
 }
+
+.brandline{
+  display:flex; flex-direction:column; gap:6px;
+}
+.brandline h1{
+  margin:0;
+  font-size: 34px;
+  line-height: 1.05;
+}
+.subbadge{
+  display:inline-flex; align-items:center; gap:10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.03);
+  color: rgba(255,255,255,.82);
+  font-size: 12px;
+}
+
 .navbtns{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
 .navbtns a{
   display:inline-block;
   padding: 9px 12px;
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: rgba(255,255,255,.04);
+  background: rgba(255,255,255,.035);
   color: rgba(255,255,255,.88) !important;
   font-size: 13px;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
 }
-.navbtns a:hover{ background: rgba(255,255,255,.08); }
+.navbtns a:hover{
+  background: rgba(255,255,255,.075);
+  border-color: var(--line2);
+  transform: translateY(-1px);
+}
 
 .card{
   border: 1px solid var(--line);
-  background: linear-gradient(180deg, var(--card), rgba(0,0,0,.16));
+  background: linear-gradient(180deg, var(--glass2), rgba(0,0,0,.20));
   border-radius: 18px;
   padding: 16px 16px;
+  box-shadow: 0 10px 28px rgba(0,0,0,.35);
 }
 
-.badge{
-  display:inline-flex; align-items:center; gap:8px;
-  padding: 6px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: rgba(255,255,255,.03);
-  color: rgba(255,255,255,.84);
-  font-size: 12px;
+.card h2{
+  margin: 0 0 2px 0;
+  font-size: 22px;
+}
+.card .tagline{
+  margin: 6px 0 0 0;
+  color: var(--fg2);
+  font-size: 14px;
+  line-height: 1.35;
 }
 
 .pills{ display:flex; gap:8px; flex-wrap:wrap; margin-top: 10px; }
@@ -90,49 +122,45 @@ small, p, li { color: var(--fg2); }
   padding: 6px 9px;
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: rgba(0,0,0,.18);
+  background: rgba(0,0,0,.16);
   color: rgba(255,255,255,.78);
   font-size: 12px;
 }
 
+.links{
+  margin-top: 10px;
+}
 .links a{
-  display:inline-block;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
   padding: 8px 12px;
   border-radius: 999px;
   border: 1px solid var(--line);
   background: rgba(255,255,255,.04);
-  color: rgba(255,255,255,.88) !important;
-  text-decoration:none;
+  color: rgba(255,255,255,.90) !important;
   margin-right: 8px;
-  margin-top: 10px;
+  margin-top: 8px;
   font-size: 13px;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
 }
-.links a:hover{ background: rgba(255,255,255,.07); }
-
-.bigcta{
-  display:inline-flex; align-items:center; gap:10px;
-  padding: 10px 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.14);
-  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.10));
-  color: rgba(255,255,255,.92);
-  font-size: 14px;
+.links a:hover{
+  background: rgba(255,255,255,.08);
+  border-color: var(--line2);
+  transform: translateY(-1px);
 }
 
-.console{
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: rgba(0,0,0,.35);
-  padding: 14px 14px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+.captionmono{
+  color: var(--fg3);
   font-size: 12px;
-  color: rgba(255,255,255,.82);
-  overflow: auto;
-  max-height: 240px;
+  margin-top: 8px;
 }
-.badge-ok{ color: var(--ok); }
-.badge-warn{ color: var(--warn); }
-.badge-err{ color: var(--err); }
+
+.sectiontitle{
+  font-size: 16px;
+  color: rgba(255,255,255,.90);
+  margin: 0 0 10px 0;
+}
 
 .kv3{
   display:grid;
@@ -153,6 +181,67 @@ small, p, li { color: var(--fg2); }
   display:block;
   color: rgba(255,255,255,.90);
   margin-bottom: 6px;
+  font-size: 13px;
+}
+.kv3 .box div{
+  color: var(--fg2);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.ctaHint{
+  color: var(--fg3);
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+/* Console */
+.console{
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(0,0,0,.35);
+  padding: 14px 14px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  color: rgba(255,255,255,.82);
+  overflow: auto;
+  max-height: 220px;
+}
+.badge-ok{ color: var(--ok); }
+.badge-warn{ color: var(--warn); }
+.badge-err{ color: var(--err); }
+
+/* DataScience-ish pre box (info/head) */
+.dsbox{
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(0,0,0,.28);
+  padding: 12px 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 12px;
+  color: rgba(255,255,255,.84);
+  overflow: auto;
+  max-height: 220px;
+}
+
+/* Make Streamlit primary button look more premium */
+div.stButton > button[kind="primary"]{
+  border-radius: 14px !important;
+  border: 1px solid rgba(255,255,255,.16) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04)) !important;
+  color: rgba(255,255,255,.92) !important;
+  padding: 10px 14px !important;
+  font-weight: 700 !important;
+}
+div.stButton > button[kind="primary"]:hover{
+  border-color: rgba(255,255,255,.24) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.06)) !important;
+  transform: translateY(-1px);
+}
+
+/* Slightly reduce plot padding */
+div[data-testid="stPlotlyChart"], div[data-testid="stImage"], div[data-testid="stPyplot"]{
+  margin-top: 0.2rem;
 }
 </style>
 """,
@@ -200,12 +289,39 @@ def _find_project(projects_list: List[Dict[str, Any]], pid: Optional[str]):
     return None
 
 
-def _abs_page(path: str) -> str:
+def _capture_df_info(df: pd.DataFrame) -> str:
+    buf = io.StringIO()
+    df.info(buf=buf)
+    return buf.getvalue()
+
+
+def _expected_answer_text(p: Dict[str, Any], df: pd.DataFrame) -> str:
     """
-    Streamlit multipage on Community Cloud works reliably with absolute paths:
-    '/', '/Projects', '/About_Me', '/Contact'
+    Recruiter-friendly 2–3 lines, grounded in YAML if present.
+    If YAML has problem/approach/results, use them; else provide a safe default.
     """
-    return path
+    problem = (p.get("problem") or "").strip()
+    approach = (p.get("approach") or "").strip()
+    results = (p.get("results") or "").strip()
+
+    # fallback (minimal + DS tone)
+    if not (problem or approach or results):
+        rows, cols = df.shape
+        return (
+            "Built a reproducible forecasting workflow to turn noisy ride demand into a usable planning signal. "
+            f"Loaded a clean modeling table ({rows:,} rows × {cols} cols), then validated performance with time-aware evaluation. "
+            "Outcome: a simple, operational view to forecast short-horizon demand and support staffing/capacity decisions."
+        )
+
+    # keep it short + scannable
+    parts = []
+    if problem:
+        parts.append(f"**Problem:** {problem}")
+    if approach:
+        parts.append(f"**How:** {approach}")
+    if results:
+        parts.append(f"**Result:** {results}")
+    return "\n".join(parts)
 
 
 # =========================
@@ -223,17 +339,17 @@ selected = _find_project(projects, pid)
 # Topbar (always)
 # =========================
 st.markdown(
-    f"""
+    """
 <div class="topbar">
-  <div>
-    <h1 style="margin:0;">Lab</h1>
-    <div class="badge">From chaos to simplicity • recruiter-friendly proof</div>
+  <div class="brandline">
+    <h1>Lab</h1>
+    <div class="subbadge">From chaos to simplicity • recruiter-friendly proof</div>
   </div>
   <div class="navbtns">
-    <a href="{_abs_page('/')}" target="_self">Home</a>
-    <a href="{_abs_page('/About_Me')}" target="_self">About</a>
-    <a href="{_abs_page('/Projects')}" target="_self">Projects</a>
-    <a href="{_abs_page('/Contact')}" target="_self">Contact</a>
+    <a href="/" target="_self">Home</a>
+    <a href="/About_Me" target="_self">About</a>
+    <a href="/Projects" target="_self">Projects</a>
+    <a href="/Contact" target="_self">Contact</a>
   </div>
 </div>
 <div class="hr"></div>
@@ -270,31 +386,28 @@ skills = _safe_list(selected.get("skills"))
 links = selected.get("links", {}) if isinstance(selected.get("links", {}), dict) else {}
 lab = selected.get("lab", {}) if isinstance(selected.get("lab", {}), dict) else {}
 
-# Optional narrative fields (recommended)
 chaos_txt = lab.get("chaos", "") or ""
 simp_txt = lab.get("simplification", "") or ""
 res_txt = lab.get("result", "") or ""
 
 demo_asset = lab.get("demo_asset", "") or ""
-mode = lab.get("mode", "") or ""
-
 
 st.markdown("<div class='card'>", unsafe_allow_html=True)
-st.markdown(f"## {title}")
+st.markdown(f"<h2>{_html.escape(title)}</h2>", unsafe_allow_html=True)
 if tagline:
-    st.caption(tagline)
+    st.markdown(f"<div class='tagline'>{_html.escape(tagline)}</div>", unsafe_allow_html=True)
 
 pills = []
 if industry:
-    pills.append(f"<span class='pill'>Industry: {industry}</span>")
+    pills.append(f"<span class='pill'>Industry: {_html.escape(industry)}</span>")
 if ptype:
-    pills.append(f"<span class='pill'>Type: {ptype}</span>")
+    pills.append(f"<span class='pill'>Type: {_html.escape(ptype)}</span>")
 if impact:
-    pills.append(f"<span class='pill'>Impact: {impact}</span>")
+    pills.append(f"<span class='pill'>Impact: {_html.escape(impact)}</span>")
 if tools:
-    pills.append(f"<span class='pill'>Tools: {', '.join(tools[:6])}</span>")
+    pills.append(f"<span class='pill'>Tools: {_html.escape(', '.join(tools[:6]))}</span>")
 if skills:
-    pills.append(f"<span class='pill'>Skills: {', '.join(skills[:4])}</span>")
+    pills.append(f"<span class='pill'>Skills: {_html.escape(', '.join(skills[:4]))}</span>")
 
 if pills:
     st.markdown("<div class='pills'>" + "".join(pills) + "</div>", unsafe_allow_html=True)
@@ -314,11 +427,10 @@ if btns:
     html_btns.append("</div>")
     st.markdown("".join(html_btns), unsafe_allow_html=True)
 
-# small dataset badge
 if demo_asset:
-    st.caption(f"Demo dataset: `{demo_asset}`")
+    st.markdown(f"<div class='captionmono'>Demo dataset: <code>{_html.escape(demo_asset)}</code></div>", unsafe_allow_html=True)
 else:
-    st.caption("Demo dataset: (not configured yet)")
+    st.markdown("<div class='captionmono'>Demo dataset: (not configured yet)</div>", unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
@@ -330,19 +442,18 @@ _log_append(f"<span class='badge-ok'>[project]</span> loaded: {selected.get('id'
 # From chaos to simplicity (always visible)
 # =========================
 st.markdown("<div class='card'>", unsafe_allow_html=True)
-st.markdown("### From chaos to simplicity")
+st.markdown("<div class='sectiontitle'>From chaos to simplicity</div>", unsafe_allow_html=True)
 
-# If YAML doesn't have the texts yet, show placeholders so you remember to fill them.
-c1 = chaos_txt if chaos_txt else "Describe the messy reality (noise, constraints, seasonality, ambiguity)."
-c2 = simp_txt if simp_txt else "Describe the simplification (features, model, evaluation, decision framing)."
-c3 = res_txt if res_txt else "Describe the result (baseline improvement, stability, operational value)."
+c1 = chaos_txt if chaos_txt else "Messy demand: seasonality, spikes, noise, and operational constraints."
+c2 = simp_txt if simp_txt else "Feature engineering + model baselines + time-aware evaluation."
+c3 = res_txt if res_txt else "A stable short-horizon forecast signal for planning decisions."
 
 st.markdown(
     f"""
 <div class="kv3">
-  <div class="box"><b>The chaos</b><div>{c1}</div></div>
-  <div class="box"><b>The simplification</b><div>{c2}</div></div>
-  <div class="box"><b>The result</b><div>{c3}</div></div>
+  <div class="box"><b>The chaos</b><div>{_html.escape(c1)}</div></div>
+  <div class="box"><b>The simplification</b><div>{_html.escape(c2)}</div></div>
+  <div class="box"><b>The result</b><div>{_html.escape(c3)}</div></div>
 </div>
 """,
     unsafe_allow_html=True,
@@ -354,12 +465,9 @@ st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 # =========================
 # Keep it simple (main CTA)
 # =========================
-st.markdown("### ▶️ Keep it simple")
-
-# One single action. Everything else renders after click.
+st.markdown("<div class='sectiontitle'>▶️ Keep it simple</div>", unsafe_allow_html=True)
 keep = st.button("Keep it simple", type="primary")
 
-# Persist the run state so refresh doesn't wipe the view immediately
 if keep:
     st.session_state["kis_ran"] = True
     _log_append("<span class='badge-ok'>[run]</span> keep it simple clicked.")
@@ -367,7 +475,7 @@ if keep:
 ran = bool(st.session_state.get("kis_ran", False))
 
 if not ran:
-    st.caption("Click **Keep it simple** to run the project demo (dataset + one proof-of-work view).")
+    st.markdown("<div class='ctaHint'>One click → load demo → show a tiny DS proof (head + info + small chart).</div>", unsafe_allow_html=True)
     st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 else:
     # =========================
@@ -391,49 +499,63 @@ else:
         st.error("Demo dataset could not be loaded. Check `lab.demo_asset` path in projects.yaml.")
     else:
         # =========================
-        # Proof of work (minimal placeholder)
-        # Next step: swap this with Taxi-specific time-series demo.
+        # Minimal Proof of Work (head + info + small chart)
         # =========================
         st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("### Proof of work")
-        st.caption("Minimal demo loaded. Next: project-specific chart + baseline vs model metric.")
-        st.dataframe(df.head(12), use_container_width=True, height=280)
+        st.markdown("<div class='sectiontitle'>Proof of work</div>", unsafe_allow_html=True)
 
-        # Simple chart: first numeric column over index (placeholder)
+        # 1) df.head(5)
+        st.markdown("<div class='captionmono'>df.head(5)</div>", unsafe_allow_html=True)
+        st.dataframe(df.head(5), use_container_width=True, height=150)
+
+        # 2) df.info() captured output (looks like terminal)
+        st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div class='captionmono'>df.info()</div>", unsafe_allow_html=True)
+        info_txt = _capture_df_info(df)
+        st.markdown(f"<div class='dsbox'>{_html.escape(info_txt).replace('\\n','<br/>')}</div>", unsafe_allow_html=True)
+
+        # 3) tiny chart (just visual)
         num_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
         if num_cols:
             y = num_cols[0]
-            fig = plt.figure()
+            st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div class='captionmono'>tiny visual (example)</div>", unsafe_allow_html=True)
+
+            fig = plt.figure(figsize=(5.8, 2.0))  # smaller
             ax = fig.add_subplot(111)
-            ax.plot(df[y].values[:200])
-            ax.set_title(f"Quick view: {y}")
+            vals = df[y].values[:200]
+            ax.plot(vals)
+            ax.set_title(f"{y}", fontsize=10)
+            ax.tick_params(axis="both", labelsize=8)
+            ax.set_xlabel("")
+            ax.set_ylabel("")
+            fig.tight_layout(pad=0.6)
             st.pyplot(fig, clear_figure=True)
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        # =========================
+        # Expected answer (recruiter response)
+        # =========================
+        st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.markdown("<div class='sectiontitle'>What this model solved</div>", unsafe_allow_html=True)
+        st.write(_expected_answer_text(selected, df))
         st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
-    # =========================
-    # How I built it (optional)
-    # =========================
     with st.expander("How I built it (optional)", expanded=False):
-        if selected.get("approach"):
-            st.markdown("**Approach**")
-            st.write(selected.get("approach"))
-        if selected.get("problem"):
-            st.markdown("**Problem**")
-            st.write(selected.get("problem"))
-        if selected.get("results"):
-            st.markdown("**Results**")
-            st.write(selected.get("results"))
-        if selected.get("details"):
-            st.markdown("**Notes**")
-            st.write(selected.get("details"))
-        if not any(selected.get(k) for k in ["approach", "problem", "results", "details"]):
+        shown = False
+        for key, label in [("problem", "Problem"), ("approach", "Approach"), ("results", "Results"), ("details", "Notes")]:
+            val = (selected.get(key) or "").strip()
+            if val:
+                st.markdown(f"**{label}**")
+                st.write(val)
+                shown = True
+        if not shown:
             st.caption("Add problem/approach/results/details in projects.yaml to enrich this section.")
 
 
-# =========================
-# Output log (optional)
-# =========================
 with st.expander("Output (optional)", expanded=False):
     _render_log()
