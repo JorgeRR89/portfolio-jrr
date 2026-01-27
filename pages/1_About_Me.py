@@ -44,11 +44,15 @@ helps = """
 <style>
 header[data-testid="stHeader"] {display:none;}
 footer {visibility:hidden;}
-.block-container { padding-top: 2.2rem; padding-bottom: 3rem; max-width: 1080px; }
+
+/* deja espacio para el header fijo */
+.block-container { padding-top: 6.4rem; padding-bottom: 3rem; max-width: 1080px; }
+
 a { text-decoration: none; }
 </style>
 """
 st.markdown(helps, unsafe_allow_html=True)
+
 
 # --- Subtle background / typography (antigravity-ish, lightweight) ---
 theme = """
@@ -143,47 +147,75 @@ st.markdown(
     """
 <style>
 .topbar{
-  display:flex; align-items:flex-start; justify-content:space-between;
-  gap: 12px;
-  padding: 6px 0 2px 0;
-}
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
 
-.leftbrand{
   display:flex;
-  align-items:flex-start;
+  align-items:center;
+  justify-content:space-between;
   gap: 12px;
+
+  padding: 18px 28px;
+  background: rgba(0,0,0,.22);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,.08);
 }
 
-.titlewrap h1{ margin:0; }
-.titlewrap .small{ color: rgba(255,255,255,.70); margin-top: 4px; font-size: 13px; }
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  color: rgba(255,255,255,.92);
+  font-weight:700;
+  letter-spacing:.3px;
+  font-size:16px;
+}
+.brand a{
+  color: rgba(255,255,255,.92) !important;
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
 
 .navbtns{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
 .navbtns a{
   display:inline-block;
   padding: 9px 12px;
   border-radius: 999px;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(255,255,255,.10);
   background: rgba(255,255,255,.04);
   color: rgba(255,255,255,.88) !important;
   text-decoration:none;
   font-size: 13px;
 }
 .navbtns a:hover{ background: rgba(255,255,255,.07); }
+
+.pageTitle{ margin-top: 12px; } /* el contenido ya tiene padding-top */
+.pageTitle h1{ margin:0; }
+.pageTitle .lead{
+  margin-top: 6px;
+  color: rgba(255,255,255,.70);
+  font-size: 13px;
+}
 </style>
 """,
     unsafe_allow_html=True,
 )
 
+
 # --- Header ---
 st.markdown(
     f"""
 <div class="topbar">
-  <div class="leftbrand">
-    {brand_img}
-    <div class="titlewrap">
-      <h1>About</h1>
-      <div class="small">I build data-driven systems and ship real-world solutions.</div>
-    </div>
+  <div class="brand">
+    <a href="?go=home">
+      {brand_img}
+      <div>Portfolio JRR</div>
+    </a>
   </div>
 
   <div class="navbtns">
@@ -194,11 +226,9 @@ st.markdown(
   </div>
 </div>
 
-<div class="chips" style="margin-top:10px;">
-  <span class="chip">Data Science</span>
-  <span class="chip">Machine Learning</span>
-  <span class="chip">Analytics & Automation</span>
-  <span class="chip">Engineering mindset</span>
+<div class="pageTitle">
+  <h1>About</h1>
+  <div class="lead">I build data-driven systems and ship real-world solutions.</div>
 </div>
 
 <div class="hr"></div>
