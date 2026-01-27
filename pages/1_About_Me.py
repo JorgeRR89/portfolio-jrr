@@ -1,6 +1,43 @@
+from __future__ import annotations
+
+import base64
+from pathlib import Path
+
 import streamlit as st
 
 st.set_page_config(page_title="About • Portfolio JRR", page_icon="🛰️", layout="wide")
+
+ROOT = Path(__file__).resolve().parents[1]  # /portfolio-jrr
+ASSETS = ROOT / "assets"
+LOGO_PATH = ASSETS / "wizard_FN.png"
+
+# =========================
+# ROUTER (navegación robusta)
+# =========================
+GO_TO_PAGE = {
+    "home": "Command_Center.py",
+    "about": "pages/1_About_Me.py",
+    "projects": "pages/2_Projects.py",
+    "lab": "pages/Lab.py",
+    "contact": "pages/3_Contact.py",
+}
+
+go = st.query_params.get("go", None)
+if go in GO_TO_PAGE:
+    st.query_params.clear()
+    st.switch_page(GO_TO_PAGE[go])
+
+
+@st.cache_data(show_spinner=False)
+def b64_file_cached(path_str: str) -> str:
+    p = Path(path_str)
+    if not p.exists():
+        return ""
+    return base64.b64encode(p.read_bytes()).decode("utf-8")
+
+
+logo_b64 = b64_file_cached(str(LOGO_PATH))
+brand_img = f"<img class='brandlogo' alt='logo' src='data:image/png;base64,{logo_b64}' />" if logo_b64 else ""
 
 # --- Minimal UI cleanup (matches Home) ---
 helps = """
@@ -28,7 +65,9 @@ html, body, [data-testid="stAppViewContainer"]{
 }
 h1,h2,h3{ letter-spacing: -0.03em; }
 small, p, li { color: var(--fg2); }
+
 .hr{ height:1px; background: var(--line); margin: 18px 0 26px 0; }
+
 .chips{ display:flex; gap:10px; flex-wrap: wrap; margin-top: 10px; }
 .chip{
   display:inline-flex; align-items:center; gap:8px;
@@ -38,7 +77,9 @@ small, p, li { color: var(--fg2); }
   background: rgba(255,255,255,.03);
   color: rgba(255,255,255,.82);
   font-size: 12px;
+  letter-spacing: .02em;
 }
+
 .card{
   border: 1px solid var(--line);
   background: linear-gradient(180deg, var(--card), rgba(0,0,0,.18));
@@ -46,6 +87,7 @@ small, p, li { color: var(--fg2); }
   padding: 18px 18px;
 }
 .card h3{ margin-top: 0; }
+
 .tagwrap{ display:flex; gap:10px; flex-wrap:wrap; }
 .tag{
   padding: 7px 10px;
@@ -55,6 +97,7 @@ small, p, li { color: var(--fg2); }
   color: rgba(255,255,255,.78);
   font-size: 12px;
 }
+
 .kpi{
   display:grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -68,6 +111,7 @@ small, p, li { color: var(--fg2); }
 }
 .kpi .k b{ font-size: 18px; color: rgba(255,255,255,.92); }
 .kpi .k span{ display:block; margin-top: 2px; font-size: 12px; color: rgba(255,255,255,.68); }
+
 .cta{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 14px; }
 .cta a{
   display:inline-block;
@@ -78,20 +122,41 @@ small, p, li { color: var(--fg2); }
   color: rgba(255,255,255,.88) !important;
 }
 .cta a:hover{ background: rgba(255,255,255,.07); }
+
 @media (max-width: 780px){
   .kpi{ grid-template-columns: 1fr; }
+}
+
+.brandlogo{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 10px 28px rgba(0,0,0,.35);
+  border: 1px solid rgba(255,255,255,.10);
 }
 </style>
 """
 st.markdown(theme, unsafe_allow_html=True)
 
-st.markdown("""
+st.markdown(
+    """
 <style>
 .topbar{
   display:flex; align-items:flex-start; justify-content:space-between;
   gap: 12px;
   padding: 6px 0 2px 0;
 }
+
+.leftbrand{
+  display:flex;
+  align-items:flex-start;
+  gap: 12px;
+}
+
+.titlewrap h1{ margin:0; }
+.titlewrap .small{ color: rgba(255,255,255,.70); margin-top: 4px; font-size: 13px; }
+
 .navbtns{ display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
 .navbtns a{
   display:inline-block;
@@ -105,41 +170,53 @@ st.markdown("""
 }
 .navbtns a:hover{ background: rgba(255,255,255,.07); }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 # --- Header ---
-st.markdown("""
+st.markdown(
+    f"""
 <div class="topbar">
-  <div>
-    <h1 style="margin:0;">About</h1>
-    <div class="small">I build data-driven systems and ship real-world solutions.</div>
+  <div class="leftbrand">
+    {brand_img}
+    <div class="titlewrap">
+      <h1>About</h1>
+      <div class="small">I build data-driven systems and ship real-world solutions.</div>
+    </div>
   </div>
+
   <div class="navbtns">
-    <a href="./" target="_self">← Home</a>
-    <a href="./Projects" target="_self">Projects</a>
-    <a href="./Contact" target="_self">Contact</a>
+    <a href="?go=home">Home</a>
+    <a href="?go=projects">Projects</a>
+    <a href="?go=lab">Lab</a>
+    <a href="?go=contact">Contact</a>
   </div>
 </div>
 
 <div class="chips" style="margin-top:10px;">
-  <span class="chip">🧠 Data Science</span>
-  <span class="chip">🤖 Machine Learning</span>
-  <span class="chip">🛰️ Analytics & Automation</span>
-  <span class="chip">⚙️ Engineering mindset</span>
+  <span class="chip">Data Science</span>
+  <span class="chip">Machine Learning</span>
+  <span class="chip">Analytics & Automation</span>
+  <span class="chip">Engineering mindset</span>
 </div>
 
 <div class="hr"></div>
-""", unsafe_allow_html=True)
-
+""",
+    unsafe_allow_html=True,
+)
 
 # --- KPIs ---
-st.markdown("""
+st.markdown(
+    """
 <div class="kpi">
   <div class="k"><b>10+ years</b><span>Oil, gas & industrial engineering systems</span></div>
   <div class="k"><b>1+ year</b><span>Data science, analytics & machine learning</span></div>
   <div class="k"><b>1+ year</b><span>Teaching automation & electrical systems</span></div>
 </div>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
@@ -147,7 +224,8 @@ col1, col2 = st.columns([1.35, 1], gap="large")
 
 # --- Left column ---
 with col1:
-    st.markdown("""
+    st.markdown(
+        """
 <div class="card">
   <h3>Who I am</h3>
 
@@ -211,11 +289,14 @@ with col1:
     and data-driven engineering — especially where they intersect with social and real-world impact.
   </p>
 </div>
-""", unsafe_allow_html=True)
+""",
+        unsafe_allow_html=True,
+    )
 
 # --- Right column ---
 with col2:
-    st.markdown("""
+    st.markdown(
+        """
 <div class="card">
   <h3>Core stack</h3>
   <div class="tagwrap">
@@ -237,13 +318,16 @@ with col2:
     <li>Shipping projects end-to-end (data → insight → interface).</li>
   </ul>
 </div>
-""", unsafe_allow_html=True)
+""",
+        unsafe_allow_html=True,
+    )
 
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
 # --- Timeline ---
 st.markdown("### Timeline", unsafe_allow_html=True)
-st.markdown("""
+st.markdown(
+    """
 <div class="card">
   <h3>Account Manager / Data Analyst — Virtual Integration Warehouse (Contract)</h3>
   <small>Apr 2023 — Nov 2025</small>
@@ -265,12 +349,15 @@ st.markdown("""
     <li>Designed competency-based evaluations and interactive learning materials.</li>
   </ul>
 </div>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
 # --- Where this lab is going ---
-st.markdown("""
+st.markdown(
+    """
 <div class="card">
   <h3>Where this lab is going</h3>
 
@@ -302,17 +389,21 @@ st.markdown("""
     but actively participate in improving it.
   </p>
 </div>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True,
+)
 
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
 # --- CTAs ---
-st.markdown("""
+st.markdown(
+    """
 ### Want the projects?
 <div class="cta">
-  <a href="./Projects" target="_self">→ Explore Projects</a>
-  <a href="./Contact" target="_self">→ Contact</a>
-  <a href="./Lab" target="_self">→ Enter the Lab</a>
+  <a href="?go=projects">Explore Projects</a>
+  <a href="?go=contact">Contact</a>
+  <a href="?go=lab">Enter the Lab</a>
 </div>
-""", unsafe_allow_html=True)
-
+""",
+    unsafe_allow_html=True,
+)
