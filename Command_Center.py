@@ -182,10 +182,12 @@ html = r"""
 
   /* Wrapper para amarrar baseline y tamaño del caret */
   .headline{
-    display:inline-flex;
-    align-items: baseline;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    line-height: 1;              /* clave para caret del tamaño real */
+    gap: 14px;
+    line-height: 1;
   }
 
   #typed{
@@ -221,63 +223,26 @@ html = r"""
 
   /* === CARET: del tamaño del texto === */
   .typedWrap{
-  position: relative;
-  display: inline-block;
-  line-height: 1; /* importantísimo */
-}
+    position: relative;
+    display: inline-block;
+    line-height: 1;
+  }
 
-/* caret pegado al baseline del texto */
-.cursor{
-  position: absolute;
-  left: calc(100% + 14px);
-  bottom: 0;                  /* pega al baseline */
-  width: 0;
-  border-left: 3px solid rgba(255,255,255,.92);
-  border-radius: 2px;
+  .cursor{
+    position: absolute;
+    left: calc(100% + 14px);
+    bottom: 0;
+    width: 0;
+    border-left: 3px solid rgba(255,255,255,.92);
+    border-radius: 2px;
 
-  filter: drop-shadow(0 0 10px rgba(255,255,255,.22))
-          drop-shadow(0 0 18px rgba(255,255,255,.10));
+    filter: drop-shadow(0 0 10px rgba(255,255,255,.22))
+            drop-shadow(0 0 18px rgba(255,255,255,.10));
 
-  opacity: 1;
-  animation: caretBlink 1.6s steps(1) infinite;
-  transform-origin: bottom;
-}
-
-.cursor.typing{
-  opacity: 0 !important;
-  animation: none !important;
-}
-
-.cursor.ready{
-  animation: caretBlink 1.6s steps(1) infinite, caretIn 260ms cubic-bezier(.22,1.2,.36,1) 1;
-}
-
-@keyframes caretBlink{
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
-}
-
-@keyframes caretIn{
-  0%   { opacity: 0; transform: scaleY(0.7); }
-  60%  { opacity: 1; transform: scaleY(1.05); }
-  100% { opacity: 1; transform: scaleY(1); }
-}
-
-
-/* micro movimiento */
-@keyframes caretFloat{
-  0%   { transform: translateY(-55%); }
-  50%  { transform: translateY(-62%); }
-  100% { transform: translateY(-55%); }
-}
-
-/* entrada */
-@keyframes caretIn{
-  0%   { opacity: 0; transform: translateY(-35%) scaleY(0.7); }
-  60%  { opacity: 1; transform: translateY(-60%) scaleY(1.05); }
-  100% { opacity: 1; transform: translateY(-55%) scaleY(1); }
-}
-
+    opacity: 1;
+    animation: caretBlink 1.6s steps(1) infinite;
+    transform-origin: bottom;
+  }
 
   .cursor.typing{
     opacity: 0 !important;
@@ -296,14 +261,12 @@ html = r"""
     50%, 100% { opacity: 0; }
   }
 
-  /* micro movimiento (muy sutil) */
   @keyframes caretFloat{
     0%   { transform: translateY(0); }
     50%  { transform: translateY(-0.06em); }
     100% { transform: translateY(0); }
   }
 
-  /* easing al reaparecer */
   @keyframes caretIn{
     0%   { opacity: 0; transform: translateY(0.20em) scaleY(0.7); }
     60%  { opacity: 1; transform: translateY(-0.02em) scaleY(1.05); }
@@ -345,6 +308,24 @@ html = r"""
     }
   }
 
+  /* ===== NEW: Branding subline ===== */
+  .subline{
+    color: rgba(255,255,255,.78);
+    font-weight: 300;
+    letter-spacing: 0.02em;
+    font-size: clamp(16px, 1.6vw, 22px);
+    opacity: 0;
+    transform: translateY(10px);
+    filter: blur(6px);
+    transition: opacity 700ms ease, transform 700ms ease, filter 700ms ease;
+    text-shadow: 0 0 16px rgba(255,255,255,.06), 0 18px 65px rgba(0,0,0,.58);
+  }
+  .subline.show{
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0px);
+  }
+
   .foot{
     position:absolute; left:0; right:0; bottom:0; z-index:7;
     padding: 18px var(--pad-x);
@@ -355,8 +336,8 @@ html = r"""
   }
 
   @media (max-width: 640px){
-  .cursor{ border-left-width: 2px; height: 1.12em; vertical-align: -0.14em; }
-}
+    .cursor{ border-left-width: 2px; }
+  }
 
 </style>
 </head>
@@ -382,12 +363,13 @@ html = r"""
 
     <div class="hero">
       <div class="headline">
-       <span class="typedWrap" id="wrap">
-  <span id="typed"></span>
-  <span class="cursor" id="caret"></span>
-</span>
+        <span class="typedWrap" id="wrap">
+          <span id="typed"></span>
+          <span class="cursor" id="caret"></span>
+        </span>
 
-
+        <!-- NEW: subline branding -->
+        <div class="subline" id="subline">Keep it simple.</div>
       </div>
     </div>
 
@@ -400,70 +382,67 @@ html = r"""
 <script>
 (() => {
   // ===== Typing =====
-const typedEl = document.getElementById('typed');
-const caret = document.getElementById('caret');
-const nav = document.getElementById('topnav');
-const text = "welcome to my LAB";
+  const typedEl = document.getElementById('typed');
+  const caret = document.getElementById('caret');
+  const nav = document.getElementById('topnav');
+  const sub = document.getElementById('subline');
 
-// typing más lento
-const startDelay = 980;
-const minDelay = 85;
-const maxDelay = 150;
+  const text = "welcome to my LAB";
 
-function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
+  // typing más lento
+  const startDelay = 980;
+  const minDelay = 85;
+  const maxDelay = 150;
 
-// 🔥 caret 1:1 con la altura REAL del texto (px)
-function syncCaretSize(){
-  const cs = window.getComputedStyle(typedEl);
-  const fontSize = parseFloat(cs.fontSize) || 64;
+  function sleep(ms){ return new Promise(r => setTimeout(r, ms)); }
 
-  // altura visual tipo cap-height (ajustable)
-  const caretH = Math.round(fontSize * 0.92);  // 0.88–0.96 según gusto
+  // caret 1:1 con la altura REAL del texto (px)
+  function syncCaretSize(){
+    const cs = window.getComputedStyle(typedEl);
+    const fontSize = parseFloat(cs.fontSize) || 64;
+    const caretH = Math.round(fontSize * 0.92);  // 0.88–0.96
+    caret.style.height = caretH + "px";
+  }
+  window.addEventListener("resize", syncCaretSize);
 
-  caret.style.height = caretH + "px";
-}
-window.addEventListener("resize", syncCaretSize);
+  async function typeText(){
+    await sleep(startDelay);
 
+    // oculta cursor mientras escribe
+    caret.classList.add("typing");
+    caret.classList.remove("ready");
 
-async function typeText(){
-  await sleep(startDelay);
-
-  // oculta cursor mientras escribe
-  caret.classList.add("typing");
-  caret.classList.remove("ready");
-
-  typedEl.textContent = "";
-  syncCaretSize();
-
-  for (let i = 0; i < text.length; i++){
-    typedEl.textContent += text[i];
-
-    // actualiza tamaño del caret mientras crece el texto
+    typedEl.textContent = "";
     syncCaretSize();
 
-    const jitter = Math.floor(minDelay + Math.random() * (maxDelay - minDelay));
-    await sleep(jitter);
+    for (let i = 0; i < text.length; i++){
+      typedEl.textContent += text[i];
+      syncCaretSize();
+      const jitter = Math.floor(minDelay + Math.random() * (maxDelay - minDelay));
+      await sleep(jitter);
+    }
+
+    // micro focus + glow 1x
+    typedEl.classList.add("finalFocus");
+    await sleep(520);
+    typedEl.classList.add("glowPulse");
+
+    syncCaretSize();
+
+    // reaparece cursor al final
+    caret.classList.remove("typing");
+    caret.classList.add("ready");
+
+    // NEW: muestra el branding
+    await sleep(140);
+    sub.classList.add("show");
+
+    // mostrar menú con fade-slide
+    await sleep(200);
+    nav.classList.add("show");
   }
 
-  // micro zoom + blur -> focus, luego glow pulse 1x
-  typedEl.classList.add("finalFocus");
-  await sleep(520);
-  typedEl.classList.add("glowPulse");
-
-  // última sincronización (por si cambió altura final)
-  syncCaretSize();
-
-  // reaparece cursor al final
-  caret.classList.remove("typing");
-  caret.classList.add("ready");
-
-  // mostrar menú con fade-slide
-  await sleep(180);
-  nav.classList.add("show");
-}
-
-typeText();
-
+  typeText();
 
   // ===== Reactive field (breathing) =====
   const canvas = document.getElementById('react');
