@@ -309,9 +309,10 @@ with col1:
   <p class="small">Open channel for opportunities, projects, or technical discussions.</p>
 
   <div class="action">
-    {action_link("mailto:reyesrod.jorge@gmail.com", "Send Email", "email", new_tab=False)}
+    {action_link("https://mail.google.com/mail/?view=cm&fs=1&to=reyesrod.jorge@gmail.com&su=Contact from Portfolio&body=Hi Jorge,", "Send Email", "email", new_tab=True)}
     {action_link(calendly_url, "Schedule a call", "calendar", new_tab=True)}
-  </div>
+</div>
+
 </div>
 """,
         unsafe_allow_html=True,
