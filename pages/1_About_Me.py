@@ -419,14 +419,48 @@ st.markdown(
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
 # --- CTAs ---
-st.markdown(
-    """
-### Want the projects?
+st.markdown("""
+<div class="hr"></div>
+
+<h2 style="margin-bottom:12px;">Let’s see my work</h2>
+
 <div class="cta">
-  <a href="?go=projects">Explore Projects</a>
-  <a href="?go=contact">Contact</a>
-  <a href="?go=lab">Enter the Lab</a>
+  <a href="./Projects" target="_self" class="cta-main">
+    <img src="data:image/png;base64,{{LOGO_B64}}" alt="logo"/>
+    Explore projects
+  </a>
 </div>
-""",
-    unsafe_allow_html=True,
-)
+
+<style>
+.cta{ margin-top: 10px; }
+
+.cta-main{
+  display:inline-flex;
+  align-items:center;
+  gap:12px;
+  padding: 14px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+  color: rgba(255,255,255,.92) !important;
+  font-size: 14px;
+  letter-spacing: .2px;
+  transition: all .25s ease;
+}
+
+.cta-main img{
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 8px 22px rgba(0,0,0,.45);
+}
+
+.cta-main:hover{
+  transform: translateY(-1px);
+  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.04));
+  box-shadow: 0 14px 40px rgba(0,0,0,.45);
+}
+</style>
+""".replace("{{LOGO_B64}}", logo_b64), unsafe_allow_html=True)
+
