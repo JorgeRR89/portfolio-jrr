@@ -212,26 +212,19 @@ st.markdown(
     f"""
 <div class="topbar">
   <div class="brand">
-    <a href="?go=home">
+    <a href="./" target="_self">
       {brand_img}
       <div>Portfolio JRR</div>
     </a>
   </div>
 
   <div class="navbtns">
-    <a href="?go=home">Home</a>
-    <a href="?go=projects">Projects</a>
-    <a href="?go=lab">Lab</a>
-    <a href="?go=contact">Contact</a>
+    <a href="./" target="_self">Home</a>
+    <a href="./Projects" target="_self">Projects</a>
+    <a href="./Lab" target="_self">Lab</a>
+    <a href="./Contact" target="_self">Contact</a>
   </div>
 </div>
-
-<div class="pageTitle">
-  <h1>About</h1>
-  <div class="lead">I build data-driven systems and ship real-world solutions.</div>
-</div>
-
-<div class="hr"></div>
 """,
     unsafe_allow_html=True,
 )
