@@ -1,4 +1,15 @@
 import streamlit as st
+from pathlib import Path
+import base64
+
+ROOT = Path(__file__).parent
+ASSETS = ROOT / "assets"
+RESUME_PATH = ASSETS / "Jorge_Reyes_CV.pdf"
+
+def b64_file(path: Path) -> str:
+    return base64.b64encode(path.read_bytes()).decode("utf-8") if path.exists() else ""
+
+resume_b64 = b64_file(RESUME_PATH)
 
 st.set_page_config(page_title="Contact • Portfolio JRR", page_icon="📡", layout="wide")
 
@@ -122,18 +133,27 @@ st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 col1, col2 = st.columns([1.05, 1], gap="large")
 
 with col1:
-    st.markdown("""
+   st.markdown(f"""
 <div class="card">
   <h3>Resume & Profiles</h3>
   <p class="small">Fast access for recruiters and collaborators.</p>
 
   <div class="action">
-    <a href="https://YOUR_LINK_TO_RESUME.pdf" target="_blank">📄 Download Resume</a>
-    <a href="https://www.linkedin.com/in/YOURUSERNAME" target="_blank">💼 LinkedIn</a>
-    <a href="https://github.com/YOURUSERNAME" target="_blank">🧩 GitHub</a>
+    <a href="data:application/pdf;base64,{resume_b64}" download="Jorge_Reyes_CV.pdf">
+      Download Resume
+    </a>
+
+    <a href="https://www.linkedin.com/in/jorge-reyes-data-science/" target="_blank">
+      LinkedIn
+    </a>
+
+    <a href="https://github.com/JorgeRR89" target="_blank">
+      GitHub
+    </a>
   </div>
 </div>
 """, unsafe_allow_html=True)
+
 
     st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
 
@@ -142,17 +162,19 @@ with col1:
   <h3>Contact</h3>
   <p class="small">Open channel for opportunities, projects, or technical discussions.</p>
 
+  st.markdown("""
+<div class="card">
+  <h3>Contact</h3>
+  <p class="small">Open channel for opportunities, projects, or technical discussions.</p>
+
   <div class="action">
-    <a href="mailto:YOURMAIL@domain.com">✉️ Email</a>
-    <a href="https://calendly.com/YOURLINK" target="_blank">📅 Schedule a call</a>
+    <a href="mailto:reyesrod.jorge@gmail.com">
+      Send Email
+    </a>
   </div>
 </div>
 """, unsafe_allow_html=True)
 
-with col2:
-    st.markdown("""
-<div class="card">
-  <h3>Direction</h3>
 
   <p class="small">
     I’m particularly interested in environments where intelligent systems are not theoretical,
