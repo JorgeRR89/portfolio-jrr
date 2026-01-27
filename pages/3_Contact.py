@@ -302,21 +302,24 @@ with col1:
     # Contact actions
     calendly_url = "https://calendly.com/reyesrod-jorge"
 
-    st.markdown(
-        f"""
+    st.markdown("""
 <div class="card">
-  <h3 style="margin-top:0;">Direct contact</h3>
+  <h3>Contact</h3>
   <p class="small">Open channel for opportunities, projects, or technical discussions.</p>
 
   <div class="action">
-    {action_link("https://mail.google.com/mail/?view=cm&fs=1&to=reyesrod.jorge@gmail.com&su=Contact from Portfolio&body=Hi Jorge,", "Send Email", "email", new_tab=True)}
-    {action_link(calendly_url, "Schedule a call", "calendar", new_tab=True)}
-</div>
+    <a href="mailto:reyesrod.jorge@gmail.com" target="_blank">Send Email</a>
 
+    <a href="https://wa.me/525545230886?text=Hi%20Jorge%2C%20I%20saw%20your%20portfolio%20and%20I’d%20like%20to%20connect."
+       target="_blank">
+       WhatsApp
+    </a>
+
+    <a href="https://calendly.com/reyesrod-jorge" target="_blank">Schedule a call</a>
+  </div>
 </div>
-""",
-        unsafe_allow_html=True,
-    )
+""", unsafe_allow_html=True)
+
 
 with col2:
     st.markdown(
