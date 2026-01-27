@@ -24,15 +24,14 @@ projects:
 
     outcomes:
       - "Hourly demand forecasting with feature engineering (lags/rolling/calendar)"
-      - "Error analysis by time-of-day and seasonality"
-      - "Reusable training + evaluation pipeline"
+      - "Time-aware train/test split (past → future)"
+      - "RMSE evaluation + ops-friendly interpretation"
 
-    problem: "Operations need reliable short-horizon demand forecasts to plan capacity efficiently."
-    approach: "Feature engineering (lags/rolling/calendar) + baseline/ML models + rigorous evaluation."
-    results: "Improved forecast stability and produced an ops-friendly evaluation view."
+    problem: "Operations need reliable short-horizon demand forecasts to plan driver capacity efficiently."
+    approach: "Resample/clean time series → build lag/rolling/calendar features → train baseline + ML models → evaluate with RMSE on a future holdout."
+    results: "Improved forecast stability and produced an ops-friendly evaluation view for peak-hour staffing decisions."
     details: "Built as a reproducible notebook workflow with clear plots and metrics."
 
-    github_repo: "Temporal-series-Sweet-Lift-Taxi"
     links:
       github: "https://github.com/JorgeRR89/Temporal-series-Sweet-Lift-Taxi"
       colab: ""
@@ -43,15 +42,33 @@ projects:
       mode: "time_series"
       demo_asset: "data/lab/taxi_demo.csv"
 
-      techniques:
-        - "Created lag/rolling window features to capture short-term demand momentum"
-        - "Added calendar features (hour, day-of-week) to model seasonality"
-        - "Compared baseline vs ML model to keep interpretability"
-
-      evaluation:
-        - "Time-based split to avoid leakage"
-        - "MAE/RMSE for overall error"
-        - "Error slices by hour/day to identify where the model fails"
-
-      reasoning: "I chose this approach because operations needs a forecast that is stable and explainable. Feature engineering + baselines gives robustness; time-aware evaluation prevents misleading performance."
-
+  # --- TEMPLATE (copy/paste for your next projects) ---
+  # - id: "your_project_id"
+  #   title: "Project Title"
+  #   tagline: "One-line recruiter-friendly value."
+  #   spotlight: false
+  #
+  #   industry: "Industry"
+  #   type: "Project type"
+  #   impact_type: "Impact"
+  #   status: "Completed"
+  #   year: "2025"
+  #
+  #   skills: []
+  #   tools: []
+  #   outcomes: []
+  #
+  #   problem: ""
+  #   approach: ""
+  #   results: ""
+  #   details: ""
+  #
+  #   links:
+  #     github: ""
+  #     colab: ""
+  #     demo: ""
+  #     report: ""
+  #
+  #   lab:
+  #     mode: "time_series"
+  #     demo_asset: "data/lab/your_demo.csv"
