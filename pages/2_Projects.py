@@ -1,5 +1,7 @@
 from pathlib import Path
 import streamlit as st
+import base64
+import mimetypes
 
 from src.loaders import load_projects
 
@@ -142,11 +144,17 @@ h1,h2,h3{ letter-spacing: -0.03em; }
 
 /* Cover image styling */
 .cover{
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,.10);
-  overflow: hidden;
+  width: 100%;
+  height: 150px;
+  border-radius: 14px;
+  object-fit: cover;
+  display:block;
+  margin-top: 12px;
   margin-bottom: 10px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.03);
 }
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -192,6 +200,40 @@ def render_cover(p: dict):
         st.image(str(img_path), use_container_width=True)
         st.markdown("</div>", unsafe_allow_html=True)
 
+
+
+def _mime_for(path: Path) -> str:
+    m, _ = mimetypes.guess_type(str(path))
+    return m or "image/png"
+
+def cover_to_img_tag(cover: str, root: Path) -> str:
+    """
+    cover can be:
+      - URL (http/https)
+      - repo-relative path (e.g. assets/covers/x.png)
+      - just filename (e.g. x.png) assumed inside assets/
+    """
+    cover = (cover or "").strip()
+    if not cover:
+        return ""
+
+    # Remote URL
+    if cover.startswith("http://") or cover.startswith("https://"):
+        return f"<img class='cover' src='{cover}' alt='cover'/>"
+
+    # Local paths (try multiple resolutions)
+    candidates = [
+        root / cover,
+        root / "assets" / cover,
+        root / "assets" / "covers" / cover,
+    ]
+    img_path = next((p for p in candidates if p.exists()), None)
+    if not img_path:
+        return ""  # fail silently
+
+    b64 = base64.b64encode(img_path.read_bytes()).decode("utf-8")
+    mime = _mime_for(img_path)
+    return f"<img class='cover' src='data:{mime};base64,{b64}' alt='cover'/>"
 
 # =========================
 # Load projects
@@ -325,13 +367,15 @@ else:
             badge_label = f"✨ Spotlight • {meta}" if (spot and p is spot) else meta
 
             # --- Card ---
+            cover_html = cover_to_img_tag(p.get("cover",""), ROOT)
+
             st.markdown(
                 f"""
 <div class="{cls}">
   <div class="badge">{badge_label}</div>
   <h3 style="margin:10px 0 0 0;">{p.get("title","")}</h3>
   <p class="small" style="margin-top:8px; margin-bottom:0;">{p.get("tagline","")}</p>
-
+     {cover_html}
   <div class="pills">
     {f"<span class='pill'>Impact: {impact}</span>" if impact else ""}
     {f"<span class='pill'>Tools: {', '.join(tools[:5])}</span>" if tools else ""}
