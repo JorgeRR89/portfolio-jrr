@@ -114,7 +114,7 @@ projects:
     # Repo integration
     github_user: "JorgeRR89"
     github_repo: "Aprendizaje-automatico---Film-Junky-Union"
-    cover: "assets/covers/film_junky.png"
+    cover: "assets/projects/film_junky.png"
 
     skills:
       - Natural Language Processing (NLP)
