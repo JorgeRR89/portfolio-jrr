@@ -178,8 +178,8 @@ projects:
     impact_type: "Revenue & Optimization"
     status: "Completed"
     year: "2025"
-# Repo integration (for auto-readme / metadata / cover)
-    repo:
+
+    # Repo integration (for auto-readme / metadata / cover)
       github_user: "JorgeRR89"
       github_repo: "CTR"
       cover: "assets/projects/ctr.png" (recommended)
