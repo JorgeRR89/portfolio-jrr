@@ -1,6 +1,6 @@
 from pathlib import Path
 import streamlit as st
-
+import yaml
 from src.loaders import load_projects
 
 # =========================
@@ -166,7 +166,27 @@ def lab_link(pid: str) -> str:
 def safe_list(x):
     return x if isinstance(x, list) else ([] if x is None else [str(x)])
 
+def show_yaml_error(path: Path, e: Exception):
+    st.error("projects.yaml tiene un error de sintaxis YAML.")
+    # Intenta sacar linea/columna del parser
+    mark = getattr(e, "problem_mark", None)
+    if mark is not None:
+        st.write(f"👉 Línea: **{mark.line + 1}**, Columna: **{mark.column + 1}**")
+    # Muestra el archivo con números de línea
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except Exception:
+        lines = path.read_text(errors="ignore").splitlines()
 
+    numbered = "\n".join([f"{i+1:>4} | {line}" for i, line in enumerate(lines)])
+    st.code(numbered, language="yaml")
+    st.stop()
+
+# --- Load projects with YAML debug ---
+try:
+    projects = load_projects(DATA)
+except yaml.YAMLError as e:
+    show_yaml_error(DATA, e)
 # =========================
 # Load projects
 # =========================
