@@ -1,53 +1,5 @@
 projects:
-  - id: "taxi_demand"
-    title: "Taxi Demand Forecasting — Sweet Lift"
-    tagline: "Time-series demand forecasting for hourly rides; ops-ready features and evaluation."
-    spotlight: true
-
-    industry: "Mobility, Supply Chain & Optimization"
-    type: "Time Series Forecasting"
-    impact_type: "Cost & Efficiency"
-    status: "Completed"
-    year: "2025"
-
-    # NEW (for GitHub enrichment + visual card)
-    github_user: "JorgeRR89"
-    github_repo: "Temporal-series-Sweet-Lift-Taxi"
-    cover: "assets/projects/taxi_demand.png"
-
-    skills:
-      - Demand forecasting
-      - Time series feature engineering
-      - Model evaluation & backtesting
-      - Operational analytics
-
-    tools:
-      - Python
-      - pandas
-      - scikit-learn
-      - matplotlib
-
-    outcomes:
-      - "Hourly demand forecasting with feature engineering (lags/rolling/calendar)"
-      - "Time-aware train/test split (past → future)"
-      - "RMSE evaluation + ops-friendly interpretation"
-
-    problem: "Operations need reliable short-horizon demand forecasts to plan driver capacity efficiently."
-    approach: "Resample/clean time series → build lag/rolling/calendar features → train baseline + ML models → evaluate with RMSE on a future holdout."
-    results: "Improved forecast stability and produced an ops-friendly evaluation view for peak-hour staffing decisions."
-    details: "Built as a reproducible notebook workflow with clear plots and metrics."
-
-    links:
-      github: "https://github.com/JorgeRR89/Temporal-series-Sweet-Lift-Taxi"
-      colab: ""
-      demo: ""
-      report: ""
-
-    lab:
-      mode: "time_series"
-      demo_asset: "data/lab/taxi_demo.csv"
-      
-  - id: "good_seed_cv"
+ - id: "good_seed_cv"
     title: "Computer Vision — Good Seed Supermarket"
     tagline: "AI vision system to estimate customer age and support safe, automated retail operations."
     spotlight: true
@@ -98,6 +50,55 @@ projects:
     lab:
       mode: "none"
       demo_asset: ""
+  - id: "taxi_demand"
+    title: "Taxi Demand Forecasting — Sweet Lift"
+    tagline: "Time-series demand forecasting for hourly rides; ops-ready features and evaluation."
+    spotlight: true
+
+    industry: "Mobility, Supply Chain & Optimization"
+    type: "Time Series Forecasting"
+    impact_type: "Cost & Efficiency"
+    status: "Completed"
+    year: "2025"
+
+    # NEW (for GitHub enrichment + visual card)
+    github_user: "JorgeRR89"
+    github_repo: "Temporal-series-Sweet-Lift-Taxi"
+    cover: "assets/projects/taxi_demand.png"
+
+    skills:
+      - Demand forecasting
+      - Time series feature engineering
+      - Model evaluation & backtesting
+      - Operational analytics
+
+    tools:
+      - Python
+      - pandas
+      - scikit-learn
+      - matplotlib
+
+    outcomes:
+      - "Hourly demand forecasting with feature engineering (lags/rolling/calendar)"
+      - "Time-aware train/test split (past → future)"
+      - "RMSE evaluation + ops-friendly interpretation"
+
+    problem: "Operations need reliable short-horizon demand forecasts to plan driver capacity efficiently."
+    approach: "Resample/clean time series → build lag/rolling/calendar features → train baseline + ML models → evaluate with RMSE on a future holdout."
+    results: "Improved forecast stability and produced an ops-friendly evaluation view for peak-hour staffing decisions."
+    details: "Built as a reproducible notebook workflow with clear plots and metrics."
+
+    links:
+      github: "https://github.com/JorgeRR89/Temporal-series-Sweet-Lift-Taxi"
+      colab: ""
+      demo: ""
+      report: ""
+
+    lab:
+      mode: "time_series"
+      demo_asset: "data/lab/taxi_demo.csv"
+      
+ 
 
   - id: "film_junky_union"
     title: "Sentiment Analysis Platform — Film Junky Union"
