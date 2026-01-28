@@ -1,5 +1,5 @@
 projects:
- - id: "good_seed_cv"
+  - id: "good_seed_cv"
     title: "Computer Vision — Good Seed Supermarket"
     tagline: "AI vision system to estimate customer age and support safe, automated retail operations."
     spotlight: true
