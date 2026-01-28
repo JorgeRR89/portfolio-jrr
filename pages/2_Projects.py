@@ -298,23 +298,39 @@ st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 # =========================
 # Spotlight
 # =========================
+# Cards (Spotlight integrado al grid)
+# =========================
 spot = next((p for p in filtered if p.get("spotlight")), None)
+
+cards: list[dict] = []
 if spot:
-    render_cover(spot)
+    cards.append(spot)
+cards += [p for p in filtered if p is not spot]
 
-    meta = f"{spot.get('industry','')} • {spot.get('type','')} • {spot.get('status','')} • {spot.get('year','')}".strip(" •")
-    impact = spot.get("impact_type", "")
-    tools = spot.get("tools", [])
-    skills = spot.get("skills", [])
-    outcomes = spot.get("outcomes", [])
-    links = spot.get("links", {}) or {}
+if not cards:
+    st.info("No projects match your filters yet. Add entries in data/projects.yaml.")
+else:
+    cols = st.columns(2, gap="large")
 
-    st.markdown(
-        f"""
-<div class="spotlight">
-  <div class="badge">Spotlight • {meta}</div>
-  <h2 style="margin:10px 0 0 0;">{spot.get("title","")}</h2>
-  <p class="small" style="margin-top:10px;">{spot.get("tagline","")}</p>
+    for i, p in enumerate(cards):
+        with cols[i % 2]:
+            meta = f"{p.get('industry','')} • {p.get('type','')} • {p.get('status','')} • {p.get('year','')}".strip(" •")
+            impact = p.get("impact_type", "")
+            tools = p.get("tools", [])
+            skills = p.get("skills", [])
+            outcomes = p.get("outcomes", [])
+            links = p.get("links", {}) or {}
+
+            cls = "card spotlight" if (spot and p is spot) else "card"
+            badge_label = f"✨ Spotlight • {meta}" if (spot and p is spot) else meta
+
+            # --- Card ---
+            st.markdown(
+                f"""
+<div class="{cls}">
+  <div class="badge">{badge_label}</div>
+  <h3 style="margin:10px 0 0 0;">{p.get("title","")}</h3>
+  <p class="small" style="margin-top:8px; margin-bottom:0;">{p.get("tagline","")}</p>
 
   <div class="pills">
     {f"<span class='pill'>Impact: {impact}</span>" if impact else ""}
@@ -325,70 +341,10 @@ if spot:
   {"<div class='meta' style='margin-top:10px;'>• " + outcomes[0] + "</div>" if outcomes else ""}
 </div>
 """,
-        unsafe_allow_html=True,
-    )
-
-    btns = [("Open in Lab", lab_link(spot["pid"]))]
-
-    if links.get("github"):
-        btns.append(("GitHub", links["github"]))
-    if links.get("colab"):
-        btns.append(("Colab", links["colab"]))
-    if links.get("demo"):
-        btns.append(("Demo", links["demo"]))
-    if links.get("report"):
-        btns.append(("Report", links["report"]))
-
-    html_btns = ["<div class='links'>"]
-    for label, url in btns:
-        target = "_self" if label == "Open in Lab" else "_blank"
-        html_btns.append(f"<a href='{url}' target='{target}'>{label} ↗</a>")
-    html_btns.append("</div>")
-    st.markdown("".join(html_btns), unsafe_allow_html=True)
-
-
-    st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
-
-# =========================
-# Cards
-# =========================
-cards = [p for p in filtered if p is not spot]
-
-if not cards and not spot:
-    st.info("No projects match your filters yet. Add entries in data/projects.yaml.")
-else:
-    cols = st.columns(2, gap="large")
-    for i, p in enumerate(cards):
-        with cols[i % 2]:
-            render_cover(p)
-
-            meta = f"{p.get('industry','')} • {p.get('type','')} • {p.get('status','')} • {p.get('year','')}".strip(" •")
-            impact = p.get("impact_type", "")
-            tools = p.get("tools", [])
-            skills = p.get("skills", [])
-            outcomes = p.get("outcomes", [])
-            links = p.get("links", {}) or {}
-
-            st.markdown(
-                f"""
-<div class="card">
-  <div class="badge">{meta}</div>
-  <h3 style="margin:10px 0 0 0;">{p.get("title","")}</h3>
-  <p class="small" style="margin-top:8px; margin-bottom:0;">{p.get("tagline","")}</p>
-
-  <div class="pills">
-    {f"<span class='pill'>Impact: {impact}</span>" if impact else ""}
-    {f"<span class='pill'>Tools: {', '.join(tools[:5])}</span>" if tools else ""}
-    {f"<span class='pill'>Skills: {', '.join(skills[:3])}</span>" if skills else ""}
-  </div>
-
-  {"<div class='meta' style='margin-top:10px;'>" + "• " + outcomes[0] + "</div>" if (outcomes and resume_mode) else ""}
-  {"<div class='meta' style='margin-top:10px;'><b>Key outcomes</b><br>" + "<br>".join([f"• {x}" for x in outcomes[:3]]) + "</div>" if (outcomes and (not resume_mode)) else ""}
-</div>
-""",
                 unsafe_allow_html=True,
             )
 
+            # --- Buttons ---
             btns = [("Open in Lab", lab_link(p["pid"]))]
 
             if links.get("github"):
@@ -405,8 +361,10 @@ else:
                 target = "_self" if label == "Open in Lab" else "_blank"
                 html_btns.append(f"<a href='{url}' target='{target}'>{label} ↗</a>")
             html_btns.append("</div>")
+
             st.markdown("".join(html_btns), unsafe_allow_html=True)
 
+            # --- Optional recruiter view (solo cuando resume_mode OFF) ---
             if not resume_mode:
                 with st.expander("Recruiter view (problem → approach → results)", expanded=False):
                     if p.get("problem"):
