@@ -190,9 +190,30 @@ except yaml.YAMLError as e:
 # =========================
 # Load projects
 # =========================
+
 ROOT = Path(__file__).parents[1]
 DATA = ROOT / "data" / "projects.yaml"
-projects = load_projects(DATA)
+
+def show_yaml_error(path: Path, e: Exception):
+    st.error("projects.yaml tiene un error de sintaxis YAML.")
+    mark = getattr(e, "problem_mark", None)
+    if mark is not None:
+        st.write(f"👉 Línea: **{mark.line + 1}**, Columna: **{mark.column + 1}**")
+
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except Exception:
+        lines = path.read_text(errors="ignore").splitlines()
+
+    numbered = "\n".join([f"{i+1:>4} | {line}" for i, line in enumerate(lines)])
+    st.code(numbered, language="yaml")
+    st.stop()
+
+try:
+    projects = load_projects(DATA)
+except yaml.YAMLError as e:
+    show_yaml_error(DATA, e)
+
 
 # Normalize for UI safety
 norm = []
