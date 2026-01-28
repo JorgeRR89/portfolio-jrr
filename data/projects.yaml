@@ -98,3 +98,73 @@ projects:
     lab:
       mode: "none"
       demo_asset: ""
+
+  - id: "film_junky_union"
+    title: "Sentiment Analysis Platform — Film Junky Union"
+    tagline: "NLP system to automatically classify movie reviews as positive or negative with high reliability."
+    spotlight: false
+
+    industry: "Media, Entertainment & Platforms"
+    type: "Natural Language Processing / Classification"
+    impact_type: "Automation & Decision Support"
+    status: "Completed"
+    year: "2025"
+    
+    # Repo integration
+    github_user: "JorgeRR89"
+    github_repo: "Aprendizaje-automatico---Film-Junky-Union"
+    cover: "assets/covers/film_junky.png"
+
+    skills:
+      - Natural Language Processing (NLP)
+      - Text cleaning & normalization
+      - Feature engineering (TF-IDF)
+      - Supervised machine learning
+      - Model evaluation & validation
+      - Applied sentiment analysis
+
+    tools:
+      - Python
+      - pandas
+      - scikit-learn
+      - spaCy
+      - NLTK
+      - LightGBM
+
+    outcomes:
+      - "Built an automated sentiment classification system for IMDB movie reviews."
+      - "Achieved F1 = 0.89 and ROC AUC = 0.96 on unseen test data."
+      - "Designed and compared multiple NLP pipelines (baseline → logistic regression → gradient boosting)."
+      - "Delivered a production-viable model balancing performance, interpretability, and speed."
+
+    problem: >
+      Film Junky Union needed a scalable way to classify large volumes of movie reviews as positive or negative.
+      Manual moderation and analysis were not feasible, limiting the platform’s ability to filter content,
+      understand audience perception, and prioritize critical feedback.
+
+    approach: >
+      Conducted exploratory analysis and built a full NLP pipeline including text cleaning, normalization,
+      and lemmatization. Generated TF-IDF representations and trained multiple classifiers
+      (Logistic Regression and LightGBM). Evaluated models using Accuracy, F1-score, ROC AUC, and
+      Average Precision, selecting the most balanced solution.
+
+    results: >
+      The final model (spaCy lemmatization + TF-IDF + Logistic Regression) reached F1 = 0.89 and ROC AUC = 0.96,
+      clearly outperforming the baseline and meeting the business requirement.
+      The system reliably detects negative and positive sentiment while remaining fast and interpretable.
+
+    details: >
+      Implemented time-efficient text pipelines, compared traditional ML and boosting methods,
+      and validated generalization on a held-out test set.
+      The project demonstrates how applied NLP can transform unstructured text into operational signals.
+
+    links:
+      github: "https://github.com/JorgeRR89/Aprendizaje-automatico---Film-Junky-Union"
+      colab: ""
+      demo: ""
+      report: ""
+
+    lab:
+      mode: "nlp_classification"
+      demo_asset: ""
+
