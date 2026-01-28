@@ -34,6 +34,7 @@ def load_projects(path: Path) -> List[Dict[str, Any]]:
       projects:
         - id: "taxi_demand"
           title: ...
+          cover: "assets/covers/taxi.png"   # optional
           lab:
             demo_asset: "data/lab/taxi_demo.csv"
     Returns a LIST of project dicts ready for UI.
@@ -65,39 +66,39 @@ def load_projects(path: Path) -> List[Dict[str, Any]]:
         lab = _as_dict(p.get("lab"))
 
         cleaned.append(
-    {
-        # Critical identifiers
-        "id": str(p.get("id", "")).strip(),
-        "title": str(p.get("title", "")).strip(),
-        "tagline": str(p.get("tagline", "")).strip(),
-        "spotlight": bool(p.get("spotlight", False)),
+            {
+                # Critical identifiers
+                "id": str(p.get("id", "")).strip(),
+                "title": str(p.get("title", "")).strip(),
+                "tagline": str(p.get("tagline", "")).strip(),
+                "spotlight": bool(p.get("spotlight", False)),
 
-        # Metadata
-        "industry": industry,
-        "type": ptype,
-        "impact_type": str(p.get("impact_type", "")).strip(),
-        "status": str(p.get("status", "In progress")).strip(),
-        "year": str(p.get("year", "")).strip(),
+                # Metadata
+                "industry": industry,
+                "type": ptype,
+                "impact_type": str(p.get("impact_type", "")).strip(),
+                "status": str(p.get("status", "In progress")).strip(),
+                "year": str(p.get("year", "")).strip(),
 
-        # ✅ Cover image (path relative to repo, e.g. "assets/covers/taxi.png")
-        "cover": str(p.get("cover", "")).strip(),
+                # ✅ Cover image (relative path in repo)
+                "cover": str(p.get("cover", "")).strip(),
 
-        # Skills / tools / outcomes
-        "skills": skills,
-        "tools": tools,
-        "outcomes": _as_list(p.get("outcomes")),
+                # Skills / tools / outcomes
+                "skills": skills,
+                "tools": tools,
+                "outcomes": _as_list(p.get("outcomes")),
 
-        # Long-form recruiter view
-        "problem": str(p.get("problem", "")).strip(),
-        "approach": str(p.get("approach", "")).strip(),
-        "results": str(p.get("results", "")).strip(),
-        "details": str(p.get("details", "")).strip(),
+                # Long-form recruiter view
+                "problem": str(p.get("problem", "")).strip(),
+                "approach": str(p.get("approach", "")).strip(),
+                "results": str(p.get("results", "")).strip(),
+                "details": str(p.get("details", "")).strip(),
 
-        # Links + Lab config
-        "links": links,
-        "lab": lab,
-    }
-)
+                # Links + Lab config
+                "links": links,
+                "lab": lab,
+            }
+        )
 
     # Keep only valid entries (title is required; id is strongly recommended)
     cleaned = [p for p in cleaned if p.get("title")]
