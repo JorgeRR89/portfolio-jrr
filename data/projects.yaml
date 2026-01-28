@@ -46,3 +46,55 @@ projects:
     lab:
       mode: "time_series"
       demo_asset: "data/lab/taxi_demo.csv"
+      
+  - id: "good_seed_cv"
+    title: "Computer Vision — Good Seed Supermarket"
+    tagline: "AI vision system to estimate customer age and support safe, automated retail operations."
+    spotlight: true
+
+    industry: "Retail, Computer Vision & Intelligent Systems"
+    type: "Computer Vision / Deep Learning (Regression)"
+    impact_type: "Compliance, Risk & Operational Efficiency"
+    status: "Completed"
+    year: "2025"
+
+    # Repo integration
+    github_user: "JorgeRR89"
+    github_repo: "Visi-n-Artificial---Supermercado-Good-Seed"
+    cover: "assets/projects/good_seed_cv.png"
+
+    skills:
+      - Computer vision pipelines
+      - Deep learning with CNNs
+      - Transfer learning (ResNet50)
+      - Data augmentation & preprocessing
+      - Model evaluation & error analysis
+      - Applied AI for operations
+
+    tools:
+      - Python
+      - NumPy
+      - pandas
+      - TensorFlow / Keras
+      - matplotlib
+
+    outcomes:
+      - "Built an age-estimation model from facial images using transfer learning"
+      - "Reduced MAE from ~17.4 → ~11.0 years with stable convergence"
+      - "Designed a deployable vision pipeline with GPU-efficient training"
+      - "Delivered operational framing for safe AI-assisted age verification"
+
+    problem: "Retail operations involving age-restricted products rely on manual verification, creating friction, inconsistency, and legal risk."
+    approach: "Preprocess and augment images → use pretrained ResNet50 as feature extractor → add dense regression head → train with MAE loss and Adam optimizer → apply EarlyStopping and LR scheduling → evaluate MAE/MSE and error behavior."
+    results: "Final validation MAE ≈ 11.05 years and MSE ≈ 191.3, demonstrating a stable deep learning system capable of supporting automated age estimation with human-in-the-loop validation."
+    details: "GPU training (~35 minutes on NVIDIA T4). Architecture: ResNet50 + GAP → Dense(128, ReLU) → Dropout(0.3) → Dense(1). Dataset split 80/20 with ImageDataGenerator and ImageNet preprocessing."
+
+    links:
+      github: "https://github.com/JorgeRR89/Visi-n-Artificial---Supermercado-Good-Seed"
+      colab: ""
+      demo: ""
+      report: ""
+
+    lab:
+      mode: "none"
+      demo_asset: ""
