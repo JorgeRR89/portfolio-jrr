@@ -96,10 +96,11 @@ h1,h2,h3{ letter-spacing: -0.03em; }
 }
 
 .spotlight{
-  border: 1px solid rgba(255,255,255,.14);
-  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.18));
-  border-radius: 22px;
-  padding: 18px 18px;
+  border: 1px solid rgba(255,255,255,.22);
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.20));
+  border-radius: 18px;
+  padding: 16px 16px;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.04), 0 18px 40px rgba(0,0,0,.45);
 }
 
 .links a{
@@ -321,7 +322,7 @@ if spot:
     {f"<span class='pill'>Skills: {', '.join(skills[:3])}</span>" if skills else ""}
   </div>
 
-  {"<div class='meta' style='margin-top:10px;'><b>Key outcomes</b><br>" + "<br>".join([f"• {x}" for x in outcomes[:5]]) + "</div>" if outcomes else ""}
+  {"<div class='meta' style='margin-top:10px;'>• " + outcomes[0] + "</div>" if outcomes else ""}
 </div>
 """,
         unsafe_allow_html=True,
@@ -345,18 +346,6 @@ if spot:
     html_btns.append("</div>")
     st.markdown("".join(html_btns), unsafe_allow_html=True)
 
-    if not resume_mode:
-        st.markdown(
-            f"""
-<div class="kv">
-  <div class="box"><b>Problem</b><div class="small">{spot.get("problem","")}</div></div>
-  <div class="box"><b>Approach</b><div class="small">{spot.get("approach","")}</div></div>
-  <div class="box"><b>Results</b><div class="small">{spot.get("results","")}</div></div>
-  <div class="box"><b>Notes</b><div class="small">{spot.get("details","")}</div></div>
-</div>
-""",
-            unsafe_allow_html=True,
-        )
 
     st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
