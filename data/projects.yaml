@@ -10,6 +10,11 @@ projects:
     status: "Completed"
     year: "2025"
 
+    # NEW (for GitHub enrichment + visual card)
+    github_user: "JorgeRR89"
+    github_repo: "Temporal-series-Sweet-Lift-Taxi"
+    cover: "assets/projects/taxi_demand.png"
+
     skills:
       - Demand forecasting
       - Time series feature engineering
@@ -41,34 +46,3 @@ projects:
     lab:
       mode: "time_series"
       demo_asset: "data/lab/taxi_demo.csv"
-
-  # --- TEMPLATE (copy/paste for your next projects) ---
-  # - id: "your_project_id"
-  #   title: "Project Title"
-  #   tagline: "One-line recruiter-friendly value."
-  #   spotlight: false
-  #
-  #   industry: "Industry"
-  #   type: "Project type"
-  #   impact_type: "Impact"
-  #   status: "Completed"
-  #   year: "2025"
-  #
-  #   skills: []
-  #   tools: []
-  #   outcomes: []
-  #
-  #   problem: ""
-  #   approach: ""
-  #   results: ""
-  #   details: ""
-  #
-  #   links:
-  #     github: ""
-  #     colab: ""
-  #     demo: ""
-  #     report: ""
-  #
-  #   lab:
-  #     mode: "time_series"
-  #     demo_asset: "data/lab/your_demo.csv"
