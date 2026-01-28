@@ -1,15 +1,18 @@
 from pathlib import Path
 import streamlit as st
-import yaml
 
 from src.loaders import load_projects
-
 
 # =========================
 # Page config
 # =========================
 st.set_page_config(page_title="Projects • Portfolio JRR", page_icon="🧪", layout="wide")
 
+# =========================
+# Paths
+# =========================
+ROOT = Path(__file__).parents[1]  # /portfolio-jrr
+DATA = ROOT / "data" / "projects.yaml"
 
 # =========================
 # Minimal UI cleanup
@@ -24,7 +27,6 @@ footer {visibility:hidden;}
 """,
     unsafe_allow_html=True,
 )
-
 
 # =========================
 # Theme
@@ -136,11 +138,18 @@ h1,h2,h3{ letter-spacing: -0.03em; }
   font-size: 12px;
   margin-top: 6px;
 }
+
+/* Cover image styling */
+.cover{
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
 </style>
 """,
     unsafe_allow_html=True,
 )
-
 
 # =========================
 # Helpers
@@ -164,7 +173,6 @@ def project_pid(p: dict) -> str:
 
 
 def lab_link(pid: str) -> str:
-    # absoluto: más robusto en Streamlit Cloud
     return f"/Lab?project={pid}"
 
 
@@ -172,37 +180,22 @@ def safe_list(x):
     return x if isinstance(x, list) else ([] if x is None else [str(x)])
 
 
-def show_yaml_error(path: Path, e: Exception):
-    st.error("projects.yaml tiene un error de sintaxis YAML.")
-    mark = getattr(e, "problem_mark", None)
-    if mark is not None:
-        st.write(f"👉 Línea: **{mark.line + 1}**, Columna: **{mark.column + 1}**")
-
-    try:
-        lines = path.read_text(encoding="utf-8").splitlines()
-    except Exception:
-        lines = path.read_text(errors="ignore").splitlines()
-
-    numbered = "\n".join([f"{i+1:>4} | {line}" for i, line in enumerate(lines)])
-    st.code(numbered, language="yaml")
-    st.stop()
+def render_cover(p: dict):
+    cover = (p or {}).get("cover", "")
+    if not cover:
+        return
+    img_path = ROOT / cover
+    if img_path.exists():
+        # wrapper for consistent rounded border
+        st.markdown("<div class='cover'>", unsafe_allow_html=True)
+        st.image(str(img_path), use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 # =========================
-# Load projects (DATA definido SIEMPRE)
+# Load projects
 # =========================
-ROOT = Path(__file__).resolve().parents[1]         # .../portfolio-jrr
-DATA = ROOT / "data" / "projects.yaml"             # .../portfolio-jrr/data/projects.yaml
-
-if not DATA.exists():
-    st.error(f"No encuentro projects.yaml en: {DATA}")
-    st.stop()
-
-try:
-    projects = load_projects(DATA)
-except yaml.YAMLError as e:
-    show_yaml_error(DATA, e)
-
+projects = load_projects(DATA)
 
 # Normalize for UI safety
 norm = []
@@ -217,7 +210,6 @@ for p in projects:
 
 projects = norm
 
-
 # =========================
 # Top bar
 # =========================
@@ -226,7 +218,7 @@ st.markdown(
 <div class="topbar">
   <div>
     <h1 style="margin:0;">Projects</h1>
-    <div class="small">Recruiter-friendly highlights: industry, type, impact, skills, tools — plus interactive Lab demos.</div>
+    <div class="small">Recruiter-friendly highlights with optional Lab demos.</div>
   </div>
   <div class="navbtns">
     <a href="/" target="_self">Home</a>
@@ -238,7 +230,6 @@ st.markdown(
 """,
     unsafe_allow_html=True,
 )
-
 
 # =========================
 # Filters
@@ -264,7 +255,6 @@ st.markdown(
     f"<div class='modehint'>{'Resume Mode ON → fast scan view.' if resume_mode else 'Resume Mode OFF → full recruiter view (problem → approach → results).'} </div>",
     unsafe_allow_html=True,
 )
-
 
 def match(p: dict) -> bool:
     if industry != "All" and p.get("industry") != industry:
@@ -304,12 +294,13 @@ filtered = [p for p in projects if match(p)]
 st.caption(f"Showing {len(filtered)} / {len(projects)} projects")
 st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
-
 # =========================
 # Spotlight
 # =========================
 spot = next((p for p in filtered if p.get("spotlight")), None)
 if spot:
+    render_cover(spot)
+
     meta = f"{spot.get('industry','')} • {spot.get('type','')} • {spot.get('status','')} • {spot.get('year','')}".strip(" •")
     impact = spot.get("impact_type", "")
     tools = spot.get("tools", [])
@@ -350,7 +341,7 @@ if spot:
     html_btns = ["<div class='links'>"]
     for label, url in btns:
         target = "_self" if label == "Open in Lab" else "_blank"
-        html_btns.append(f"<a href='{url}' target='{target}'>{label}</a>")
+        html_btns.append(f"<a href='{url}' target='{target}'>{label} ↗</a>")
     html_btns.append("</div>")
     st.markdown("".join(html_btns), unsafe_allow_html=True)
 
@@ -369,7 +360,6 @@ if spot:
 
     st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
 
-
 # =========================
 # Cards
 # =========================
@@ -381,6 +371,8 @@ else:
     cols = st.columns(2, gap="large")
     for i, p in enumerate(cards):
         with cols[i % 2]:
+            render_cover(p)
+
             meta = f"{p.get('industry','')} • {p.get('type','')} • {p.get('status','')} • {p.get('year','')}".strip(" •")
             impact = p.get("impact_type", "")
             tools = p.get("tools", [])
@@ -422,7 +414,7 @@ else:
             html_btns = ["<div class='links'>"]
             for label, url in btns:
                 target = "_self" if label == "Open in Lab" else "_blank"
-                html_btns.append(f"<a href='{url}' target='{target}'>{label}</a>")
+                html_btns.append(f"<a href='{url}' target='{target}'>{label} ↗</a>")
             html_btns.append("</div>")
             st.markdown("".join(html_btns), unsafe_allow_html=True)
 
@@ -440,7 +432,6 @@ else:
                     if p.get("details"):
                         st.markdown("**Notes**")
                         st.write(p["details"])
-
 
 # =========================
 # Bottom navigation
