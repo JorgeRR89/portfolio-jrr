@@ -168,3 +168,53 @@ projects:
       mode: "nlp_classification"
       demo_asset: ""
 
+  - id: "ctr_prediction"
+    title: "CTR Prediction Modeling — MIT xPRO"
+    tagline: "Predictive modeling to estimate ad CTR and improve marketing decision systems with strong out-of-sample performance."
+    spotlight: true
+
+    industry: "Marketing, Growth & Revenue Systems"
+    type: "CTR Prediction • Regression Modeling"
+    impact_type: "Revenue & Optimization"
+    status: "Completed"
+    year: "2025"
+# Repo integration (for auto-readme / metadata / cover)
+    repo:
+      github_user: "JorgeRR89"
+      github_repo: "CTR"
+      cover: "assets/projects/ctr.png" (recommended)
+    skills:
+      - CTR modeling
+      - One-hot encoding & feature prep
+      - Model comparison & selection
+      - Bias/variance control (pruning)
+      - Out-of-sample evaluation
+
+    tools:
+      - Python
+      - pandas
+      - numpy
+      - scikit-learn
+      - xgboost
+
+    outcomes:
+      - "Benchmarked Linear Regression, CART, Random Forest and XGBoost for CTR prediction"
+      - "Reduced overfitting via cost-complexity pruning and controlled model complexity"
+      - "Selected best generalizing model using OSR², MAE and RMSE on a holdout test set"
+
+    problem: "Marketing teams need reliable CTR predictions to optimize targeting, bidding, and budget allocation on new ad impressions."
+    approach: "Prepared train/test datasets → one-hot encoded categorical features (e.g., age, gender) → trained multiple regression models → tuned complexity (pruning) → compared out-of-sample metrics (OSR², MAE, RMSE) → selected best generalizing model."
+    results: "Best model achieved OSR² ≈ 0.493 with out-of-sample MAE ≈ 0.031 and RMSE ≈ 0.054, providing a solid foundation for CTR-driven optimization decisions."
+    details: "Built and evaluated in Python (Colab) with transparent metric reporting and model comparison."
+
+    links:
+      github: "https://github.com/JorgeRR89/CTR"
+      colab: ""
+      demo: ""
+      report: ""
+
+    lab:
+      mode: "regression"
+      demo_asset: ""
+
+
