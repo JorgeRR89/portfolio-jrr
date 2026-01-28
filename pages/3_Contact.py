@@ -1,5 +1,6 @@
 import base64
 from pathlib import Path
+from urllib.parse import quote
 
 import streamlit as st
 
@@ -17,7 +18,7 @@ ROOT = Path(__file__).parent.parent  # /portfolio-jrr
 ASSETS = ROOT / "assets"
 
 LOGO_PATH = ASSETS / "wizard_FN.png"
-RESUME_PATH = ASSETS / "Jorge_Reyes_CV.pdf"  # <-- asegúrate que exista en assets/
+RESUME_PATH = ASSETS / "Jorge_Reyes_CV.pdf"  # asegúrate que exista
 
 
 def b64_file(path: Path) -> str:
@@ -153,7 +154,7 @@ ul.clean li{ margin: 6px 0; }
 
 
 # =========================
-# ICONS (inline SVG, minimal)
+# ICONS (inline SVG)
 # =========================
 def svg_icon(kind: str) -> str:
     icons = {
@@ -189,6 +190,12 @@ def svg_icon(kind: str) -> str:
   <path d="M7 3v3M17 3v3" stroke="rgba(255,255,255,.82)" stroke-width="1.6" stroke-linecap="round"/>
   <path d="M4.5 7h15v13a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2V7z" stroke="rgba(255,255,255,.82)" stroke-width="1.6"/>
   <path d="M7 11h10M7 15h7" stroke="rgba(255,255,255,.70)" stroke-width="1.6" stroke-linecap="round"/>
+</svg>
+""",
+        "whatsapp": """
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M12 2.7a9.3 9.3 0 0 0-7.9 14.2L3 21l4.3-1.1A9.3 9.3 0 1 0 12 2.7z" stroke="rgba(255,255,255,.82)" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M9.2 9.1c.2-.4.4-.4.6-.4h.4c.1 0 .3 0 .4.3l.6 1.5c.1.3.1.5-.1.7l-.4.5c-.1.1-.2.3 0 .6c.2.3.8 1.3 1.9 2.1c1.3 1 2.1 1.2 2.4 1.1c.2 0 .4-.2.5-.3l.6-.7c.2-.2.4-.2.6-.1l1.6.8c.3.1.3.3.3.5c0 .2-.1.8-.5 1.2c-.4.4-1 .8-2.1.6c-1.1-.2-2.6-.8-4.2-2.2c-1.6-1.4-2.7-3.2-3-3.9c-.3-.7-.3-1.3 0-1.8z" fill="rgba(255,255,255,.70)"/>
 </svg>
 """,
     }
@@ -268,17 +275,12 @@ col1, col2 = st.columns([1.05, 1], gap="large")
 
 with col1:
     # Resume & Profiles
-    resume_link = (
-        f"data:application/pdf;base64,{resume_b64}"
-        if resume_b64
-        else None
-    )
+    resume_link = f"data:application/pdf;base64,{resume_b64}" if resume_b64 else None
 
     links = []
     if resume_link:
         links.append(action_link(resume_link, "Download Resume", "resume", new_tab=False, download=True))
     else:
-        # Fallback visual: muestra advertencia si no existe el PDF
         st.warning("Resume PDF not found. Add it to assets/ as 'Jorge_Reyes_CV.pdf' (or update RESUME_PATH).")
 
     links.append(action_link("https://www.linkedin.com/in/jorge-reyes-data-science/", "LinkedIn", "linkedin", new_tab=True))
@@ -302,30 +304,30 @@ with col1:
     # Contact actions
     calendly_url = "https://calendly.com/reyesrod-jorge"
 
- st.markdown("""
+    whatsapp_text = quote("Hi Jorge, I saw your portfolio and I'd like to connect.")
+    whatsapp_url = f"https://wa.me/525545230886?text={whatsapp_text}"
+
+    # Gmail web compose (más confiable que mailto en algunos browsers)
+    gmail_compose = "https://mail.google.com/mail/?view=cm&fs=1&to=reyesrod.jorge@gmail.com"
+
+    contact_links = [
+        action_link(gmail_compose, "Send Email", "email", new_tab=True),
+        action_link(whatsapp_url, "WhatsApp", "whatsapp", new_tab=True),
+        action_link(calendly_url, "Schedule a call", "calendar", new_tab=True),
+    ]
+
+    st.markdown(
+        f"""
 <div class="card">
-  <h3>Contact</h3>
+  <h3 style="margin-top:0;">Contact</h3>
   <p class="small">Open channel for opportunities, projects, or technical discussions.</p>
-
   <div class="action">
-
-    <a href="mailto:reyesrod.jorge@gmail.com" target="_blank">
-      Send Email
-    </a>
-
-    <a href="https://wa.me/525545230886?text=Hi%20Jorge%2C%20I%20saw%20your%20portfolio%20and%20I’d%20like%20to%20connect."
-       target="_blank">
-       WhatsApp
-    </a>
-
-    <a href="https://calendly.com/reyesrod-jorge" target="_blank">
-      Schedule a call
-    </a>
-
+    {''.join(contact_links)}
   </div>
 </div>
-""", unsafe_allow_html=True)
-
+""",
+        unsafe_allow_html=True,
+    )
 
 
 with col2:
